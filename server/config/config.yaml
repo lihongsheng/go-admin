@@ -1,0 +1,33 @@
+app:
+    name: go-admin
+    mode: debug
+    port: 8989
+db:
+    driver: mysql
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: user_root
+    database: go_admin
+    path: ""
+    charset: utf8mb4
+    max_idle: 0
+    max_open: 0
+    log_mode: ""
+install:
+    enable: true
+jwt:
+    secret: please-change-me-in-production
+    expire: 86400
+    issuer: go-admin
+log:
+    level: info
+    dir: ./logs
+    max_size: 100
+    max_backups: 7
+    max_age: 30
+redis:
+    enable: false
+    addr: 127.0.0.1:6379
+    password: ""
+    db: 0

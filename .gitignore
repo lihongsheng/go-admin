@@ -1,0 +1,15 @@
+# Go
+server/logs/
+server/*.db
+server/server
+server/cmd/server/server
+
+# Node
+web/node_modules/
+web/dist/
+web/.vite/
+
+# IDE
+.idea/
+.vscode/
+*.log
