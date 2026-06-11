@@ -53,7 +53,7 @@ func DetectInstalled() {
 	}
 	var n int64
 	if err := global.DB.Model(&system.SysInstall{}).Count(&n).Error; err != nil {
-		global.Logger.Warn("count sys_install: " + err.Error())
+		getLogger().Warn("count sys_install: " + err.Error())
 		return
 	}
 	global.Installed.Store(n > 0)

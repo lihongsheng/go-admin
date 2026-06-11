@@ -8,12 +8,13 @@ import (
 
 // Config 服务端总配置
 type Config struct {
-	App     App     `mapstructure:"app"     json:"app"     yaml:"app"`
-	JWT     JWT     `mapstructure:"jwt"     json:"jwt"     yaml:"jwt"`
-	Log     Log     `mapstructure:"log"     json:"log"     yaml:"log"`
-	DB      DB      `mapstructure:"db"      json:"db"      yaml:"db"`
-	Redis   Redis   `mapstructure:"redis"   json:"redis"   yaml:"redis"`
-	Install Install `mapstructure:"install" json:"install" yaml:"install"`
+	App           App           `mapstructure:"app"           json:"app"           yaml:"app"`
+	JWT           JWT           `mapstructure:"jwt"           json:"jwt"           yaml:"jwt"`
+	Log           Log           `mapstructure:"log"           json:"log"           yaml:"log"`
+	DB            DB            `mapstructure:"db"            json:"db"            yaml:"db"`
+	Redis         Redis         `mapstructure:"redis"         json:"redis"         yaml:"redis"`
+	Install       Install       `mapstructure:"install"       json:"install"       yaml:"install"`
+	Observability Observability `mapstructure:"observability" json:"observability" yaml:"observability"`
 }
 
 type App struct {
@@ -97,6 +98,42 @@ type Install struct {
 	Enable bool `mapstructure:"enable" json:"enable" yaml:"enable"`
 }
 
+// Observability 可观测性配置
+type Observability struct {
+	// Trace 分布式追踪配置
+	Trace Trace `mapstructure:"trace" json:"trace" yaml:"trace"`
+	// Metrics 指标配置
+	Metrics Metrics `mapstructure:"metrics" json:"metrics" yaml:"metrics"`
+}
+
+// Trace 分布式追踪配置
+type Trace struct {
+	// Enable 是否启用追踪
+	Enable bool `mapstructure:"enable" json:"enable" yaml:"enable"`
+	// Exporter 导出器类型: stdout, otlp
+	Exporter string `mapstructure:"exporter" json:"exporter" yaml:"exporter"`
+	// Endpoint OTLP 接收端地址，例如 "localhost:4317"(gRPC) 或 "http://localhost:4318"(HTTP)
+	// 仅当 Exporter 为 "otlp" 时生效
+	Endpoint string `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	// ServiceName 服务名称
+	ServiceName string `mapstructure:"service_name" json:"service_name" yaml:"service_name"`
+	// SampleRate 采样率 0.0-1.0
+	SampleRate float64 `mapstructure:"sample_rate" json:"sample_rate" yaml:"sample_rate"`
+}
+
+// Metrics 指标配置
+type Metrics struct {
+	// Enable 是否启用指标
+	Enable bool `mapstructure:"enable" json:"enable" yaml:"enable"`
+	// Exporter 导出器类型: prometheus（预留扩展）
+	Exporter string `mapstructure:"exporter" json:"exporter" yaml:"exporter"`
+	// Endpoint OTLP metrics 推送地址，例如 "localhost:4317"(gRPC) 或 "http://localhost:4318"(HTTP)
+	// 设置后将同时推送指标到 OTLP collector（Prometheus /metrics 端点不受影响）
+	Endpoint string `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	// Path 指标暴露路径
+	Path string `mapstructure:"path" json:"path" yaml:"path"`
+}
+
 var (
 	V       *viper.Viper
 	cfgPath string
@@ -129,5 +166,6 @@ func Save(c *Config) error {
 	V.Set("db", c.DB)
 	V.Set("redis", c.Redis)
 	V.Set("install", c.Install)
+	V.Set("observability", c.Observability)
 	return V.WriteConfig()
 }

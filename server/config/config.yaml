@@ -31,3 +31,15 @@ redis:
     addr: 127.0.0.1:6379
     password: ""
     db: 0
+observability:
+    trace:
+        enable: true
+        exporter: stdout         # stdout | otlp
+        endpoint: ""             # OTLP: "localhost:4317"(gRPC) or "http://localhost:4318"(HTTP)
+        service_name: go-admin-server
+        sample_rate: 1.0
+    metrics:
+        enable: false
+        exporter: prometheus     # prometheus | otlp
+        endpoint: ""             # OTLP push: "localhost:4317"(gRPC) or "http://localhost:4318"(HTTP)
+        path: /metrics           # Prometheus pull endpoint path

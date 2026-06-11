@@ -1,4 +1,5 @@
 // Package global 持有进程级共享对象：配置 / DB / Logger / 安装状态
+// 注意：尽量避免使用全局变量，新代码应该使用依赖注入
 package global
 
 import (
@@ -6,14 +7,12 @@ import (
 
 	"go-admin/server/config"
 
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 var (
 	Cfg    *config.Config
 	DB     *gorm.DB
-	Logger *zap.Logger
 
 	// Installed 全局安装状态，安装中间件读取
 	Installed atomic.Bool

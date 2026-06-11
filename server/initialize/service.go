@@ -3,6 +3,7 @@ package initialize
 
 import (
 	"go-admin/server/global"
+	"go-admin/server/log"
 	repoExampleNote "go-admin/server/repo/plugin/example"
 	repoSys "go-admin/server/repo/system"
 	serviceBase "go-admin/server/service/base"
@@ -20,6 +21,10 @@ func InitInstallService() {
 		return
 	}
 	svc := serviceInstall.NewService()
+	// 设置 logger
+	if setter, ok := svc.(interface{ SetLogger(log.Logger) }); ok {
+		setter.SetLogger(getLogger())
+	}
 	// 注册"安装完成 + DB 就绪后"的回调：重新装配所有依赖 global.DB 的 service
 	svc.OnReady(InitDBServices)
 	serviceInstall.Default = svc
@@ -58,7 +63,5 @@ func InitDBServices() {
 	// example plugin service
 	serviceExampleNote.DefaultNote = serviceExampleNote.NewNoteService(noteRepo)
 
-	if global.Logger != nil {
-		global.Logger.Info("db services initialized")
-	}
+	getLogger().Info("db services initialized")
 }

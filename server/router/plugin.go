@@ -1,7 +1,7 @@
 package router
 
 import (
-	"go-admin/server/global"
+	"go-admin/server/log"
 	"go-admin/server/middleware"
 	"go-admin/server/plugin"
 	"go-admin/server/utils/response"
@@ -26,8 +26,6 @@ func PluginRouter(g *gin.RouterGroup) {
 	for _, pl := range plugin.All() {
 		sub := p.Group("/" + pl.Name())
 		pl.RegisterRoute(sub)
-		if global.Logger != nil {
-			global.Logger.Sugar().Infof("plugin route mounted: /api/v1/plugin/%s", pl.Name())
-		}
+		log.Global().Info("plugin route mounted: /api/v1/plugin/" + pl.Name())
 	}
 }

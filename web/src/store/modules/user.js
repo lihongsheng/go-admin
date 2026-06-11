@@ -22,7 +22,8 @@ export const useUserStore = defineStore('user', () => {
   async function doLogin(payload) {
     const { data } = await login(payload)
     setToken(data.token)
-    userInfo.value = data.user
+    // 不在这里设置 userInfo，让路由守卫的 fetchInfo() + generateRoutes() 统一处理
+    // 否则首次登录后 userInfo 已存在，generateRoutes() 被跳过，菜单栏为空
   }
 
   async function fetchInfo() {

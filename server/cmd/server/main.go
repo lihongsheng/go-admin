@@ -1,13 +1,20 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"log"
+	stdlog "log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"go-admin/server/config"
 	"go-admin/server/global"
 	"go-admin/server/initialize"
+	applog "go-admin/server/log"
 )
 
 func main() {
@@ -16,12 +23,57 @@ func main() {
 
 	cfg, err := config.Load(*cfgPath)
 	if err != nil {
-		log.Fatalf("load config: %v", err)
+		stdlog.Fatalf("load config: %v", err)
 	}
 	global.Cfg = cfg
 
-	initialize.Logger(cfg.Log)
-	defer global.Logger.Sync() //nolint:errcheck
+	// 初始化日志系统
+	logger, err := initialize.Logger(cfg.Log)
+	if err != nil {
+		stdlog.Fatalf("init logger: %v", err)
+	}
+	defer logger.Sync() //nolint:errcheck
+
+	// 设置全局 logger（临时兼容方案）
+	applog.SetGlobal(logger)
+
+	// 为 initialize 包设置 logger
+	initialize.SetLogger(logger)
+
+	// 初始化 OpenTelemetry
+	if err := initialize.InitOpenTelemetry(cfg.Observability,
+		initialize.WithOTelLogger(logger),
+		initialize.WithOTelAppConfig(cfg.App),
+	); err != nil {
+		logger.Error("init opentelemetry: " + err.Error())
+	}
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := initialize.ShutdownOpenTelemetry(ctx); err != nil {
+			logger.Error("shutdown opentelemetry: " + err.Error())
+		}
+	}()
+
+	// 初始化 Prometheus Metrics
+	var metricsHandler http.Handler
+	if err := initialize.InitMetrics(cfg.Observability.Metrics,
+		initialize.WithMetricsLogger(logger),
+		initialize.WithMetricsAppConfig(cfg.App),
+	); err != nil {
+		logger.Error("init metrics: " + err.Error())
+	} else {
+		if h := initialize.MetricsHandler(); h != nil {
+			metricsHandler = h
+		}
+	}
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := initialize.ShutdownMetrics(ctx); err != nil {
+			logger.Error("shutdown metrics: " + err.Error())
+		}
+	}()
 
 	// install service 早于 DB 装配——安装向导本身无需 DB 就绪
 	initialize.InitInstallService()
@@ -29,13 +81,13 @@ func main() {
 	// 尝试连接 DB；连不上不致命，进入安装向导模式
 	if cfg.DB.Configured() {
 		if err := initialize.GormConnect(); err != nil {
-			global.Logger.Warn("db connect failed, entering install mode: " + err.Error())
+			logger.Warn("db connect failed, entering install mode: " + err.Error())
 		} else {
 			initialize.DetectInstalled()
 			initialize.SetupCasbin()
 		}
 	} else {
-		global.Logger.Warn("db not configured, entering install mode")
+		logger.Warn("db not configured, entering install mode")
 	}
 
 	// 加载插件（注册 Model 到 installer 注册中心 / 注册路由）
@@ -47,10 +99,34 @@ func main() {
 	// 装配依赖 global.DB 的 service 单例（DB 未就绪时这步空跑，等安装回调）
 	initialize.InitDBServices()
 
-	r := initialize.Router()
+	// 启动服务器（支持优雅关闭）
+	r := initialize.Router(
+		initialize.WithRouterLogger(logger),
+		initialize.WithRouterConfig(*cfg),
+		initialize.WithMetricsHandler(metricsHandler),
+	)
 	addr := fmt.Sprintf(":%d", cfg.App.Port)
-	global.Logger.Sugar().Infof("server start at %s (installed=%v)", addr, global.Installed.Load())
-	if err := r.Run(addr); err != nil {
-		global.Logger.Fatal("server run: " + err.Error())
+	logger.Info("server start",
+		"addr", addr,
+		"installed", global.Installed.Load(),
+	)
+
+	// 在 goroutine 中启动服务器
+	srvErr := make(chan error, 1)
+	go func() {
+		if err := r.Run(addr); err != nil {
+			srvErr <- err
+		}
+	}()
+
+	// 等待中断信号
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err := <-srvErr:
+		logger.Fatal("server run: " + err.Error())
+	case <-quit:
+		logger.Info("shutting down server...")
 	}
 }

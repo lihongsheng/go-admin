@@ -11,8 +11,8 @@ func SetupCasbin() {
 		return
 	}
 	if err := casbin.Setup(global.DB); err != nil {
-		global.Logger.Sugar().Errorf("casbin setup: %v", err)
+		getLogger().Error("casbin setup: " + err.Error())
 		return
 	}
-	global.Logger.Info("casbin enforcer ready")
+	getLogger().Info("casbin enforcer ready")
 }

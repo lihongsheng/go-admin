@@ -17,8 +17,8 @@ func SyncOnBoot() {
 		return
 	}
 	if err := plugin.SyncOnBoot(global.DB); err != nil {
-		global.Logger.Sugar().Errorf("plugin SyncOnBoot: %v", err)
+		getLogger().Error("plugin SyncOnBoot: " + err.Error())
 		return
 	}
-	global.Logger.Info("plugin sync on boot completed")
+	getLogger().Info("plugin sync on boot completed")
 }
