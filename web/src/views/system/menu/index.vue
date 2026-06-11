@@ -62,7 +62,14 @@
           <el-input v-model="form.path" placeholder="路由路径，如 /system 或 user" />
         </el-form-item>
         <el-form-item v-if="form.type !== 'button'" label="组件">
-          <el-input v-model="form.component" placeholder="Layout 或 system/user/index" />
+          <div style="display:flex;gap:6px;width:100%">
+            <el-tree-select v-model="form.component" :data="componentTreeData"
+                            filterable clearable placeholder="选择组件"
+                            :props="{ label: 'label', children: 'children' }"
+                            :filter-node-method="filterComponentNode"
+                            class="component-tree-select" style="flex:1" />
+            <el-input v-model="form.component" placeholder="或手动输入" style="width:160px" />
+          </div>
         </el-form-item>
         <el-form-item v-if="form.type === 'catalog'" label="重定向">
           <el-input v-model="form.redirect" placeholder="如 /system/user" />
@@ -73,7 +80,15 @@
         <el-row :gutter="12">
           <el-col :span="12">
             <el-form-item v-if="form.type !== 'button'" label="图标">
-              <el-input v-model="form.icon" placeholder="element-plus 图标名" />
+              <el-select v-model="form.icon" filterable allow-create clearable
+                         placeholder="选择或输入图标名">
+                <el-option v-for="ic in iconOptions" :key="ic" :label="ic" :value="ic">
+                  <el-icon style="margin-right:6px;vertical-align:middle">
+                    <component :is="iconMap[ic]" />
+                  </el-icon>
+                  <span>{{ ic }}</span>
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -105,10 +120,123 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import {
+  Plus, Aim, Avatar, Bell, Bicycle, Box, Brush, Calendar, CircleCheck, CircleClose,
+  Clock, Collection, CollectionTag, Connection, Coordinate, Cpu, DataAnalysis,
+  DataBoard, Delete, Document, Download, Edit, Files, Folder, FullScreen, Goods,
+  Grid, Guide, Headset, Histogram, HomeFilled, InfoFilled, Key, Link, List, Lock,
+  Location, MagicStick, Medal, Menu, Message, Microphone, Monitor, OfficeBuilding,
+  Operation, PieChart, Picture, Postcard, PriceTag, Promotion, Rank, Refresh,
+  Search, Sell, SetUp, Setting, Share, Ship, ShoppingCart, Star, Switch,
+  SwitchButton, TakeawayBox, Ticket, Timer, Tools, TrendCharts, Trophy, Unlock,
+  Upload, User, UserFilled, Van, VideoCamera, Warning
+} from '@element-plus/icons-vue'
 import { menuTree, menuCreate, menuUpdate, menuDelete } from '@/api/system'
+
+// 图标名(kebab) → 图标组件映射
+const iconMap = {
+  aim: Aim, avatar: Avatar, bell: Bell, bicycle: Bicycle, box: Box, brush: Brush,
+  calendar: Calendar, 'circle-check': CircleCheck, 'circle-close': CircleClose,
+  clock: Clock, collection: Collection, 'collection-tag': CollectionTag,
+  connection: Connection, coordinate: Coordinate, cpu: Cpu,
+  'data-analysis': DataAnalysis, 'data-board': DataBoard, dashboard: DataBoard,
+  delete: Delete, document: Document, download: Download, edit: Edit,
+  files: Files, folder: Folder, 'full-screen': FullScreen, goods: Goods,
+  grid: Grid, guide: Guide, headset: Headset, histogram: Histogram,
+  'home-filled': HomeFilled, 'info-filled': InfoFilled, key: Key, link: Link,
+  list: List, lock: Lock, location: Location, 'magic-stick': MagicStick,
+  medal: Medal, menu: Menu, message: Message, microphone: Microphone,
+  monitor: Monitor, 'office-building': OfficeBuilding, operation: Operation,
+  'pie-chart': PieChart, picture: Picture, plus: Plus, postcard: Postcard,
+  'price-tag': PriceTag, promotion: Promotion, rank: Rank, refresh: Refresh,
+  search: Search, sell: Sell, 'set-up': SetUp, setting: Setting, share: Share,
+  ship: Ship, 'shopping-cart': ShoppingCart, star: Star, switch: Switch,
+  'switch-button': SwitchButton, 'takeaway-box': TakeawayBox, ticket: Ticket,
+  timer: Timer, tools: Tools, 'trend-charts': TrendCharts, trophy: Trophy,
+  unlock: Unlock, upload: Upload, user: User, 'user-filled': UserFilled,
+  van: Van, 'video-camera': VideoCamera, warning: Warning
+}
+
+// ── 可用组件路径（自动扫描 src/views 目录，go-vue-admin 风格）──
+const viewModules = import.meta.glob('../../**/*.vue')
+const componentOptions = Object.keys(viewModules)
+  .filter(p => !p.includes('/layout/'))       // 排除 layout 组件（非页面）
+  .map(p => {
+    // 去除所有 ../ 前缀，再去除 .vue 后缀
+    return p.replace(/^(\.\.\/)+/, '').replace(/\.vue$/, '')
+  })
+  .filter(p => p && !p.includes('..'))         // 最终兜底：排除仍含 .. 的非法路径
+  .sort()
+
+// 构建 el-tree-select 树数据：目录可展开，文件可选
+const componentTreeData = computed(() => {
+  const root = { label: 'views', children: [] }
+
+  for (const path of componentOptions) {
+    const parts = path.split('/')
+    let node = root
+    for (let i = 0; i < parts.length; i++) {
+      const isLast = i === parts.length - 1
+      let child = node.children.find(c => c.label === parts[i])
+      if (!child) {
+        child = { label: parts[i] }
+        if (isLast) {
+          child.value = path  // 叶子节点：可选中
+        } else {
+          child.children = []  // 目录节点：可展开
+        }
+        node.children.push(child)
+      } else if (isLast) {
+        // 同名文件已作为目录存在（如 views/plugin 是目录，但也可有 views/plugin 文件）
+        // 不过正常文件系统不会出现，保留目录优先
+        if (!child.children) child.children = []
+      }
+      node = child
+    }
+  }
+
+  // 递归清理空 children 的目录节点（避免 el-tree-select 显示 ... 占位符）
+  function clean(node) {
+    if (node.children) {
+      node.children = node.children.filter(c => {
+        if (c.children && c.children.length === 0) return false
+        return true
+      })
+      if (node.children.length === 0) delete node.children
+      else node.children.forEach(clean)
+    }
+  }
+  clean(root)
+
+  return [root]
+})
+
+// 树节点筛选：匹配标签或值中包含输入文本的节点（目录和文件都匹配）
+function filterComponentNode(value, data) {
+  if (!value) return true
+  const v = value.toLowerCase()
+  const text = (data.label || '').toLowerCase()
+  const val = (data.value || '').toLowerCase()
+  return text.includes(v) || val.includes(v)
+}
+
+// ── 常用图标 ──
+const iconOptions = [
+  'dashboard', 'setting', 'user', 'user-filled', 'avatar', 'list', 'grid',
+  'menu', 'edit', 'delete', 'plus', 'search', 'refresh', 'upload', 'download',
+  'link', 'share', 'message', 'bell', 'clock', 'timer', 'calendar', 'star',
+  'folder', 'document', 'files', 'data-board', 'data-analysis', 'pie-chart',
+  'histogram', 'trend-charts', 'office-building', 'home-filled', 'location',
+  'monitor', 'cpu', 'connection', 'set-up', 'operation', 'guide', 'tools',
+  'key', 'lock', 'unlock', 'warning', 'info-filled', 'circle-check',
+  'circle-close', 'promotion', 'sell', 'ticket', 'collection', 'collection-tag',
+  'price-tag', 'shopping-cart', 'goods', 'postcard', 'picture', 'video-camera',
+  'headset', 'microphone', 'switch', 'switch-button', 'full-screen', 'rank',
+  'aim', 'medal', 'trophy', 'magic-stick', 'brush', 'coordinate',
+  'box', 'takeaway-box', 'ship', 'bicycle', 'truck', 'van',
+]
 
 const TYPE_MAP = { catalog: '目录', menu: '菜单', button: '按钮' }
 const TAG_MAP  = { catalog: '', menu: 'success', button: 'warning' }
@@ -171,4 +299,7 @@ load()
 .page-wrap { display: flex; flex-direction: column; gap: 12px; }
 .table-card { }
 .table-toolbar { margin-bottom: 12px; }
+
+/* 组件树选择器：让树选择器宽度与表单项一致 */
+.component-tree-select { width: 100%; }
 </style>
