@@ -10,9 +10,10 @@
 //   - RegisterRoute(g) 挂到 /api/v1/plugin/<name>
 //
 // 菜单设计：
-//   插件 Menus() 返回的是完整菜单树（含 catalog / menu / button 节点），
-//   button 节点作为 menu 的 Children 存在，通过 type="button" 区分。
-//   upsert 时递归处理整棵树，按 name 幂等。
+//
+//	插件 Menus() 返回的是完整菜单树（含 catalog / menu / button 节点），
+//	button 节点作为 menu 的 Children 存在，通过 type="button" 区分。
+//	upsert 时递归处理整棵树，按 name 幂等。
 package plugin
 
 import (
@@ -27,13 +28,13 @@ import (
 
 // Plugin 插件契约
 type Plugin interface {
-	Name() string                                  // 唯一名（路由前缀 / 表前缀建议同名）
-	Version() string                               // 版本号
-	Models() []interface{}                         // 参与 AutoMigrate 的 Model
-	Menus() []system.SysMenu                       // 注入菜单树（含 catalog/menu/button；按 Name 幂等）
-	Apis() []system.SysApi                         // 注入 API（按 path+method 幂等）
-	RegisterRoute(g *gin.RouterGroup)              // 注册自身路由（已在 /api/v1/plugin/<name> 下）
-	SeedTable(db *gorm.DB) error                   // 插件自身业务表的初始数据；仅在目标表为空时调用
+	Name() string                // 唯一名（路由前缀 / 表前缀建议同名）
+	Version() string             // 版本号
+	Models() []interface{}       // 参与 AutoMigrate 的 Model
+	Menus() []system.SysMenu     // 注入菜单树（含 catalog/menu/button；按 Name 幂等）
+	Apis() []system.SysApi       // 注入 API（按 path+method 幂等）
+	RegisterRoute(g *gin.Engine) // 注册自身路由（已在 /api/v1/plugin/<name> 下）
+	SeedTable(db *gorm.DB) error // 插件自身业务表的初始数据；仅在目标表为空时调用
 }
 
 var (
@@ -172,9 +173,10 @@ func attachApiToSuper(db *gorm.DB, apiID uint) error {
 // ---------- 启动期同步 ----------
 
 // SyncOnBoot 启动期增量同步（所有插件）：
-//   1) 对每个插件 Model AutoMigrate（installer.AllModels 内已包含）
-//   2) 幂等 upsert 菜单 / API
-//   3) 若插件自身业务表为空，执行 SeedTable
+//  1. 对每个插件 Model AutoMigrate（installer.AllModels 内已包含）
+//  2. 幂等 upsert 菜单 / API
+//  3. 若插件自身业务表为空，执行 SeedTable
+//
 // 该函数对外暴露，由 initialize.SyncOnBoot 调用。
 func SyncOnBoot(db *gorm.DB) error {
 	// 1) 全量 AutoMigrate（系统 + 全部插件 Model）

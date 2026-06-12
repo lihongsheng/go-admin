@@ -34,11 +34,8 @@ func main() {
 	}
 	defer logger.Sync() //nolint:errcheck
 
-	// 设置全局 logger（临时兼容方案）
+	// 设置全局 logger
 	applog.SetGlobal(logger)
-
-	// 为 initialize 包设置 logger
-	initialize.SetLogger(logger)
 
 	// 初始化 OpenTelemetry
 	if err := initialize.InitOpenTelemetry(cfg.Observability,

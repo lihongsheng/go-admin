@@ -1,10 +1,10 @@
 // Package example example 插件业务服务
-package example
+package service
 
 import (
-	dtoExample "go-admin/server/dto/plugin/example"
+	dtoExample "go-admin/server/plugin/example/dto"
 	exampleModel "go-admin/server/plugin/example/model"
-	repoExample "go-admin/server/repo/plugin/example"
+	repoExample "go-admin/server/plugin/example/repo"
 )
 
 // NoteService 笔记业务接口

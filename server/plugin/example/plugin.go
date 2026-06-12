@@ -1,8 +1,9 @@
 // Package example 示例插件：演示自有 Model + 菜单 + API + 路由
 //
 // 菜单树说明：
-//   插件返回的 Menus() 是完整的菜单子树，button 权限节点作为 menu 的 Children 存在。
-//   每个节点通过 type 字段标识：catalog / menu / button
+//
+//	插件返回的 Menus() 是完整的菜单子树，button 权限节点作为 menu 的 Children 存在。
+//	每个节点通过 type 字段标识：catalog / menu / button
 //
 // Note Model 已移到 plugin/example/model 子包，避免与 service/plugin/example 形成循环依赖。
 package example
@@ -50,7 +51,7 @@ func (p) Apis() []system.SysApi {
 	}
 }
 
-func (p) RegisterRoute(g *gin.RouterGroup) {
+func (p) RegisterRoute(g *gin.Engine) {
 	g.POST("/note", create)
 	g.DELETE("/note/:id", del)
 	g.GET("/note/list", list)

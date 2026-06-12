@@ -5,6 +5,7 @@ import (
 
 	"go-admin/server/core/installer"
 	"go-admin/server/global"
+	applog "go-admin/server/log"
 	"go-admin/server/model/system"
 
 	"gorm.io/gorm"
@@ -53,7 +54,7 @@ func DetectInstalled() {
 	}
 	var n int64
 	if err := global.DB.Model(&system.SysInstall{}).Count(&n).Error; err != nil {
-		getLogger().Warn("count sys_install: " + err.Error())
+		applog.Warn("count sys_install: " + err.Error())
 		return
 	}
 	global.Installed.Store(n > 0)

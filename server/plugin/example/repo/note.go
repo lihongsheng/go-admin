@@ -1,5 +1,5 @@
 // Package example example 插件仓储层
-package example
+package repo
 
 import (
 	exampleModel "go-admin/server/plugin/example/model"

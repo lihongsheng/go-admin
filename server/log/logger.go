@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 // Valuer 是一个从 context 中提取值的函数类型
@@ -157,14 +158,25 @@ func Nop() Logger {
 	return &nopLogger{}
 }
 
-// ── 全局 logger（临时兼容旧代码）────
+// ── 全局 logger ────
 
-var globalLogger Logger
+var (
+	globalLogger Logger
+	// globalZap 持有底层 *zap.Logger，跳过 zapLogger 和便捷函数两层包装，
+	// 保证 log.Info() 等便捷函数也能输出正确的 caller 位置。
+	globalZap *zap.Logger
+)
 
 // SetGlobal 设置全局 logger
 func SetGlobal(logger Logger) {
 	if logger != nil {
 		globalLogger = logger
+		// 提取底层 zap logger，为便捷函数增加一跳 skip（跳过便捷函数自身）
+		if zl, ok := logger.(*zapLogger); ok {
+			globalZap = zl.logger.WithOptions(zap.AddCallerSkip(1))
+		} else {
+			globalZap = nil
+		}
 	}
 }
 
@@ -174,6 +186,55 @@ func Global() Logger {
 		return globalLogger
 	}
 	return Nop()
+}
+
+// ── 包级便捷函数 ────
+// 通过 globalZap 直接写日志，绕过 zapLogger 包装层，确保 caller 信息指向真实调用方。
+// 若 globalZap 不可用（logger 不是 zap 实现），回退到 Global()。
+
+// Debug 输出调试级别日志
+func Debug(msg string, keysAndValues ...interface{}) {
+	if globalZap != nil {
+		globalZap.Debug(msg, ToZapFields(keysAndValues...)...)
+	} else {
+		Global().Debug(msg, keysAndValues...)
+	}
+}
+
+// Info 输出信息级别日志
+func Info(msg string, keysAndValues ...interface{}) {
+	if globalZap != nil {
+		globalZap.Info(msg, ToZapFields(keysAndValues...)...)
+	} else {
+		Global().Info(msg, keysAndValues...)
+	}
+}
+
+// Warn 输出警告级别日志
+func Warn(msg string, keysAndValues ...interface{}) {
+	if globalZap != nil {
+		globalZap.Warn(msg, ToZapFields(keysAndValues...)...)
+	} else {
+		Global().Warn(msg, keysAndValues...)
+	}
+}
+
+// Error 输出错误级别日志
+func Error(msg string, keysAndValues ...interface{}) {
+	if globalZap != nil {
+		globalZap.Error(msg, ToZapFields(keysAndValues...)...)
+	} else {
+		Global().Error(msg, keysAndValues...)
+	}
+}
+
+// Fatal 输出致命级别日志
+func Fatal(msg string, keysAndValues ...interface{}) {
+	if globalZap != nil {
+		globalZap.Fatal(msg, ToZapFields(keysAndValues...)...)
+	} else {
+		Global().Fatal(msg, keysAndValues...)
+	}
 }
 
 // ── Context 相关 ──

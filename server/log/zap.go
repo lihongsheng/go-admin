@@ -75,6 +75,11 @@ func (z *zapLogger) Sync() error {
 
 // toZapFields 将键值对转换为 zap.Field
 func (z *zapLogger) toZapFields(keysAndValues ...interface{}) []zap.Field {
+	return ToZapFields(keysAndValues...)
+}
+
+// ToZapFields 将键值对转换为 zap.Field（包级函数，供便捷函数使用）
+func ToZapFields(keysAndValues ...interface{}) []zap.Field {
 	if len(keysAndValues) == 0 {
 		return nil
 	}

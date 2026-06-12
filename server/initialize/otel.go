@@ -18,6 +18,14 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// noopSpanExporter 不导出 span 到任何地方，trace 仍正常采集并注入日志
+type noopSpanExporter struct{}
+
+func (noopSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnlySpan) error {
+	return nil
+}
+func (noopSpanExporter) Shutdown(ctx context.Context) error { return nil }
+
 // Tracer 全局 tracer 实例（临时保留，后续可以移除）
 var Tracer trace.Tracer
 
@@ -89,6 +97,9 @@ func InitOpenTelemetry(cfg config.Observability, opts ...InitOpenTelemetryOption
 	var err error
 
 	switch cfg.Trace.Exporter {
+	case "none":
+		// trace 仍正常采集（span context 写入日志），但不导出到任何地方
+		exporter = &noopSpanExporter{}
 	case "stdout":
 		exporter, err = stdouttrace.New(
 			stdouttrace.WithPrettyPrint(),

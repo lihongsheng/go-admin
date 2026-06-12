@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"go-admin/server/global"
+	"go-admin/server/log"
 	"go-admin/server/utils/casbin"
 )
 
@@ -11,8 +12,8 @@ func SetupCasbin() {
 		return
 	}
 	if err := casbin.Setup(global.DB); err != nil {
-		getLogger().Error("casbin setup: " + err.Error())
+		log.Error("casbin setup: " + err.Error())
 		return
 	}
-	getLogger().Info("casbin enforcer ready")
+	log.Info("casbin enforcer ready")
 }

@@ -34,7 +34,7 @@ redis:
 observability:
     trace:
         enable: true
-        exporter: stdout         # stdout | otlp
+        exporter: none           # stdout | otlp | none
         endpoint: ""             # OTLP: "localhost:4317"(gRPC) or "http://localhost:4318"(HTTP)
         service_name: go-admin-server
         sample_rate: 1.0

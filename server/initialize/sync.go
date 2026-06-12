@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"go-admin/server/global"
+	"go-admin/server/log"
 	"go-admin/server/plugin"
 )
 
@@ -17,8 +18,8 @@ func SyncOnBoot() {
 		return
 	}
 	if err := plugin.SyncOnBoot(global.DB); err != nil {
-		getLogger().Error("plugin SyncOnBoot: " + err.Error())
+		log.Error("plugin SyncOnBoot: " + err.Error())
 		return
 	}
-	getLogger().Info("plugin sync on boot completed")
+	log.Info("plugin sync on boot completed")
 }

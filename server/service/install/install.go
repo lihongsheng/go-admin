@@ -30,16 +30,13 @@ type Service interface {
 	AfterInstalled(newDB config.DB) error
 	// OnReady 注册"安装完成 / DB 切换后"的回调；由 initialize 注册 InitService
 	OnReady(fn func())
-	// SetLogger 设置 logger
-	SetLogger(logger log.Logger)
 }
 
 // NewService 构造 install.Service
-func NewService() Service { return &service{logger: log.Nop()} }
+func NewService() Service { return &service{} }
 
 type service struct {
 	readyHooks []func()
-	logger     log.Logger
 }
 
 // Default 包级单例
@@ -49,12 +46,6 @@ var Default Service
 var (
 	ErrAlreadyInstalled = errors.New("already installed")
 )
-
-func (s *service) SetLogger(logger log.Logger) {
-	if logger != nil {
-		s.logger = logger
-	}
-}
 
 func (s *service) Status() installer.DBStatus {
 	return installer.Detect(global.Cfg.DB)
@@ -123,7 +114,7 @@ func (s *service) AfterInstalled(newDB config.DB) error {
 		return errors.New("casbin setup: " + err.Error())
 	}
 	global.Installed.Store(true)
-	s.logger.Info("install completed")
+	log.Info("install completed")
 	// 通知所有等待 DB 就绪的回调（重新装配 service / repo 等）
 	for _, fn := range s.readyHooks {
 		fn()

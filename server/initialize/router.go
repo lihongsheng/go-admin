@@ -51,7 +51,7 @@ func WithMetricsHandler(handler http.Handler) RouterOption {
 // Router 构造 gin 路由
 func Router(opts ...RouterOption) *gin.Engine {
 	cfg := &routerConfig{
-		logger: log.Nop(),
+		logger: log.Global(),
 	}
 	for _, opt := range opts {
 		opt(cfg)
@@ -59,10 +59,8 @@ func Router(opts ...RouterOption) *gin.Engine {
 
 	gin.SetMode(cfg.cfg.App.Mode)
 	r := gin.New()
-
 	// 中间件顺序很重要！
 	r.Use(gin.Recovery())
-
 	// 1. 先添加 otelgin 中间件，它会：
 	//    - 从 header 提取 W3C Trace Context（如果有）
 	//    - 或者创建新的 span（作为第一个请求）
@@ -118,11 +116,11 @@ func Router(opts ...RouterOption) *gin.Engine {
 	api := r.Group("/api/v1", middleware.InstallGuard())
 	router.BaseRouter(api)   // 登录 / 当前用户 / 当前菜单
 	router.SystemRouter(api) // user / role / menu / api
-	router.PluginRouter(api) // 已装插件列表 + 插件自身路由
+	router.PluginRouter(r)   // 已装插件列表 + 插件自身路由
 	return r
 }
 
-// 修复一下 RequestLog，需要 time 包
+// RequestLog 修复一下 RequestLog，需要 time 包
 // 让我们更新 middleware 包中的实现
 func RequestLog(logger log.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {

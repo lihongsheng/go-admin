@@ -1,5 +1,5 @@
 // Package example example 插件 DTO
-package example
+package dto
 
 // NoteCreateReq 新建笔记
 type NoteCreateReq struct {

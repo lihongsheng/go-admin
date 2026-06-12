@@ -3,7 +3,10 @@ import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import router from '@/router'
 
-const request = axios.create({ baseURL: '', timeout: 30000 })
+const request = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 30000
+})
 
 request.interceptors.request.use(cfg => {
   // Pinia store 可在拦截器运行时直接使用（此时 app 已挂载）

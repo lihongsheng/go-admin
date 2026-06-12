@@ -43,8 +43,12 @@
             <el-radio-button label="button">按钮</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="父菜单 ID">
-          <el-input-number v-model="form.parent_id" :min="0" placeholder="0 表示顶级" />
+        <el-form-item label="父菜单">
+          <el-tree-select :model-value="form.parent_id || undefined" :data="parentTreeData"
+                          filterable clearable placeholder="空为顶级菜单"
+                          :props="{ label: 'title', value: 'id', children: 'children', disabled: 'disabled' }"
+                          check-strictly style="width:100%"
+                          @update:model-value="form.parent_id = $event || 0" />
         </el-form-item>
         <el-row :gutter="12">
           <el-col :span="12">
@@ -210,7 +214,10 @@ const componentTreeData = computed(() => {
   }
   clean(root)
 
-  return [root]
+  return [
+    { label: 'Layout', value: 'Layout' },
+    root
+  ]
 })
 
 // 树节点筛选：匹配标签或值中包含输入文本的节点（目录和文件都匹配）
@@ -247,6 +254,34 @@ const dlg = ref(false)
 const submitting = ref(false)
 const form = reactive({ parent_id: 0, type: 'menu', sort: 0, hidden: false, keep_alive: false })
 
+// ── 父菜单树形数据（编辑时自动禁用自身及所有子孙节点，防止循环引用）──
+const parentTreeData = computed(() => {
+  // 收集需要禁用的节点 ID（当前编辑菜单及其所有子孙）
+  const excludeIds = new Set()
+  if (form.id) {
+    const findAndCollect = (nodes) => {
+      for (const n of nodes) {
+        if (n.id === form.id) {
+          const gather = (node) => { excludeIds.add(node.id); node.children?.forEach(gather) }
+          gather(n)
+          return true
+        }
+        if (n.children && findAndCollect(n.children)) return true
+      }
+      return false
+    }
+    findAndCollect(flat.value)
+  }
+
+  // 克隆树并标记 disabled
+  const clone = (nodes) => nodes.map(n => ({
+    ...n,
+    disabled: excludeIds.has(n.id),
+    children: n.children ? clone(n.children) : undefined
+  }))
+  return clone(flat.value)
+})
+
 function typeLabel(t) { return TYPE_MAP[t] || t }
 function tagType(t)   { return TAG_MAP[t] || '' }
 
@@ -271,6 +306,8 @@ function open(row) {
 }
 
 async function submit() {
+  // tree-select 清空后 parent_id 为 undefined，视为顶级
+  if (form.parent_id == null) form.parent_id = 0
   submitting.value = true
   try {
     if (form.id) {
