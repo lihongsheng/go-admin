@@ -15,6 +15,7 @@ type RoleService interface {
 	List() (*dtoSys.RoleListResp, error)
 	Auth(req dtoSys.RoleAuthReq) error
 	AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error)
+	SetDefaultRouter(roleID uint, defaultRouter string) error
 }
 
 // NewRoleService 构造 RoleService
@@ -46,6 +47,7 @@ func (s *roleService) Create(req dtoSys.RoleCreateReq) (*system.SysRole, error) 
 	r := &system.SysRole{
 		Name: req.Name, Code: req.Code,
 		Remark: req.Remark, Status: req.Status,
+		DefaultRouter: req.DefaultRouter,
 	}
 	if err := s.roleRepo.Create(r); err != nil {
 		return nil, err
@@ -62,10 +64,11 @@ func (s *roleService) Update(req dtoSys.RoleUpdateReq) error {
 		_ = s.casbin.MigrateRoleCode(old.Code, req.Code)
 	}
 	patch := map[string]any{
-		"name":   req.Name,
-		"code":   req.Code,
-		"remark": req.Remark,
-		"status": req.Status,
+		"name":           req.Name,
+		"code":           req.Code,
+		"remark":         req.Remark,
+		"status":         req.Status,
+		"default_router": req.DefaultRouter,
 	}
 	return s.roleRepo.Update(req.ID, patch)
 }
@@ -138,5 +141,9 @@ func (s *roleService) AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error) {
 			apiIDs = append(apiIDs, api.ID)
 		}
 	}
-	return &dtoSys.RoleAuthDetailResp{MenuIDs: menuIDs, ApiIDs: apiIDs}, nil
+	return &dtoSys.RoleAuthDetailResp{MenuIDs: menuIDs, ApiIDs: apiIDs, DefaultRouter: role.DefaultRouter}, nil
+}
+
+func (s *roleService) SetDefaultRouter(roleID uint, defaultRouter string) error {
+	return s.roleRepo.Update(roleID, map[string]any{"default_router": defaultRouter})
 }

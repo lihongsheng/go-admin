@@ -34,6 +34,7 @@ func SystemRouter(g *gin.RouterGroup) {
 	s.GET("/role/list", system.RoleList)
 	s.POST("/role/auth", system.RoleAuth)
 	s.GET("/role/auth/:id", system.RoleAuthDetail)
+	s.PUT("/role/:id/default-router", system.RoleSetDefaultRouter)
 
 	s.POST("/menu", system.MenuCreate)
 	s.PUT("/menu", system.MenuUpdate)

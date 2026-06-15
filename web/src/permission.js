@@ -26,6 +26,16 @@ export function refreshInstallStatus() {
   return ensureInstallStatus(true)
 }
 
+// 从用户信息中提取默认首页路由
+// 遍历用户角色的 default_router，取首个非空值；全部为空则返回 /dashboard
+function getDefaultRouter(info) {
+  if (!info || !info.roles || !info.roles.length) return '/dashboard'
+  for (const role of info.roles) {
+    if (role.default_router) return role.default_router
+  }
+  return '/dashboard'
+}
+
 const whiteList = ['/login', '/install', '/404']
 
 router.beforeEach(async (to, _from, next) => {
@@ -43,17 +53,27 @@ router.beforeEach(async (to, _from, next) => {
   if (userStore.token) {
     if (!userStore.userInfo) {
       try {
-        await userStore.fetchInfo()
+        const info = await userStore.fetchInfo()
         const dynamic = await permStore.generateRoutes()
         // 将动态路由逐条挂到 Layout 下，确保路径与菜单 SubTree 一致
         for (const r of dynamic) {
           router.addRoute('Layout', r)
+        }
+        // 登录后跳转到角色设定的默认首页，为空则默认 /dashboard
+        if (to.path === '/') {
+          const defaultRouter = getDefaultRouter(info)
+          return next({ path: defaultRouter, replace: true })
         }
         return next({ ...to, replace: true })
       } catch (e) {
         await userStore.doLogout()
         return next('/login')
       }
+    }
+    // 已登录用户访问根路径时，重定向到默认首页
+    if (to.path === '/') {
+      const defaultRouter = getDefaultRouter(userStore.userInfo)
+      return next({ path: defaultRouter, replace: true })
     }
     return next()
   }

@@ -87,3 +87,21 @@ func RoleAuthDetail(c *gin.Context) {
 	}
 	response.OK(c, resp)
 }
+
+// RoleSetDefaultRouter PUT /system/role/:id/default-router —— 设置角色默认首页路由
+func RoleSetDefaultRouter(c *gin.Context) {
+	id, ok := parseID(c)
+	if !ok {
+		return
+	}
+	var req dtoSys.RoleSetDefaultRouterReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, err.Error())
+		return
+	}
+	if err := serviceSys.DefaultRole.SetDefaultRouter(id, req.DefaultRouter); err != nil {
+		response.Fail(c, err.Error())
+		return
+	}
+	response.OKMsg(c, "ok")
+}

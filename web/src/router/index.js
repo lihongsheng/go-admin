@@ -6,7 +6,7 @@ export const constantRoutes = [
   { path: '/login',   name: 'Login',   component: () => import('@/views/login/index.vue'),   meta: { title: '登录' } },
   { path: '/404',     name: '404',     component: () => import('@/views/error/404.vue') },
   {
-    path: '/', name: 'Layout', component: () => import('@/layout/index.vue'), redirect: '/dashboard',
+    path: '/', name: 'Layout', component: () => import('@/layout/index.vue'),
     children: [
       { path: 'dashboard', name: 'Dashboard',
         component: () => import('@/views/dashboard/index.vue'),

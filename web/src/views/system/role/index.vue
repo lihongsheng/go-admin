@@ -11,6 +11,12 @@
       <el-table-column prop="id" label="ID" width="70" align="center" />
       <el-table-column prop="name" label="角色名称" min-width="140" />
       <el-table-column prop="code" label="角色标识" min-width="140" />
+      <el-table-column prop="default_router" label="默认首页" min-width="140">
+        <template #default="s">
+          <el-tag v-if="s.row.default_router" type="warning" size="small" effect="light">{{ s.row.default_router }}</el-tag>
+          <span v-else class="text-muted">/dashboard（默认）</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="160" show-overflow-tooltip />
       <el-table-column label="状态" width="80" align="center">
         <template #default="s">
@@ -33,12 +39,16 @@
 
     <!-- 新增/编辑角色 -->
     <el-dialog v-model="dlg" :title="form.id ? '编辑角色' : '新增角色'" width="480px" destroy-on-close>
-      <el-form :model="form" label-width="70px">
+      <el-form :model="form" label-width="80px">
         <el-form-item label="名称" required>
           <el-input v-model="form.name" placeholder="角色名称" />
         </el-form-item>
         <el-form-item label="标识" required>
           <el-input v-model="form.code" placeholder="角色标识（英文）" />
+        </el-form-item>
+        <el-form-item label="默认首页">
+          <el-input v-model="form.default_router" placeholder="默认首页路由，如 /dashboard" />
+          <div class="form-tip">登录后跳转的默认页面，为空则使用 /dashboard</div>
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="备注信息" />
@@ -57,9 +67,31 @@
     <el-dialog v-model="authDlg" title="角色授权" width="680px" destroy-on-close>
       <el-tabs v-model="authTab" type="border-card">
         <el-tab-pane label="菜单权限" name="menu">
+          <!-- 当前首页提示 -->
+          <el-alert v-if="authForm.default_router" type="warning" :closable="false" show-icon style="margin-bottom:12px">
+            <template #title>
+              当前默认首页：<b>{{ authForm.default_router }}</b>
+              <el-button type="danger" link size="small" @click="clearDefaultRouter">清除</el-button>
+            </template>
+          </el-alert>
+          <el-alert v-else type="info" :closable="false" show-icon style="margin-bottom:12px">
+            <template #title>未设置默认首页，登录后默认跳转 /dashboard</template>
+          </el-alert>
+
           <el-tree ref="menuTreeRef" :data="menuTreeData" show-checkbox node-key="id"
                    :props="{ label: (d) => d.title || d.name, children: 'children' }"
-                   :default-checked-keys="authForm.menu_ids" default-expand-all highlight-current />
+                   :default-checked-keys="authForm.menu_ids" default-expand-all highlight-current>
+            <template #default="{ node, data }">
+              <span class="tree-node">
+                <span>{{ node.label }}</span>
+                <el-tag v-if="data.type" size="small" :type="typeTag(data.type)" class="tree-type-tag">{{ typeLabel(data.type) }}</el-tag>
+                <template v-if="data.type === 'menu'">
+                  <el-tag v-if="isDefaultRouter(node)" type="warning" size="small" effect="dark" class="home-tag">首页</el-tag>
+                  <el-button v-else type="warning" link size="small" class="set-home-btn" @click.stop="setDefaultRouter(node)">设为首页</el-button>
+                </template>
+              </span>
+            </template>
+          </el-tree>
         </el-tab-pane>
         <el-tab-pane label="API 权限" name="api">
           <el-checkbox-group v-model="authForm.api_ids">
@@ -86,16 +118,16 @@
 import { ref, reactive } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { roleList, roleCreate, roleUpdate, roleDelete, roleAuth, roleAuthDetail, menuTree, apiList } from '@/api/system'
+import { roleList, roleCreate, roleUpdate, roleDelete, roleAuth, roleAuthDetail, roleSetDefaultRouter, menuTree, apiList } from '@/api/system'
 
 const list = ref([])
 const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
-const form = reactive({ statusBool: true, status: 1 })
+const form = reactive({ statusBool: true, status: 1, default_router: '' })
 const authDlg = ref(false)
 const authTab = ref('menu')
-const authForm = reactive({ role_id: 0, menu_ids: [], api_ids: [] })
+const authForm = reactive({ role_id: 0, menu_ids: [], api_ids: [], default_router: '' })
 const menuTreeData = ref([])
 const apiGroups = ref([])
 const menuTreeRef = ref(null)
@@ -110,6 +142,58 @@ function methodTag(m) {
   return map[m] || ''
 }
 
+function typeTag(t) {
+  const map = { catalog: '', menu: 'success', button: 'info' }
+  return map[t] || ''
+}
+
+function typeLabel(t) {
+  const map = { catalog: '目录', menu: '菜单', button: '按钮' }
+  return map[t] || t
+}
+
+// 从 tree node 向上遍历，拼接完整路由路径（如 /system/user）
+function buildFullPath(node) {
+  const segs = []
+  let cur = node
+  while (cur) {
+    const d = cur.data
+    if (d && d.path && d.type === 'catalog') {
+      segs.unshift(d.path.replace(/^\//, ''))
+    } else if (d && d.path && d.type === 'menu') {
+      segs.push(d.path.replace(/^\//, ''))
+    }
+    cur = cur.parent
+  }
+  return '/' + segs.filter(Boolean).join('/')
+}
+
+function isDefaultRouter(node) {
+  const full = buildFullPath(node)
+  return full === authForm.default_router
+}
+
+async function setDefaultRouter(node) {
+  const full = buildFullPath(node)
+  try {
+    await roleSetDefaultRouter(authForm.role_id, { default_router: full })
+    authForm.default_router = full
+    ElMessage.success(`已设置默认首页：${full}`)
+  } catch (e) {
+    ElMessage.error('设置默认首页失败')
+  }
+}
+
+async function clearDefaultRouter() {
+  try {
+    await roleSetDefaultRouter(authForm.role_id, { default_router: '' })
+    authForm.default_router = ''
+    ElMessage.info('已清除默认首页，将使用 /dashboard')
+  } catch (e) {
+    ElMessage.error('清除默认首页失败')
+  }
+}
+
 async function load() {
   loading.value = true
   try {
@@ -120,9 +204,9 @@ async function load() {
 
 function open(row) {
   if (row) {
-    Object.assign(form, { ...row, statusBool: row.status === 1 })
+    Object.assign(form, { ...row, statusBool: row.status === 1, default_router: row.default_router || '' })
   } else {
-    Object.assign(form, { id: undefined, name: '', code: '', remark: '', statusBool: true, status: 1 })
+    Object.assign(form, { id: undefined, name: '', code: '', remark: '', default_router: '', statusBool: true, status: 1 })
   }
   dlg.value = true
 }
@@ -167,7 +251,7 @@ async function auth(row) {
     const [m, a, detail] = await Promise.all([
       menuTree(),
       apiList(),
-      roleAuthDetail(row.id).catch(() => ({ data: { menu_ids: [], api_ids: [] } }))
+      roleAuthDetail(row.id).catch(() => ({ data: { menu_ids: [], api_ids: [], default_router: '' } }))
     ])
     menuTreeData.value = m.data.list || []
     const map = {}
@@ -185,6 +269,7 @@ async function auth(row) {
     const allIds = detail.data.menu_ids || []
     authForm.menu_ids = allIds.filter(id => !parentSet.has(id))
     authForm.api_ids = detail.data.api_ids || []
+    authForm.default_router = detail.data.default_router || ''
     authDlg.value = true
   } catch (e) {
     ElMessage.error('加载授权数据失败')
@@ -199,9 +284,14 @@ async function submitAuth() {
     const checked = menuTreeRef.value.getCheckedKeys() || []
     const halfChecked = menuTreeRef.value.getHalfCheckedKeys() || []
     authForm.menu_ids = [...checked, ...halfChecked]
-    await roleAuth({ ...authForm })
+    await roleAuth({
+      role_id: authForm.role_id,
+      menu_ids: authForm.menu_ids,
+      api_ids: authForm.api_ids
+    })
     authDlg.value = false
     ElMessage.success('授权已保存')
+    load()
   } finally { submitting.value = false }
 }
 
@@ -212,8 +302,25 @@ load()
 .page-wrap { display: flex; flex-direction: column; gap: 12px; }
 .table-card { }
 .table-toolbar { margin-bottom: 12px; }
+.text-muted { color: #909399; font-size: 12px; }
+.form-tip { color: #909399; font-size: 12px; margin-top: 4px; }
 .api-group { margin-bottom: 16px; }
 .api-group-title { font-weight: 600; font-size: 13px; color: #606266; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #ebeef5; }
 .api-item { display: flex; align-items: center; gap: 8px; margin: 4px 0 4px 8px; }
 .api-path { font-size: 12px; color: #909399; font-family: monospace; }
+
+/* 菜单树节点样式 */
+.tree-node {
+  display: inline-flex; align-items: center; gap: 6px;
+  width: 100%;
+}
+.tree-type-tag {
+  flex-shrink: 0;
+}
+.set-home-btn {
+  flex-shrink: 0; font-size: 11px; padding: 0 4px;
+}
+.home-tag {
+  flex-shrink: 0;
+}
 </style>

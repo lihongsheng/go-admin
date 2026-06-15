@@ -53,12 +53,13 @@ type SysUser struct {
 // 角色通过 sys_role_menus 关联菜单，通过 sys_role_apis 关联 API
 type SysRole struct {
 	Base
-	Name   string    `gorm:"size:64;uniqueIndex;not null" json:"name"`
-	Code   string    `gorm:"size:64;uniqueIndex;not null" json:"code"` // Casbin 角色标识
-	Remark string    `gorm:"size:255"                      json:"remark"`
-	Status int8      `gorm:"default:1"                     json:"status"`
-	Menus  []SysMenu `gorm:"many2many:sys_role_menus"      json:"menus"`
-	Apis   []SysApi  `gorm:"many2many:sys_role_apis"       json:"apis"`
+	Name          string    `gorm:"size:64;uniqueIndex;not null" json:"name"`
+	Code          string    `gorm:"size:64;uniqueIndex;not null" json:"code"` // Casbin 角色标识
+	Remark        string    `gorm:"size:255"                      json:"remark"`
+	Status        int8      `gorm:"default:1"                     json:"status"`
+	DefaultRouter string    `gorm:"size:255;default:/dashboard"   json:"default_router"` // 登录后默认首页路由
+	Menus         []SysMenu `gorm:"many2many:sys_role_menus"      json:"menus"`
+	Apis          []SysApi  `gorm:"many2many:sys_role_apis"       json:"apis"`
 }
 
 // ---------- 菜单树节点类型 ----------
