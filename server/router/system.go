@@ -13,7 +13,7 @@ func BaseRouter(g *gin.RouterGroup) {
 	b := g.Group("/base")
 	b.GET("/captcha", base.Captcha)
 	b.POST("/login", base.Login)
-	auth := b.Group("", middleware.JWTAuth())
+	auth := b.Group("", middleware.JWTAuth(), middleware.CasbinAuth())
 	auth.POST("/logout", base.Logout)
 	auth.GET("/info", base.Info)
 	auth.GET("/menu", base.Menu)
@@ -21,7 +21,7 @@ func BaseRouter(g *gin.RouterGroup) {
 
 // SystemRouter 用户 / 角色 / 菜单 / API
 func SystemRouter(g *gin.RouterGroup) {
-	s := g.Group("/system", middleware.JWTAuth())
+	s := g.Group("/system", middleware.JWTAuth(), middleware.CasbinAuth())
 
 	s.POST("/user", system.UserCreate)
 	s.PUT("/user", system.UserUpdate)

@@ -21,6 +21,7 @@ import (
 
 	"go-admin/server/core/installer"
 	"go-admin/server/model/system"
+	"go-admin/server/utils/casbin"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -101,7 +102,7 @@ func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
 			})
 		}
 		if attachSuper {
-			if err := attachApiToSuper(db, exist.ID); err != nil {
+			if _, err := casbin.AddPolicy("super_admin", a.Path, a.Method); err != nil {
 				return err
 			}
 		}
@@ -162,13 +163,6 @@ func attachMenuToSuper(db *gorm.DB, menuID uint) error {
 	return db.Model(&super).Association("Menus").Append(&system.SysMenu{Base: system.Base{ID: menuID}})
 }
 
-func attachApiToSuper(db *gorm.DB, apiID uint) error {
-	var super system.SysRole
-	if err := db.Where("code = ?", "super_admin").First(&super).Error; err != nil {
-		return nil
-	}
-	return db.Model(&super).Association("Apis").Append(&system.SysApi{Base: system.Base{ID: apiID}})
-}
 
 // ---------- 启动期同步 ----------
 

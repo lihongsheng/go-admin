@@ -15,7 +15,6 @@ type RoleRepo interface {
 	GetByIDWithMenus(id uint) (*system.SysRole, error)
 	List() ([]system.SysRole, error)
 	ReplaceMenus(roleID uint, menus []system.SysMenu) error
-	ReplaceApis(roleID uint, apis []system.SysApi) error
 }
 
 // NewRoleRepo 构造 RoleRepo
@@ -61,10 +60,6 @@ func (r *roleRepo) List() ([]system.SysRole, error) {
 
 func (r *roleRepo) ReplaceMenus(roleID uint, menus []system.SysMenu) error {
 	return r.db.Model(&system.SysRole{Base: system.Base{ID: roleID}}).Association("Menus").Replace(menus)
-}
-
-func (r *roleRepo) ReplaceApis(roleID uint, apis []system.SysApi) error {
-	return r.db.Model(&system.SysRole{Base: system.Base{ID: roleID}}).Association("Apis").Replace(apis)
 }
 
 // FindRoleIDsByUserID 通过用户 ID 找出全部角色 ID（供 menu 服务用）

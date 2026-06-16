@@ -50,7 +50,7 @@ type SysUser struct {
 // ---------- 角色 ----------
 
 // SysRole 角色；Code 同时作为 Casbin 策略中的 sub（角色标识）
-// 角色通过 sys_role_menus 关联菜单，通过 sys_role_apis 关联 API
+// 角色通过 sys_role_menus 关联菜单；API 权限完全由 Casbin 策略管理
 type SysRole struct {
 	Base
 	Name          string    `gorm:"size:64;uniqueIndex;not null" json:"name"`
@@ -59,7 +59,6 @@ type SysRole struct {
 	Status        int8      `gorm:"default:1"                     json:"status"`
 	DefaultRouter string    `gorm:"size:255;default:/dashboard"   json:"default_router"` // 登录后默认首页路由
 	Menus         []SysMenu `gorm:"many2many:sys_role_menus"      json:"menus"`
-	Apis          []SysApi  `gorm:"many2many:sys_role_apis"       json:"apis"`
 }
 
 // ---------- 菜单树节点类型 ----------
@@ -102,7 +101,6 @@ type SysMenu struct {
 
 // SysApi 后端 API 元数据
 // 供"角色授权"界面列出可选 API，Casbin 真实策略（p 规则）写入 casbin_rule 表。
-// 角色通过 sys_role_apis 中间表关联 API。
 type SysApi struct {
 	Base
 	Path   string `gorm:"size:255;index"  json:"path"`   // 接口路径，如 /api/v1/system/user

@@ -124,7 +124,7 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// 1) 角色
 		superRole = system.SysRole{
-			Name: "超级管理员", Code: casbin.SuperAdminRole,
+			Name: "超级管理员", Code: "super_admin",
 			Remark: "拥有全部权限", Status: 1,
 			DefaultRouter: "/dashboard",
 		}

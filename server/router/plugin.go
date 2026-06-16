@@ -11,7 +11,7 @@ import (
 
 // PluginRouter ：/api/v1/plugin/list 与每个插件自身路由 /api/v1/plugin/<name>/*
 func PluginRouter(g *gin.Engine) {
-	p := g.Group("/private/v1/plugin", middleware.JWTAuth())
+	p := g.Group("/private/v1/plugin", middleware.JWTAuth(), middleware.CasbinAuth())
 	p.GET("/list", func(c *gin.Context) {
 		type item struct {
 			Name    string `json:"name"`

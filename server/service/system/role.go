@@ -114,10 +114,7 @@ func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
 	if err := s.roleRepo.ReplaceMenus(role.ID, menus); err != nil {
 		return err
 	}
-	if err := s.roleRepo.ReplaceApis(role.ID, apis); err != nil {
-		return err
-	}
-	// 同步 Casbin 策略
+	// 同步 Casbin 策略（API 权限完全由 Casbin 管理，不再维护 sys_role_apis 表）
 	items := make([][2]string, 0, len(apis))
 	for _, a := range apis {
 		items = append(items, [2]string{a.Path, a.Method})

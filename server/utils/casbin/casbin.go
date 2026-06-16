@@ -12,9 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// SuperAdminRole 超级管理员角色 code；中间件直通
-const SuperAdminRole = "super_admin"
-
 // RBAC 模型：sub/obj/act 三段 + g 角色继承 + keyMatch2 路径匹配（兼容 :id 占位符）
 const rbacModel = `
 [request_definition]
@@ -143,37 +140,17 @@ func GetRolePolicies(role string) [][2]string {
 	return out
 }
 
-// RolesOfUser 取用户当前在 casbin 里的角色列表
-func RolesOfUser(uid uint) []string {
-	if !Ready() {
-		return nil
-	}
-	rs, _ := E().GetRolesForUser(userSub(uid))
-	return rs
-}
-
-// Enforce 真正的校验：任一角色匹配即通过；super_admin 直通
+// Enforce 权限校验：以 u:<uid> 为 sub，由 casbin g() 解析用户角色再匹配策略
 func Enforce(uid uint, path, method string) (bool, error) {
 	if !Ready() {
-		// enforcer 没就绪时拒绝（防止误放行），由调用方决定语义
 		return false, fmt.Errorf("casbin not ready")
 	}
-	roles := RolesOfUser(uid)
-	for _, r := range roles {
-		if r == SuperAdminRole {
-			return true, nil
-		}
+	sub := userSub(uid)
+	ok, err := E().Enforce(sub, path, method)
+	if err != nil {
+		return false, err
 	}
-	for _, r := range roles {
-		ok, err := E().Enforce(r, path, method)
-		if err != nil {
-			return false, err
-		}
-		if ok {
-			return true, nil
-		}
-	}
-	return false, nil
+	return ok, nil
 }
 
 // RemoveRolePolicies 移除角色的全部 API 策略 p(role, *, *)
