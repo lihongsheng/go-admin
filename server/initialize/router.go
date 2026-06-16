@@ -2,6 +2,8 @@ package initialize
 
 import (
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"go-admin/server/config"
@@ -108,6 +110,27 @@ func Router(opts ...RouterOption) *gin.Engine {
 		})
 		cfg.logger.Info("metrics endpoint mounted", "path", metricsPath)
 	}
+
+	// 上传文件静态服务（与配置中的 upload.local.path 对应）
+	// 仅当使用本地存储时生效；云存储文件通过 CDN/OSS 直接访问
+	uploadPath := cfg.cfg.Upload.Local.Path
+	if uploadPath == "" {
+		uploadPath = "./uploads"
+	}
+	// 图片文件加载接口 —— 支持长缓存（文件名含 MD5 哈希，内容变更即文件名变更）
+	r.GET("/uploads/*filepath", func(c *gin.Context) {
+		fp := c.Param("filepath")
+		if strings.Contains(fp, "..") {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		ext := filepath.Ext(fp)
+		switch strings.ToLower(ext) {
+		case ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".bmp", ".ico":
+			c.Header("Cache-Control", "public, max-age=31536000, immutable")
+		}
+		c.File(filepath.Join(uploadPath, fp))
+	})
 
 	// 安装向导直接挂在根路径（无 /api 前缀，方便前端独立模块）
 	router.InstallRouter(&r.RouterGroup)

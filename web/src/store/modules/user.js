@@ -33,7 +33,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function doLogout() {
-    try { await logout() } catch (_) { /* ignore */ }
+    // 主动退出时调 logout 通知后端；token 已过期时不调用，避免触发 401 循环
+    if (token.value) {
+      try { await logout() } catch (_) { /* ignore */ }
+    }
     setToken('')
     userInfo.value = null
   }

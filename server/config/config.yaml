@@ -14,6 +14,10 @@ db:
     max_idle: 0
     max_open: 0
     log_mode: ""
+upload:
+    drive: local
+    local:
+        path: ./uploads
 install:
     enable: true
 jwt:

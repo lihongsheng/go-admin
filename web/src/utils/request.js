@@ -9,7 +9,6 @@ const request = axios.create({
 })
 
 request.interceptors.request.use(cfg => {
-  // Pinia store 可在拦截器运行时直接使用（此时 app 已挂载）
   const userStore = useUserStore()
   if (userStore.token) {
     cfg.headers.Authorization = 'Bearer ' + userStore.token
@@ -17,22 +16,31 @@ request.interceptors.request.use(cfg => {
   return cfg
 })
 
+let isLoggingOut = false
+
 request.interceptors.response.use(
   res => {
     const data = res.data
     if (!data || typeof data !== 'object') return data
     if (data.code === 0) return data
     if (data.code === 9001) {
-      // 未安装 → 跳安装向导
       if (router.currentRoute.value.path !== '/install') {
         router.replace('/install')
       }
       return Promise.reject(data)
     }
     if (data.code === 401) {
-      const userStore = useUserStore()
-      userStore.doLogout()
-      router.replace('/login')
+      if (!isLoggingOut) {
+        isLoggingOut = true
+        const userStore = useUserStore()
+        // 先清 token，避免 logout() 的 401 再次触发本拦截器
+        userStore.setToken('')
+        userStore.userInfo = null
+        router.replace('/login')
+        // 延迟重置标志，防止同一批次其他 401 重复跳转
+        setTimeout(() => { isLoggingOut = false }, 1000)
+      }
+      return Promise.reject(data)
     }
     ElMessage.error(data.msg || 'error')
     return Promise.reject(data)

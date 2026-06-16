@@ -62,6 +62,7 @@ func (s *userService) Create(req dtoSys.UserCreateReq) (*system.SysUser, error) 
 func (s *userService) Update(req dtoSys.UserUpdateReq) error {
 	patch := map[string]any{
 		"nickname": req.Nickname,
+		"avatar":   req.Avatar,
 		"email":    req.Email,
 		"phone":    req.Phone,
 		"status":   req.Status,

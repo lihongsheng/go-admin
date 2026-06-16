@@ -17,6 +17,10 @@ func BaseRouter(g *gin.RouterGroup) {
 	auth.POST("/logout", base.Logout)
 	auth.GET("/info", base.Info)
 	auth.GET("/menu", base.Menu)
+
+	// 上传接口：登录用户均可上传，不走 CasbinAuth
+	upload := b.Group("/upload", middleware.JWTAuth())
+	upload.POST("", base.Upload)
 }
 
 // SystemRouter 用户 / 角色 / 菜单 / API

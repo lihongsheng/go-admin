@@ -75,6 +75,17 @@
         <el-form-item label="昵称">
           <el-input v-model="form.nickname" placeholder="请输入昵称" />
         </el-form-item>
+        <el-form-item label="头像">
+          <div style="display:flex;align-items:center;gap:12px">
+            <el-avatar :size="48" :src="form.avatar" style="flex-shrink:0">
+              <el-icon :size="24"><Upload /></el-icon>
+            </el-avatar>
+            <input ref="avatarInput" type="file" accept="image/*" style="display:none" @change="onAvatarPick" />
+            <el-button size="small" type="primary" plain @click="$refs.avatarInput.click()">
+              <el-icon><Upload /></el-icon>选择图片
+            </el-button>
+          </div>
+        </el-form-item>
         <el-form-item label="邮箱">
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
@@ -101,8 +112,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Search, Plus } from '@element-plus/icons-vue'
-import { userList, userCreate, userUpdate, userDelete, roleList } from '@/api/system'
+import { Search, Plus, Upload } from '@element-plus/icons-vue'
+import { userList, userCreate, userUpdate, userDelete, roleList, uploadFile } from '@/api/system'
 
 const list = ref([])
 const total = ref(0)
@@ -112,8 +123,28 @@ const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
 const query = reactive({ kw: '' })
-const form = reactive({ statusBool: true, role_ids: [], status: 1, phone: '' })
+const form = reactive({ statusBool: true, role_ids: [], status: 1, phone: '', avatar: '' })
 const roles = ref([])
+const avatarFile = ref(null)
+const avatarInput = ref(null)
+
+function onAvatarPick(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  avatarFile.value = file
+  // 本地预览
+  form.avatar = URL.createObjectURL(file)
+  e.target.value = ''
+  // 立即上传
+  uploadFile(file).then(res => {
+    form.avatar = res.data.url
+    avatarFile.value = null
+  }).catch(() => {
+    ElMessage.error('头像上传失败')
+    form.avatar = ''
+    avatarFile.value = null
+  })
+}
 
 function formatTime(t) {
   if (!t) return '-'
@@ -141,10 +172,11 @@ async function load() {
 }
 
 function open(row) {
+  avatarFile.value = null
   if (row) {
-    Object.assign(form, { ...row, statusBool: row.status === 1, role_ids: (row.roles || []).map(r => r.id), password: '' })
+    Object.assign(form, { ...row, statusBool: row.status === 1, role_ids: (row.roles || []).map(r => r.id), password: '', avatar: row.avatar || '' })
   } else {
-    Object.assign(form, { id: undefined, username: '', password: '', nickname: '', email: '', phone: '', statusBool: true, role_ids: [], status: 1 })
+    Object.assign(form, { id: undefined, username: '', password: '', nickname: '', email: '', phone: '', avatar: '', statusBool: true, role_ids: [], status: 1 })
   }
   dlg.value = true
 }

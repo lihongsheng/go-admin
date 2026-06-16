@@ -28,6 +28,10 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (p) => p.replace(new RegExp('^' + proxyPath), '')
         },
+        '/uploads': {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
       }
     },
     build: {

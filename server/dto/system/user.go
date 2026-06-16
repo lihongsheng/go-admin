@@ -19,6 +19,7 @@ type UserUpdateReq struct {
 	ID       uint   `json:"id" binding:"required"`
 	Password string `json:"password"`
 	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 	Status   int8   `json:"status"`

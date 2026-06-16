@@ -6,6 +6,15 @@ export const userCreate = (data)   => request.post('/api/v1/system/user', data)
 export const userUpdate = (data)   => request.put('/api/v1/system/user', data)
 export const userDelete = (id)     => request.delete('/api/v1/system/user/' + id)
 
+// upload
+export const uploadFile = (file) => {
+  const fd = new FormData()
+  fd.append('file', file)
+  return request.post('/api/v1/base/upload', fd, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
 // role
 export const roleList       = ()        => request.get('/api/v1/system/role/list')
 export const roleCreate     = (data)    => request.post('/api/v1/system/role', data)

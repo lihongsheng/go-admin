@@ -14,7 +14,36 @@ type Config struct {
 	DB            DB            `mapstructure:"db"            json:"db"            yaml:"db"`
 	Redis         Redis         `mapstructure:"redis"         json:"redis"         yaml:"redis"`
 	Install       Install       `mapstructure:"install"       json:"install"       yaml:"install"`
+	Upload        Upload        `mapstructure:"upload"        json:"upload"        yaml:"upload"`
 	Observability Observability `mapstructure:"observability" json:"observability" yaml:"observability"`
+}
+
+type Upload struct {
+	Drive      string     `mapstructure:"drive" json:"drive" yaml:"drive"`
+	AliyunOSS  AliyunOSS  `mapstructure:"aliyun_oss" json:"aliyun_oss" yaml:"aliyun_oss"`
+	TencentCOS TencentCOS `mapstructure:"tencent_cos" json:"tencent_cos" yaml:"tencent_cos"`
+	Local      Local      `mapstructure:"local"       json:"local"       yaml:"local"`
+}
+
+type Local struct {
+	Path string `mapstructure:"path" json:"path" yaml:"path"` // 本地文件存储和访问路径
+}
+
+type AliyunOSS struct {
+	Endpoint     string `mapstructure:"endpoint" json:"endpoint" yaml:"endpoint"`
+	AccessKey    string `mapstructure:"access_key" json:"access_key" yaml:"access_key"`
+	AccessSecret string `mapstructure:"access_secret" json:"access_secret" yaml:"access_secret"`
+	BucketName   string `mapstructure:"bucket_name" json:"bucket_name" yaml:"bucket_name"`
+	BucketUrl    string `mapstructure:"bucket_url" json:"bucket_url" yaml:"bucket_url"`
+	BasePath     string `mapstructure:"base_path" json:"base_path" yaml:"base_path"`
+}
+type TencentCOS struct {
+	Bucket     string `mapstructure:"bucket" json:"bucket" yaml:"bucket"`
+	Region     string `mapstructure:"region" json:"region" yaml:"region"`
+	SecretID   string `mapstructure:"secret_id" json:"secret_id" yaml:"secret_id"`
+	SecretKey  string `mapstructure:"secret_key" json:"secret_key" yaml:"secret_key"`
+	BaseURL    string `mapstructure:"base_url" json:"base_url" yaml:"base_url"`
+	PathPrefix string `mapstructure:"path_prefix" json:"path_prefix" yaml:"path_prefix"`
 }
 
 type App struct {
@@ -166,6 +195,7 @@ func Save(c *Config) error {
 	V.Set("db", c.DB)
 	V.Set("redis", c.Redis)
 	V.Set("install", c.Install)
+	V.Set("upload", c.Upload)
 	V.Set("observability", c.Observability)
 	return V.WriteConfig()
 }
