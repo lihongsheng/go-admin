@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/lihongsheng/go-admin/server/utils/captcha"
 	"github.com/lihongsheng/go-admin/server/utils/jwt/config"
 
 	"github.com/spf13/viper"
@@ -9,15 +10,15 @@ import (
 
 // Config 服务端总配置
 type Config struct {
-	App           App           `mapstructure:"app"           json:"app"           yaml:"app"`
-	JWT           config.JWT    `mapstructure:"jwt"           json:"jwt"           yaml:"jwt"`
-	Log           Log           `mapstructure:"log"           json:"log"           yaml:"log"`
-	DB            DB            `mapstructure:"db"            json:"db"            yaml:"db"`
-	Redis         Redis         `mapstructure:"redis"         json:"redis"         yaml:"redis"`
-	Captcha       Captcha       `mapstructure:"captcha"       json:"captcha"       yaml:"captcha"`
-	Install       Install       `mapstructure:"install"       json:"install"       yaml:"install"`
-	Upload        Upload        `mapstructure:"upload"        json:"upload"        yaml:"upload"`
-	Observability Observability `mapstructure:"observability" json:"observability" yaml:"observability"`
+	App           App             `mapstructure:"app"           json:"app"           yaml:"app"`
+	JWT           config.JWT      `mapstructure:"jwt"           json:"jwt"           yaml:"jwt"`
+	Log           Log             `mapstructure:"log"           json:"log"           yaml:"log"`
+	DB            DB              `mapstructure:"db"            json:"db"            yaml:"db"`
+	Redis         Redis           `mapstructure:"redis"         json:"redis"         yaml:"redis"`
+	Captcha       captcha.Captcha `mapstructure:"captcha"       json:"captcha"       yaml:"captcha"`
+	Install       Install         `mapstructure:"install"       json:"install"       yaml:"install"`
+	Upload        Upload          `mapstructure:"upload"        json:"upload"        yaml:"upload"`
+	Observability Observability   `mapstructure:"observability" json:"observability" yaml:"observability"`
 }
 
 type Upload struct {
@@ -117,12 +118,6 @@ type Redis struct {
 	Addr     string `mapstructure:"addr"     json:"addr"     yaml:"addr"`
 	Password string `mapstructure:"password" json:"password" yaml:"password"`
 	DB       int    `mapstructure:"db"       json:"db"       yaml:"db"`
-}
-
-// Captcha 验证码配置
-type Captcha struct {
-	// Drive 存储驱动：memory / redis，默认 memory
-	Drive string `mapstructure:"drive" json:"drive" yaml:"drive"`
 }
 
 type Install struct {

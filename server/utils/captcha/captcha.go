@@ -12,6 +12,12 @@ var (
 	captcha *base64Captcha.Captcha
 )
 
+// Captcha 验证码配置
+type Captcha struct {
+	// Drive 存储驱动：memory / redis，默认 memory
+	Drive string `mapstructure:"drive" json:"drive" yaml:"drive"`
+}
+
 func init() {
 	// 默认使用内存存储
 	store = newMemStore()
