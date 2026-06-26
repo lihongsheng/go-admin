@@ -7,7 +7,7 @@ import (
 	admin "github.com/lihongsheng/go-admin/server/dto/system"
 	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
-	"github.com/lihongsheng/go-admin/server/utils"
+	"github.com/lihongsheng/go-admin/server/utils/genid"
 	"gorm.io/gorm"
 	"time"
 )
@@ -39,7 +39,7 @@ func (m *mchRepoImpl) Get(ctx context.Context, mchId int64) (*system.Merchant, e
 
 func (m *mchRepoImpl) Create(ctx context.Context, mch admin.MchCreateRequest) (err error) {
 	mdl := &system.Merchant{
-		MchNo:   "M" + utils.GenDeviceID.Generate0X(),
+		MchNo:   "M" + genid.GenDeviceID.Generate0X(),
 		MchName: mch.MchName,
 		Linker:  mch.Linker,
 		Phone:   mch.Phone,
@@ -93,7 +93,7 @@ func (m *mchRepoImpl) Search(ctx context.Context, mch admin.MchQueryRequest) ([]
 func (m *mchRepoImpl) buildQuery(ctx context.Context, mch admin.MchQueryRequest) *gorm.DB {
 	query := m.db.WithContext(ctx).Model(&system.Merchant{})
 	if mch.MchNo != "" {
-		query = query.Where("mch_no = ?", "%"+mch.MchNo+"%")
+		query = query.Where("mch_no LIKE ?", "%"+mch.MchNo+"%")
 	}
 	if mch.MchName != "" {
 		query = query.Where("mch_name LIKE ?", "%"+mch.MchName+"%")

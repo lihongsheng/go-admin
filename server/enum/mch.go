@@ -4,6 +4,6 @@ package enum
 type MchStatus int8
 
 const (
-	MchStatusDisabled UserStatus = 2 // 禁用
-	MchStatusEnabled  UserStatus = 1 // 启用
+	MchStatusDisabled MchStatus = 2 // 禁用
+	MchStatusEnabled  MchStatus = 1 // 启用
 )

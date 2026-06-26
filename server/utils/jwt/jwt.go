@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/utils/jwt/config"
 	"time"
 )
@@ -14,10 +15,11 @@ type Claims struct {
 	User
 }
 type User struct {
-	ID       uint    `json:"id"`
-	Username string  `json:"username"`
-	Role     []int64 `json:"role"`
-	MchNo    string  `json:"mch_no"` // 商户号
+	ID         uint            `json:"id"`
+	Username   string          `json:"username"`
+	Role       []int64         `json:"role"`
+	MchID      int64           `json:"mch_id"` // 商户号
+	SystemType enum.SystemType `json:"system_type"`
 }
 
 type JwtContextUserKey struct{}

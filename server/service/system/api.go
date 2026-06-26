@@ -30,7 +30,11 @@ type apiService struct {
 var DefaultApi ApiService
 
 func (s *apiService) Create(req dtoSys.ApiCreateReq) (*system.SysApi, error) {
-	a := &system.SysApi{Path: req.Path, Method: req.Method, Group: req.Group, Desc: req.Desc}
+	a := &system.SysApi{
+		Path: req.Path, Method: req.Method,
+		Group: req.Group, Desc: req.Desc,
+		SystemType: req.SystemType,
+	}
 	if err := s.repo.Create(a); err != nil {
 		return nil, err
 	}
@@ -39,10 +43,11 @@ func (s *apiService) Create(req dtoSys.ApiCreateReq) (*system.SysApi, error) {
 
 func (s *apiService) Update(req dtoSys.ApiUpdateReq) error {
 	patch := map[string]any{
-		"path":   req.Path,
-		"method": req.Method,
-		"group":  req.Group,
-		"desc":   req.Desc,
+		"path":        req.Path,
+		"method":      req.Method,
+		"group":       req.Group,
+		"desc":        req.Desc,
+		"system_type": req.SystemType,
 	}
 	return s.repo.Update(req.ID, patch)
 }
@@ -52,7 +57,7 @@ func (s *apiService) Delete(id uint) error {
 }
 
 func (s *apiService) List(req dtoSys.ApiListReq) (*dtoSys.ApiListResp, error) {
-	list, err := s.repo.List(req.Group)
+	list, err := s.repo.List(req.Group, req.SystemType)
 	if err != nil {
 		return nil, err
 	}

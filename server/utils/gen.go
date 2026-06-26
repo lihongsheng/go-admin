@@ -10,93 +10,20 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/lihongsheng/go-admin/server/utils/genid"
 )
 
-var GenDeviceID = NewGenID(1758357486530)
+// GenDeviceID 向后兼容别名
+var GenDeviceID = genid.GenDeviceID
 
-// genID 雪花算法生成器（时钟回滚标识在最后一位，修复序列号解析bug）
-type genID struct {
-	mu            sync.Mutex // 保证并发安全
-	epoch         int64      // 起始时间戳（毫秒）
-	lastTimestamp int64      // 上一次生成ID的时间戳
-	sequence      int64      // 序列号（0-511）
-	random        *rand.Rand // 随机数生成器
-}
-
-// NewGenID 创建雪花算法实例
-// epoch: 起始时间戳（毫秒），默认2020-01-01 00:00:00
-func NewGenID(epoch int64) *genID {
-	return &genID{
-		epoch:  epoch,
-		random: rand.New(rand.NewSource(time.Now().UnixNano())),
-	}
-}
-
-// Generate0X 生成唯一ID并返回16进制字符串
-func (s *genID) Generate0X() string {
-	return fmt.Sprintf("%x", s.Generate())
-}
-
-// Generate 生成唯一ID
-func (s *genID) Generate() int64 {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	timestamp := time.Now().UnixMilli()
-	rollbackFlag := int64(0)
-
-	// 处理时钟回滚
-	if timestamp < s.lastTimestamp {
-		rollbackFlag = 1
-		random := int64(s.random.Intn(128)) // 7位随机数（0-127）
-		s.sequence++
-		if s.sequence > 511 {
-			s.sequence = 0
-		}
-		// 组合ID：时间戳(46) | 随机数(7) | 序列号(9) | 回滚标识(1)
-		id := ((s.lastTimestamp - s.epoch) << 17) | // 46位时间戳差左移17位（7+9+1=17）
-			(random << 10) | // 7位随机数左移10位（9+1=10）
-			(s.sequence << 1) | // 9位序列号左移1位（避开回滚标识）
-			rollbackFlag // 最后1位回滚标识
-		return id
-	}
-
-	// 处理同一毫秒
-	if timestamp == s.lastTimestamp {
-		s.sequence++
-		if s.sequence > 511 { // 9位最大为511（2^9-1）
-			// 等待下一毫秒
-			for timestamp <= s.lastTimestamp {
-				timestamp = time.Now().UnixMilli()
-			}
-			s.sequence = 0
-		}
-	} else {
-		s.sequence = 0 // 新毫秒重置序列号
-	}
-
-	s.lastTimestamp = timestamp
-	random := int64(s.random.Intn(128))
-
-	// 正常生成ID
-	id := ((timestamp - s.epoch) << 17) | // 46位时间戳差
-		(random << 10) | // 7位随机数
-		(s.sequence << 1) | // 9位序列号（左移1位避开回滚标识）
-		rollbackFlag // 最后1位回滚标识
-	return id
-}
-
-// ParseID 解析ID各部分信息（修复序列号解析逻辑）
+// ParseID 解析ID各部分信息
 func ParseID(id int64) map[string]int64 {
 	return map[string]int64{
-		// 时间戳差：取高46位（右移17位，再与46位掩码）
 		"timestamp_diff": (id >> 17) & ((1 << 46) - 1),
-		// 随机数：取中间7位（右移10位，再与7位掩码）
-		"random": (id >> 10) & ((1 << 7) - 1),
-		// 序列号：取中间9位（右移1位，再与9位掩码）
-		"sequence": (id >> 1) & ((1 << 9) - 1),
-		// 回滚标识：取最后1位
-		"rollback_flag": id & 1,
+		"random":         (id >> 10) & ((1 << 7) - 1),
+		"sequence":       (id >> 1) & ((1 << 9) - 1),
+		"rollback_flag":  id & 1,
 	}
 }
 

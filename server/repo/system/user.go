@@ -14,9 +14,9 @@ type UserRepo interface {
 	Delete(id uint) error
 	GetByID(id uint, preloadRoles bool) (*system.SysUser, error)
 	GetByUsername(username string) (*system.SysUser, error)
-	List(keyword string, page, size int) ([]system.SysUser, int64, error)
+	List(keyword string, page, size int, mchID int64) ([]system.SysUser, int64, error)
 	ReplaceRoles(uid uint, roles []system.SysRole) error
-	FindRolesByIDs(ids []uint) ([]system.SysRole, error)
+	FindRolesByIDs(ids []uint, mchID int64) ([]system.SysRole, error)
 }
 
 // NewUserRepo 构造 UserRepo
@@ -56,7 +56,7 @@ func (r *userRepo) GetByUsername(username string) (*system.SysUser, error) {
 	return &u, nil
 }
 
-func (r *userRepo) List(keyword string, page, size int) ([]system.SysUser, int64, error) {
+func (r *userRepo) List(keyword string, page, size int, mchID int64) ([]system.SysUser, int64, error) {
 	if page <= 0 {
 		page = 1
 	}
@@ -66,6 +66,9 @@ func (r *userRepo) List(keyword string, page, size int) ([]system.SysUser, int64
 	q := r.db.Model(&system.SysUser{}).Preload("Roles")
 	if keyword != "" {
 		q = q.Where("username LIKE ? OR nickname LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+	}
+	if mchID > 0 {
+		q = q.Where("mch_id = ?", mchID)
 	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
@@ -82,12 +85,16 @@ func (r *userRepo) ReplaceRoles(uid uint, roles []system.SysRole) error {
 	return r.db.Model(&system.SysUser{Base: system.Base{ID: uid}}).Association("Roles").Replace(roles)
 }
 
-func (r *userRepo) FindRolesByIDs(ids []uint) ([]system.SysRole, error) {
+func (r *userRepo) FindRolesByIDs(ids []uint, mchID int64) ([]system.SysRole, error) {
 	var roles []system.SysRole
 	if len(ids) == 0 {
 		return roles, nil
 	}
-	if err := r.db.Where("id IN ?", ids).Find(&roles).Error; err != nil {
+	q := r.db.Where("id IN ?", ids)
+	if mchID > 0 {
+		q = q.Where("mch_id = ?", mchID)
+	}
+	if err := q.Find(&roles).Error; err != nil {
 		return nil, err
 	}
 	return roles, nil

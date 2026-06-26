@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"github.com/lihongsheng/go-admin/server/core/installer"
+	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 	"github.com/lihongsheng/go-admin/server/utils/casbin"
 
@@ -105,12 +106,14 @@ func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
 		} else if err != nil {
 			return err
 		} else {
-			// 已存在则更新 desc / group
+			// 已存在则更新 desc / group / system_type
 			db.Model(&exist).Updates(map[string]interface{}{
 				"desc": a.Desc, "group": a.Group,
+				"system_type": a.SystemType,
 			})
 		}
-		if attachSuper && superRoleID > 0 {
+		// 仅平台级 API 自动挂到超级管理员
+		if attachSuper && superRoleID > 0 && a.SystemType == enum.SystemTypePlatform {
 			if _, err := casbin.AddPolicy(superRoleID, a.Path, a.Method); err != nil {
 				return err
 			}
@@ -143,11 +146,12 @@ func upsertMenuTree(db *gorm.DB, m *system.SysMenu, parentID uint, attachSuper b
 			"title": m.Title, "icon": m.Icon, "sort": m.Sort,
 			"permission": m.Permission, "hidden": m.Hidden,
 			"keep_alive": m.KeepAlive, "redirect": m.Redirect,
+			"system_type": m.SystemType,
 		})
 	}
 
-	// 超级管理员自动获得该菜单
-	if attachSuper {
+	// 仅平台级菜单自动挂到超级管理员
+	if attachSuper && m.SystemType == enum.SystemTypePlatform {
 		if err := attachMenuToSuper(db, exist.ID); err != nil {
 			return err
 		}

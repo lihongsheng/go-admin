@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 
 	"gorm.io/gorm"
@@ -11,7 +12,8 @@ type ApiRepo interface {
 	Create(a *system.SysApi) error
 	Update(id uint, patch map[string]any) error
 	Delete(id uint) error
-	List(group string) ([]system.SysApi, error)
+	List(group string, systemType int) ([]system.SysApi, error)
+	ListBySystemType(systemType enum.SystemType) ([]system.SysApi, error)
 	FindByIDs(ids []uint) ([]system.SysApi, error)
 	FindByPathMethod(path, method string) (*system.SysApi, error)
 }
@@ -33,13 +35,24 @@ func (r *apiRepo) Delete(id uint) error {
 	return r.db.Delete(&system.SysApi{}, id).Error
 }
 
-func (r *apiRepo) List(group string) ([]system.SysApi, error) {
+func (r *apiRepo) List(group string, systemType int) ([]system.SysApi, error) {
 	q := r.db.Model(&system.SysApi{})
 	if group != "" {
 		q = q.Where("`group` = ?", group)
 	}
+	if systemType > 0 {
+		q = q.Where("system_type = ?", systemType)
+	}
 	var list []system.SysApi
 	if err := q.Find(&list).Error; err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (r *apiRepo) ListBySystemType(systemType enum.SystemType) ([]system.SysApi, error) {
+	var list []system.SysApi
+	if err := r.db.Where("system_type = ?", systemType).Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil

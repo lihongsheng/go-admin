@@ -25,7 +25,7 @@ export const roleAuthDetail      = (id)      => request.get('/api/v1/system/role
 export const roleSetDefaultRouter = (id, data) => request.put('/api/v1/system/role/' + id + '/default-router', data)
 
 // menu
-export const menuTree   = ()        => request.get('/api/v1/system/menu/tree')
+export const menuTree   = (params) => request.get('/api/v1/system/menu/tree', { params })
 export const menuCreate = (data)    => request.post('/api/v1/system/menu', data)
 export const menuUpdate = (data)    => request.put('/api/v1/system/menu', data)
 export const menuDelete = (id)      => request.delete('/api/v1/system/menu/' + id)
@@ -38,3 +38,11 @@ export const apiDelete  = (id)      => request.delete('/api/v1/system/api/' + id
 
 // plugin
 export const pluginList = ()        => request.get('/api/v1/plugin/list')
+
+// merchant
+export const mchList   = (params) => request.get('/api/v1/system/mch/list', { params })
+export const mchCreate = (data)   => request.post('/api/v1/system/mch', data)
+export const mchUpdate = (data)   => request.put('/api/v1/system/mch', data)
+export const mchDetail = (id)     => request.get('/api/v1/system/mch/' + id)
+export const mchDetailByNo = (mchNo) => request.get('/api/v1/system/mch/no/' + mchNo)
+export const mchChangeStatus = (data) => request.put('/api/v1/system/mch/status', data)

@@ -244,10 +244,12 @@ function collectParentIds(tree, parentSet = new Set()) {
 
 async function auth(row) {
   try {
-    const [m, a, detail] = await Promise.all([
-      menuTree(),
-      apiList(),
-      roleAuthDetail(row.id).catch(() => ({ data: { menu_ids: [], api_ids: [], default_router: '' } }))
+    const detail = await roleAuthDetail(row.id).catch(() => ({ data: { menu_ids: [], api_ids: [], default_router: '', system_type: 0 } }))
+    const sysType = detail.data.system_type || 0
+    const params = sysType > 0 ? { system_type: sysType } : {}
+    const [m, a] = await Promise.all([
+      menuTree(params),
+      apiList(params),
     ])
     menuTreeData.value = m.data.list || []
     const map = {}

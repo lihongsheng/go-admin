@@ -3,6 +3,7 @@ package system
 import (
 	"sort"
 
+	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 
 	"gorm.io/gorm"
@@ -15,11 +16,16 @@ type MenuRepo interface {
 	// DeleteCascade 递归删除目标节点及其所有子孙节点
 	DeleteCascade(id uint) error
 	FindByIDs(ids []uint) ([]system.SysMenu, error)
+	// ListAll 查全量菜单
 	ListAll() ([]system.SysMenu, error)
+	// ListBySystemType 按系统类型查菜单
+	ListBySystemType(systemType enum.SystemType) ([]system.SysMenu, error)
 	// CompleteParentIDs 给定一组菜单 ID，递归补全其所有父级 ID 后返回去重列表
 	CompleteParentIDs(ids []uint) ([]uint, error)
 	// MenusByRoleIDs 通过角色 ID 列表查出全部关联菜单（已按 sort 排序、按 ID 去重）
 	MenusByRoleIDs(roleIDs []uint) ([]system.SysMenu, error)
+	// ListBySystemTypes 按系统类型列表查出全部菜单
+	ListBySystemTypes(systemTypes []enum.SystemType) ([]system.SysMenu, error)
 }
 
 // NewMenuRepo 构造 MenuRepo
@@ -143,6 +149,25 @@ func (r *menuRepo) MenusByRoleIDs(roleIDs []uint) ([]system.SysMenu, error) {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Sort < out[j].Sort })
 	return out, nil
+}
+
+func (r *menuRepo) ListBySystemType(systemType enum.SystemType) ([]system.SysMenu, error) {
+	var list []system.SysMenu
+	if err := r.db.Where("system_type = ?", systemType).Order("sort").Find(&list).Error; err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (r *menuRepo) ListBySystemTypes(systemTypes []enum.SystemType) ([]system.SysMenu, error) {
+	if len(systemTypes) == 0 {
+		return []system.SysMenu{}, nil
+	}
+	var list []system.SysMenu
+	if err := r.db.Where("system_type IN ?", systemTypes).Order("sort").Find(&list).Error; err != nil {
+		return nil, err
+	}
+	return list, nil
 }
 
 // BuildTree 将扁平菜单列表按 parent_id 组装为树。

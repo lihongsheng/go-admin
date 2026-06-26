@@ -1,6 +1,7 @@
 package installer
 
 import (
+	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 )
 
@@ -62,8 +63,20 @@ func defaultMenus() []system.SysMenu {
 						{Type: system.MenuTypeButton, Name: "删除API", Permission: "api:del"},
 					},
 				},
+				{
+					Type: system.MenuTypeMenu,
+					Path: "mch", Name: "SysMch", Component: "plugin/mch/view/index",
+					Title: "商户管理", Icon: "shop", Sort: 5,
+					Children: []system.SysMenu{
+						{Type: system.MenuTypeButton, Name: "新增商户", Permission: "mch:add"},
+						{Type: system.MenuTypeButton, Name: "编辑商户", Permission: "mch:edit"},
+						{Type: system.MenuTypeButton, Name: "查看商户", Permission: "mch:view"},
+						{Type: system.MenuTypeButton, Name: "商户状态", Permission: "mch:status"},
+					},
+				},
 			},
 		},
+
 		// 插件中心
 		{
 			Type: system.MenuTypeCatalog,
@@ -83,11 +96,11 @@ func defaultMenus() []system.SysMenu {
 // defaultApis 默认 API 列表（与路由 / 控制器对应）
 func defaultApis() []system.SysApi {
 	return []system.SysApi{
-		{Path: "/api/v1/base/captcha", Method: "GET", Group: "base", Desc: "图形验证码"},
 		{Path: "/api/v1/base/login", Method: "POST", Group: "base", Desc: "登录"},
 		{Path: "/api/v1/base/logout", Method: "POST", Group: "base", Desc: "登出"},
 		{Path: "/api/v1/base/info", Method: "GET", Group: "base", Desc: "当前用户信息"},
 		{Path: "/api/v1/base/menu", Method: "GET", Group: "base", Desc: "当前用户菜单"},
+			{Path: "/api/v1/base/system/types", Method: "GET", Group: "base", Desc: "系统类型列表"},
 
 		{Path: "/api/v1/system/user", Method: "POST", Group: "user", Desc: "新增用户"},
 		{Path: "/api/v1/system/user", Method: "PUT", Group: "user", Desc: "编辑用户"},
@@ -112,6 +125,92 @@ func defaultApis() []system.SysApi {
 		{Path: "/api/v1/system/api/list", Method: "GET", Group: "api", Desc: "API列表"},
 
 		{Path: "/api/v1/plugin/list", Method: "GET", Group: "plugin", Desc: "插件列表"},
+
+		{Path: "/api/v1/system/mch", Method: "POST", Group: "mch", Desc: "新增商户"},
+		{Path: "/api/v1/system/mch", Method: "PUT", Group: "mch", Desc: "编辑商户"},
+		{Path: "/api/v1/system/mch/:id", Method: "GET", Group: "mch", Desc: "商户详情"},
+		{Path: "/api/v1/system/mch/no/:mchNo", Method: "GET", Group: "mch", Desc: "按编号查商户"},
+		{Path: "/api/v1/system/mch/list", Method: "GET", Group: "mch", Desc: "商户列表"},
+		{Path: "/api/v1/system/mch/status", Method: "PUT", Group: "mch", Desc: "修改商户状态"},
+	}
+}
+
+// defaultMerchant 默认商户
+func defaultMerchant() system.Merchant {
+	return system.Merchant{
+		MchName: "默认商户",
+		Linker:  "管理员",
+		Phone:   "13800000000",
+		Email:   "admin@merchant.local",
+		Address: "默认地址",
+		Status:  1,
+	}
+}
+
+// merchantAdminMenus 商户管理员菜单（仅用户管理 + 角色管理 + Dashboard）
+func merchantAdminMenus() []system.SysMenu {
+	return []system.SysMenu{
+		{
+			Type: system.MenuTypeMenu,
+			Path: "/dashboard", Name: "Dashboard", Component: "dashboard/index",
+			Title: "仪表盘", Icon: "dashboard", Sort: 1,
+			SystemType: enum.SystemTypeMch,
+		},
+		{
+			Type: system.MenuTypeCatalog,
+			Path: "/system", Name: "System", Component: "Layout",
+			Title: "系统管理", Icon: "setting", Sort: 10,
+			SystemType: enum.SystemTypeMch,
+			Children: []system.SysMenu{
+				{
+					Type: system.MenuTypeMenu,
+					Path: "user", Name: "SysUser", Component: "system/user/index",
+					Title: "用户管理", Icon: "user", Sort: 1,
+					SystemType: enum.SystemTypeMch,
+					Children: []system.SysMenu{
+						{Type: system.MenuTypeButton, Name: "新增用户", Permission: "user:add", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "编辑用户", Permission: "user:edit", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "删除用户", Permission: "user:del", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "重置密码", Permission: "user:reset", SystemType: enum.SystemTypeMch},
+					},
+				},
+				{
+					Type: system.MenuTypeMenu,
+					Path: "role", Name: "SysRole", Component: "system/role/index",
+					Title: "角色管理", Icon: "peoples", Sort: 2,
+					SystemType: enum.SystemTypeMch,
+					Children: []system.SysMenu{
+						{Type: system.MenuTypeButton, Name: "新增角色", Permission: "role:add", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "编辑角色", Permission: "role:edit", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "删除角色", Permission: "role:del", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "角色授权", Permission: "role:auth", SystemType: enum.SystemTypeMch},
+					},
+				},
+			},
+		},
+	}
+}
+
+// merchantAdminApis 商户管理员 API（仅基础 + 用户 + 角色）
+func merchantAdminApis() []system.SysApi {
+	return []system.SysApi{
+		{Path: "/api/v1/base/login", Method: "POST", Group: "base", Desc: "登录", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/base/logout", Method: "POST", Group: "base", Desc: "登出", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/base/info", Method: "GET", Group: "base", Desc: "当前用户信息", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/base/menu", Method: "GET", Group: "base", Desc: "当前用户菜单", SystemType: enum.SystemTypeMch},
+			{Path: "/api/v1/base/system/types", Method: "GET", Group: "base", Desc: "系统类型列表", SystemType: enum.SystemTypeMch},
+
+		{Path: "/api/v1/system/user", Method: "POST", Group: "user", Desc: "新增用户", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/user", Method: "PUT", Group: "user", Desc: "编辑用户", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/user/:id", Method: "DELETE", Group: "user", Desc: "删除用户", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/user/list", Method: "GET", Group: "user", Desc: "用户列表", SystemType: enum.SystemTypeMch},
+
+		{Path: "/api/v1/system/role", Method: "POST", Group: "role", Desc: "新增角色", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/role", Method: "PUT", Group: "role", Desc: "编辑角色", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/role/:id", Method: "DELETE", Group: "role", Desc: "删除角色", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/role/list", Method: "GET", Group: "role", Desc: "角色列表", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/role/auth", Method: "POST", Group: "role", Desc: "角色授权", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/role/auth/:id", Method: "GET", Group: "role", Desc: "查询角色授权详情", SystemType: enum.SystemTypeMch},
 	}
 }
 

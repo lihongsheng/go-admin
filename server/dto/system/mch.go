@@ -50,8 +50,8 @@ func (m MchQueryRequest) Validate() error {
 	if m.PageSize <= 0 {
 		return errors.New("页大小不能小于0")
 	}
-	if m.Page > 50 {
-		return errors.New("页数不能大于50")
+	if m.PageSize > 50 {
+		return errors.New("页大小不能大于50")
 	}
 	if m.Page <= 0 {
 		return errors.New("页数不能小于0")

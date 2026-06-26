@@ -3,6 +3,7 @@ package system
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
+	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -15,12 +16,17 @@ func UserCreate(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	u, err := serviceSys.DefaultUser.Create(req)
+	u, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	usr, err := serviceSys.DefaultUser.Create(req, u.MchID, u.SystemType)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
 	}
-	response.OK(c, u)
+	response.OK(c, usr)
 }
 
 // UserUpdate PUT /system/user
@@ -30,7 +36,12 @@ func UserUpdate(c *gin.Context) {
 		response.Fail(c, "invalid body")
 		return
 	}
-	if err := serviceSys.DefaultUser.Update(req); err != nil {
+	u, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	if err := serviceSys.DefaultUser.Update(req, u.MchID); err != nil {
 		response.Fail(c, err.Error())
 		return
 	}
@@ -57,7 +68,12 @@ func UserList(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	resp, err := serviceSys.DefaultUser.List(req)
+	u, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	resp, err := serviceSys.DefaultUser.List(req, u.MchID)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return

@@ -2,6 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
 	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
@@ -9,10 +10,10 @@ import (
 
 // RoleService 角色业务接口
 type RoleService interface {
-	Create(req dtoSys.RoleCreateReq) (*system.SysRole, error)
+	Create(req dtoSys.RoleCreateReq, mchID int64, systemType enum.SystemType) (*system.SysRole, error)
 	Update(req dtoSys.RoleUpdateReq) error
 	Delete(id uint) error
-	List() (*dtoSys.RoleListResp, error)
+	List(mchID int64) (*dtoSys.RoleListResp, error)
 	Auth(req dtoSys.RoleAuthReq) error
 	AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error)
 	SetDefaultRouter(roleID uint, defaultRouter string) error
@@ -43,10 +44,12 @@ type roleService struct {
 // DefaultRole 包级单例
 var DefaultRole RoleService
 
-func (s *roleService) Create(req dtoSys.RoleCreateReq) (*system.SysRole, error) {
+func (s *roleService) Create(req dtoSys.RoleCreateReq, mchID int64, systemType enum.SystemType) (*system.SysRole, error) {
 	r := &system.SysRole{
 		Name: req.Name, Remark: req.Remark,
 		Status: req.Status, DefaultRouter: req.DefaultRouter,
+		MchID:      mchID,
+		SystemType: systemType,
 	}
 	if err := s.roleRepo.Create(r); err != nil {
 		return nil, err
@@ -70,8 +73,8 @@ func (s *roleService) Delete(id uint) error {
 	return s.roleRepo.Delete(id)
 }
 
-func (s *roleService) List() (*dtoSys.RoleListResp, error) {
-	list, err := s.roleRepo.List()
+func (s *roleService) List(mchID int64) (*dtoSys.RoleListResp, error) {
+	list, err := s.roleRepo.List(mchID)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +125,12 @@ func (s *roleService) AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error) {
 			apiIDs = append(apiIDs, api.ID)
 		}
 	}
-	return &dtoSys.RoleAuthDetailResp{MenuIDs: menuIDs, ApiIDs: apiIDs, DefaultRouter: role.DefaultRouter}, nil
+	return &dtoSys.RoleAuthDetailResp{
+		MenuIDs:       menuIDs,
+		ApiIDs:        apiIDs,
+		DefaultRouter: role.DefaultRouter,
+		SystemType:    role.SystemType,
+	}, nil
 }
 
 func (s *roleService) SetDefaultRouter(roleID uint, defaultRouter string) error {

@@ -1,6 +1,9 @@
 package system
 
-import "github.com/lihongsheng/go-admin/server/model/system"
+import (
+	"github.com/lihongsheng/go-admin/server/enum"
+	"github.com/lihongsheng/go-admin/server/model/system"
+)
 
 // RoleCreateReq 新增角色
 type RoleCreateReq struct {
@@ -32,11 +35,12 @@ type RoleAuthReq struct {
 	ApiIDs  []uint `json:"api_ids"`
 }
 
-// RoleAuthDetailResp 角色已分配的菜单/API id 列表 + 默认首页路由
+// RoleAuthDetailResp 角色已分配的菜单/API id 列表 + 默认首页路由 + 系统类型
 type RoleAuthDetailResp struct {
-	MenuIDs       []uint `json:"menu_ids"`
-	ApiIDs        []uint `json:"api_ids"`
-	DefaultRouter string `json:"default_router"`
+	MenuIDs       []uint           `json:"menu_ids"`
+	ApiIDs        []uint           `json:"api_ids"`
+	DefaultRouter string           `json:"default_router"`
+	SystemType    enum.SystemType  `json:"system_type"`
 }
 
 // RoleSetDefaultRouterReq 设置角色默认首页路由

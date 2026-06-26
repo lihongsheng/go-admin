@@ -3,6 +3,7 @@ package system
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
+	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,12 @@ func RoleCreate(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	r, err := serviceSys.DefaultRole.Create(req)
+	u, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	r, err := serviceSys.DefaultRole.Create(req, u.MchID, u.SystemType)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
@@ -52,7 +58,12 @@ func RoleDelete(c *gin.Context) {
 
 // RoleList GET /system/role/list
 func RoleList(c *gin.Context) {
-	resp, err := serviceSys.DefaultRole.List()
+	u, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	resp, err := serviceSys.DefaultRole.List(u.MchID)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
