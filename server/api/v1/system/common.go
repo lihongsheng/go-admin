@@ -4,7 +4,7 @@ package system
 import (
 	"strconv"
 
-	"go-admin/server/utils/response"
+	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

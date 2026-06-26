@@ -4,8 +4,8 @@
 //
 //  1. RBAC 模型：用户(SysUser) ←多对多→ 角色(SysRole) ←多对多→ 菜单(SysMenu) / API(SysApi)
 //     Casbin 负责 API 级别鉴权，策略存储在 casbin_rule 表（由 gorm-adapter 自动建表）。
-//     casbin_rule 中 p 策略格式：p(role_code, /api/path, method)
-//     casbin_rule 中 g 策略格式：g(u:user_id, role_code)
+//     casbin_rule 中 p 策略格式：p(role_id, /api/path, method)
+//     casbin_rule 中 g 策略格式：g(user_id, role_id)
 //
 //  2. 菜单树设计：SysMenu 采用单表自引用树，通过 type 字段区分节点类型：
 //     - catalog : 目录节点，仅作为容器分组，component=Layout，不渲染独立页面
@@ -49,12 +49,11 @@ type SysUser struct {
 
 // ---------- 角色 ----------
 
-// SysRole 角色；Code 同时作为 Casbin 策略中的 sub（角色标识）
-// 角色通过 sys_role_menus 关联菜单；API 权限完全由 Casbin 策略管理
+// SysRole 角色
+// 角色通过 sys_role_menus 关联菜单；API 权限完全由 Casbin 策略管理（基于角色 ID）
 type SysRole struct {
 	Base
 	Name          string    `gorm:"size:64;uniqueIndex;not null" json:"name"`
-	Code          string    `gorm:"size:64;uniqueIndex;not null" json:"code"` // Casbin 角色标识
 	Remark        string    `gorm:"size:255"                      json:"remark"`
 	Status        int8      `gorm:"default:1"                     json:"status"`
 	DefaultRouter string    `gorm:"size:255;default:/dashboard"   json:"default_router"` // 登录后默认首页路由

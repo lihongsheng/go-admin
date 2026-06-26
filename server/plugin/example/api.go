@@ -1,11 +1,11 @@
 package example
 
 import (
-	dtoExample "go-admin/server/plugin/example/dto"
-	serviceExample "go-admin/server/plugin/example/service"
+	dtoExample "github.com/lihongsheng/go-admin/server/plugin/example/dto"
+	serviceExample "github.com/lihongsheng/go-admin/server/plugin/example/service"
 	"strconv"
 
-	"go-admin/server/utils/response"
+	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

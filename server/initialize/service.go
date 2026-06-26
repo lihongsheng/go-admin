@@ -2,15 +2,15 @@
 package initialize
 
 import (
-	"go-admin/server/global"
-	"go-admin/server/log"
-	repoExampleNote "go-admin/server/plugin/example/repo"
-	serviceExampleNote "go-admin/server/plugin/example/service"
-	repoSys "go-admin/server/repo/system"
-	serviceBase "go-admin/server/service/base"
-	serviceInstall "go-admin/server/service/install"
-	serviceSys "go-admin/server/service/system"
-	casbinUtil "go-admin/server/utils/casbin"
+	"github.com/lihongsheng/go-admin/server/global"
+	"github.com/lihongsheng/go-admin/server/log"
+	repoExampleNote "github.com/lihongsheng/go-admin/server/plugin/example/repo"
+	serviceExampleNote "github.com/lihongsheng/go-admin/server/plugin/example/service"
+	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
+	serviceBase "github.com/lihongsheng/go-admin/server/service/base"
+	serviceInstall "github.com/lihongsheng/go-admin/server/service/install"
+	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
+	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
 )
 
 // InitInstallService 仅装配 install service（与 DB 是否就绪无关）
@@ -52,7 +52,7 @@ func InitDBServices() {
 	noteRepo := repoExampleNote.NewNoteRepo(global.DB)
 
 	// system service
-	serviceSys.DefaultUser = serviceSys.NewUserService(userRepo, casbinPort)
+	serviceSys.DefaultUser = serviceSys.NewUserService(userRepo)
 	serviceSys.DefaultRole = serviceSys.NewRoleService(roleRepo, menuRepo, apiRepo, casbinPort)
 	serviceSys.DefaultMenu = serviceSys.NewMenuService(menuRepo, userRepo)
 	serviceSys.DefaultApi = serviceSys.NewApiService(apiRepo)

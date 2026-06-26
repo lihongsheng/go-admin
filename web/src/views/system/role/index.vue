@@ -10,7 +10,6 @@
       <el-table :data="list" v-loading="loading" stripe border>
       <el-table-column prop="id" label="ID" width="70" align="center" />
       <el-table-column prop="name" label="角色名称" min-width="140" />
-      <el-table-column prop="code" label="角色标识" min-width="140" />
       <el-table-column prop="default_router" label="默认首页" min-width="140">
         <template #default="s">
           <el-tag v-if="s.row.default_router" type="warning" size="small" effect="light">{{ s.row.default_router }}</el-tag>
@@ -42,9 +41,6 @@
       <el-form :model="form" label-width="80px">
         <el-form-item label="名称" required>
           <el-input v-model="form.name" placeholder="角色名称" />
-        </el-form-item>
-        <el-form-item label="标识" required>
-          <el-input v-model="form.code" placeholder="角色标识（英文）" />
         </el-form-item>
         <el-form-item label="默认首页">
           <el-input v-model="form.default_router" placeholder="默认首页路由，如 /dashboard" />
@@ -206,7 +202,7 @@ function open(row) {
   if (row) {
     Object.assign(form, { ...row, statusBool: row.status === 1, default_router: row.default_router || '' })
   } else {
-    Object.assign(form, { id: undefined, name: '', code: '', remark: '', default_router: '', statusBool: true, status: 1 })
+    Object.assign(form, { id: undefined, name: '', remark: '', default_router: '', statusBool: true, status: 1 })
   }
   dlg.value = true
 }

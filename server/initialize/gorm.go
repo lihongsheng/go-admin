@@ -3,10 +3,10 @@ package initialize
 import (
 	"fmt"
 
-	"go-admin/server/core/installer"
-	"go-admin/server/global"
-	applog "go-admin/server/log"
-	"go-admin/server/model/system"
+	"github.com/lihongsheng/go-admin/server/core/installer"
+	"github.com/lihongsheng/go-admin/server/global"
+	applog "github.com/lihongsheng/go-admin/server/log"
+	"github.com/lihongsheng/go-admin/server/model/system"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

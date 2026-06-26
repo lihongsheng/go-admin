@@ -1,6 +1,6 @@
 package system
 
-import "go-admin/server/model/system"
+import "github.com/lihongsheng/go-admin/server/model/system"
 
 // MenuCreateReq 新增菜单
 type MenuCreateReq struct {

@@ -1,9 +1,9 @@
 package router
 
 import (
-	"go-admin/server/api/v1/base"
-	"go-admin/server/api/v1/system"
-	"go-admin/server/middleware"
+	"github.com/lihongsheng/go-admin/server/api/v1/base"
+	"github.com/lihongsheng/go-admin/server/api/v1/system"
+	"github.com/lihongsheng/go-admin/server/middleware"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package utils
 import (
 	"context"
 
-	"go-admin/server/log"
-	"go-admin/server/middleware"
+	"github.com/lihongsheng/go-admin/server/log"
+	"github.com/lihongsheng/go-admin/server/middleware"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -64,4 +64,3 @@ func GetRequestID(ctx context.Context) string {
 func Logger(ctx context.Context) log.Logger {
 	return middleware.LoggerFromContext(ctx)
 }
-

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"go-admin/server/log"
+	"github.com/lihongsheng/go-admin/server/log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

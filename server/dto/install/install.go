@@ -2,8 +2,8 @@
 package install
 
 import (
-	"go-admin/server/config"
-	"go-admin/server/core/installer"
+	"github.com/lihongsheng/go-admin/server/config"
+	"github.com/lihongsheng/go-admin/server/core/installer"
 )
 
 // CheckDBReq 数据库连接检测

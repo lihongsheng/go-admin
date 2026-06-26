@@ -2,7 +2,7 @@
 package repo
 
 import (
-	exampleModel "go-admin/server/plugin/example/model"
+	exampleModel "github.com/lihongsheng/go-admin/server/plugin/example/model"
 
 	"gorm.io/gorm"
 )

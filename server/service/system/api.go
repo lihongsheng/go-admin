@@ -1,9 +1,9 @@
 package system
 
 import (
-	dtoSys "go-admin/server/dto/system"
-	"go-admin/server/model/system"
-	repoSys "go-admin/server/repo/system"
+	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
 )
 
 // ApiService API 元数据业务接口

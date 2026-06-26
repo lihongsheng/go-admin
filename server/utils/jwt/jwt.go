@@ -2,26 +2,43 @@
 package jwt
 
 import (
+	"context"
 	"errors"
-	"time"
-
-	"go-admin/server/global"
-
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	"github.com/lihongsheng/go-admin/server/utils/jwt/config"
+	"time"
 )
 
 type Claims struct {
-	UserID   uint   `json:"uid"`
-	Username string `json:"username"`
-	Roles    []string `json:"roles"`
 	jwtv5.RegisteredClaims
+	User
+}
+type User struct {
+	ID       uint    `json:"id"`
+	Username string  `json:"username"`
+	Role     []int64 `json:"role"`
+	MchNo    string  `json:"mch_no"` // 商户号
+}
+
+type JwtContextUserKey struct{}
+
+func GetUser(ctx context.Context) (User, error) {
+	u := ctx.Value(JwtContextUserKey{})
+	if u == nil {
+		return User{}, errors.New("no user in context")
+	}
+	return u.(User), nil
+}
+
+func NewUserCtx(ctx context.Context, user User) context.Context {
+	return context.WithValue(ctx, JwtContextUserKey{}, user)
 }
 
 // Sign 生成 token
-func Sign(uid uint, username string, roles []string) (string, error) {
-	cfg := global.Cfg.JWT
+func Sign(user User, jwtConfig config.JWT) (string, error) {
+	cfg := jwtConfig
 	c := Claims{
-		UserID: uid, Username: username, Roles: roles,
+		User: user,
 		RegisteredClaims: jwtv5.RegisteredClaims{
 			Issuer:    cfg.Issuer,
 			IssuedAt:  jwtv5.NewNumericDate(time.Now()),
@@ -33,8 +50,8 @@ func Sign(uid uint, username string, roles []string) (string, error) {
 }
 
 // Parse 解析 token
-func Parse(tokenStr string) (*Claims, error) {
-	cfg := global.Cfg.JWT
+func Parse(tokenStr string, jwtConfig config.JWT) (*Claims, error) {
+	cfg := jwtConfig
 	t, err := jwtv5.ParseWithClaims(tokenStr, &Claims{}, func(t *jwtv5.Token) (interface{}, error) {
 		return []byte(cfg.Secret), nil
 	})

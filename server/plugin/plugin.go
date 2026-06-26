@@ -19,9 +19,9 @@ package plugin
 import (
 	"sync"
 
-	"go-admin/server/core/installer"
-	"go-admin/server/model/system"
-	"go-admin/server/utils/casbin"
+	"github.com/lihongsheng/go-admin/server/core/installer"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	"github.com/lihongsheng/go-admin/server/utils/casbin"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -77,6 +77,15 @@ func All() []Plugin {
 // upsertMenusAndApis 递归插入插件菜单树 + 幂等写入 API
 // attachSuper 决定是否自动挂到超级管理员角色
 func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
+	// 若需要挂到超级管理员，先查角色 ID
+	var superRoleID uint
+	if attachSuper {
+		var super system.SysRole
+		if err := db.Where("name = ?", "超级管理员").First(&super).Error; err == nil {
+			superRoleID = super.ID
+		}
+	}
+
 	// ----- Menus（递归 upsert 整棵树，按 name 幂等）-----
 	for _, m := range p.Menus() {
 		if err := upsertMenuTree(db, &m, 0, attachSuper); err != nil {
@@ -101,8 +110,8 @@ func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
 				"desc": a.Desc, "group": a.Group,
 			})
 		}
-		if attachSuper {
-			if _, err := casbin.AddPolicy("super_admin", a.Path, a.Method); err != nil {
+		if attachSuper && superRoleID > 0 {
+			if _, err := casbin.AddPolicy(superRoleID, a.Path, a.Method); err != nil {
 				return err
 			}
 		}
@@ -157,12 +166,11 @@ func upsertMenuTree(db *gorm.DB, m *system.SysMenu, parentID uint, attachSuper b
 
 func attachMenuToSuper(db *gorm.DB, menuID uint) error {
 	var super system.SysRole
-	if err := db.Where("code = ?", "super_admin").First(&super).Error; err != nil {
+	if err := db.Where("name = ?", "超级管理员").First(&super).Error; err != nil {
 		return nil // 超级管理员还没建（极早期），跳过
 	}
 	return db.Model(&super).Association("Menus").Append(&system.SysMenu{Base: system.Base{ID: menuID}})
 }
-
 
 // ---------- 启动期同步 ----------
 

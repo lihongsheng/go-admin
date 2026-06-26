@@ -1,6 +1,6 @@
 package system
 
-import "go-admin/server/model/system"
+import "github.com/lihongsheng/go-admin/server/model/system"
 
 // ApiCreateReq 新增 API
 type ApiCreateReq struct {

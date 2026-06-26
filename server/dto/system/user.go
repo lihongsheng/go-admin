@@ -1,7 +1,7 @@
 // Package system system 模块 DTO
 package system
 
-import "go-admin/server/model/system"
+import "github.com/lihongsheng/go-admin/server/model/system"
 
 // UserCreateReq 新增用户
 type UserCreateReq struct {

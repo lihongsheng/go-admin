@@ -1,9 +1,9 @@
 package system
 
 import (
-	dtoSys "go-admin/server/dto/system"
-	serviceSys "go-admin/server/service/system"
-	"go-admin/server/utils/response"
+	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
+	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package initialize
 import (
 	"os"
 
-	"go-admin/server/config"
-	"go-admin/server/log"
+	"github.com/lihongsheng/go-admin/server/config"
+	"github.com/lihongsheng/go-admin/server/log"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -35,4 +35,3 @@ func Logger(cfg config.Log) (log.Logger, error) {
 
 	return log.NewZapLoggerWithDefaults(zapLogger), nil
 }
-

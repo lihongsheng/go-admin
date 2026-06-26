@@ -12,7 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// RBAC 模型：sub/obj/act 三段 + g 角色继承 + keyMatch2 路径匹配（兼容 :id 占位符）
+// Model：sub/obj/act 三段 + keyMatch2 路径匹配（兼容 :id 占位符）
+// 仅基于角色 ID 做策略匹配，用户-角色关系由 sys_user_roles 表维护
 const rbacModel = `
 [request_definition]
 r = sub, obj, act
@@ -20,14 +21,11 @@ r = sub, obj, act
 [policy_definition]
 p = sub, obj, act
 
-[role_definition]
-g = _, _
-
 [policy_effect]
 e = some(where (p.eft == allow))
 
 [matchers]
-m = g(r.sub, p.sub) && keyMatch2(r.obj, p.obj) && r.act == p.act
+m = r.sub == p.sub && keyMatch2(r.obj, p.obj) && r.act == p.act
 `
 
 var (
@@ -70,55 +68,30 @@ func E() *casbin.SyncedEnforcer {
 // Ready 是否就绪
 func Ready() bool { return E() != nil }
 
-// userSub 把数字 user_id 拼成 "u:1" 这种 sub，便于和角色 code 共存
-func userSub(uid uint) string { return "u:" + strconv.FormatUint(uint64(uid), 10) }
+// ridStr 把数字 role_id 转为字符串，用作 casbin sub
+func ridStr(rid uint) string { return strconv.FormatUint(uint64(rid), 10) }
 
-// AssignRole 给用户挂角色：g(u:1, role_code)
-func AssignRole(uid uint, roleCode string) error {
-	if !Ready() {
-		return nil
-	}
-	_, err := E().AddGroupingPolicy(userSub(uid), roleCode)
-	return err
-}
-
-// ReplaceUserRoles 把用户的角色替换为给定 codes
-func ReplaceUserRoles(uid uint, roleCodes []string) error {
-	if !Ready() {
-		return nil
-	}
-	sub := userSub(uid)
-	if _, err := E().DeleteRolesForUser(sub); err != nil {
-		return err
-	}
-	for _, c := range roleCodes {
-		if _, err := E().AddRoleForUser(sub, c); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// AddPolicy 角色拥有某 API 权限：p(role_code, /api/x, GET)
+// AddPolicy 角色拥有某 API 权限：p(role_id, /api/x, GET)
 // 重复添加返回 (false, nil)，不算错。
-func AddPolicy(role, path, method string) (bool, error) {
+func AddPolicy(roleID uint, path, method string) (bool, error) {
 	if !Ready() {
 		return false, nil
 	}
-	return E().AddPolicy(role, path, method)
+	return E().AddPolicy(ridStr(roleID), path, method)
 }
 
 // ReplaceRolePolicies 把角色的策略全量替换为给定 (path, method) 列表
-func ReplaceRolePolicies(role string, items [][2]string) error {
+func ReplaceRolePolicies(roleID uint, items [][2]string) error {
 	if !Ready() {
 		return nil
 	}
 	// 先移除当前 role 全部策略
-	if _, err := E().RemoveFilteredPolicy(0, role); err != nil {
+	sub := ridStr(roleID)
+	if _, err := E().RemoveFilteredPolicy(0, sub); err != nil {
 		return err
 	}
 	for _, it := range items {
-		if _, err := E().AddPolicy(role, it[0], it[1]); err != nil {
+		if _, err := E().AddPolicy(sub, it[0], it[1]); err != nil {
 			return err
 		}
 	}
@@ -126,11 +99,11 @@ func ReplaceRolePolicies(role string, items [][2]string) error {
 }
 
 // GetRolePolicies 取角色全部策略，返回 [(path, method), ...]
-func GetRolePolicies(role string) [][2]string {
+func GetRolePolicies(roleID uint) [][2]string {
 	if !Ready() {
 		return nil
 	}
-	rs, _ := E().GetFilteredPolicy(0, role)
+	rs, _ := E().GetFilteredPolicy(0, ridStr(roleID))
 	out := make([][2]string, 0, len(rs))
 	for _, r := range rs {
 		if len(r) >= 3 {
@@ -140,66 +113,24 @@ func GetRolePolicies(role string) [][2]string {
 	return out
 }
 
-// Enforce 权限校验：以 u:<uid> 为 sub，由 casbin g() 解析用户角色再匹配策略
-func Enforce(uid uint, path, method string) (bool, error) {
+// Enforce 权限校验：检查指定角色是否有权限访问 path+method
+// 匹配 p(role_id, path, method)
+func Enforce(roleID uint, path, method string) (bool, error) {
 	if !Ready() {
 		return false, fmt.Errorf("casbin not ready")
 	}
-	sub := userSub(uid)
-	ok, err := E().Enforce(sub, path, method)
+	ok, err := E().Enforce(ridStr(roleID), path, method)
 	if err != nil {
 		return false, err
 	}
 	return ok, nil
 }
 
-// RemoveRolePolicies 移除角色的全部 API 策略 p(role, *, *)
-func RemoveRolePolicies(role string) error {
+// RemoveRolePolicies 移除角色的全部 API 策略 p(role_id, *, *)
+func RemoveRolePolicies(roleID uint) error {
 	if !Ready() {
 		return nil
 	}
-	_, err := E().RemoveFilteredPolicy(0, role)
-	return err
-}
-
-// RemoveRoleFromUsers 移除所有用户与该角色的绑定 g(*, role)
-func RemoveRoleFromUsers(role string) error {
-	if !Ready() {
-		return nil
-	}
-	_, err := E().RemoveFilteredGroupingPolicy(1, role)
-	return err
-}
-
-// RemoveUserRoles 移除某个用户的全部角色绑定 g(u:<uid>, *)
-// 用户被删除时由 service 层调用，避免 casbin_rule 中留下脏数据。
-func RemoveUserRoles(uid uint) error {
-	if !Ready() {
-		return nil
-	}
-	_, err := E().DeleteRolesForUser(userSub(uid))
-	return err
-}
-
-// MigrateRoleCode 角色 code 变更后，将原有用户-角色绑定迁移到新 code
-func MigrateRoleCode(oldCode, newCode string) error {
-	if !Ready() {
-		return nil
-	}
-	// 找到所有绑定了旧 code 的用户
-	policies, err := E().GetFilteredGroupingPolicy(1, oldCode)
-	if err != nil {
-		return err
-	}
-	for _, p := range policies {
-		if len(p) >= 2 {
-			// 添加新绑定 g(user, newCode)
-			if _, err := E().AddGroupingPolicy(p[0], newCode); err != nil {
-				return err
-			}
-		}
-	}
-	// 移除旧绑定
-	_, err = E().RemoveFilteredGroupingPolicy(1, oldCode)
+	_, err := E().RemoveFilteredPolicy(0, ridStr(roleID))
 	return err
 }

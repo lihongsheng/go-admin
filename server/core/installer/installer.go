@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"go-admin/server/model/system"
-	"go-admin/server/utils/casbin"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	"github.com/lihongsheng/go-admin/server/utils/casbin"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -41,7 +41,7 @@ type Step struct {
 }
 
 // Install 执行完整安装流程
-// progress 可为 nil；非 nil 时实时推送步骤
+// progress 可为 nil；非 nil 时实时推送进度
 func Install(ctx context.Context, db *gorm.DB, admin AdminSeed, progress chan<- Step) error {
 	if err := AcquireProcessLock(); err != nil {
 		return err
@@ -124,7 +124,7 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// 1) 角色
 		superRole = system.SysRole{
-			Name: "超级管理员", Code: "super_admin",
+			Name: "超级管理员",
 			Remark: "拥有全部权限", Status: 1,
 			DefaultRouter: "/dashboard",
 		}
@@ -172,15 +172,13 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 			return err
 		}
 
-		// 把 admin user_id 暂存到外层，供事务后写 casbin g 关系
-		_ = user
 		return nil
 	})
 	if err != nil {
 		return err
 	}
 
-	// 6) Casbin 策略：super_admin 拥有所有 API；admin 用户绑 super_admin 角色
+	// 6) Casbin 策略：超级管理员角色拥有所有 API
 	var allApis []system.SysApi
 	if err := db.Find(&allApis).Error; err != nil {
 		return err
@@ -189,14 +187,7 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 	for _, a := range allApis {
 		items = append(items, [2]string{a.Path, a.Method})
 	}
-	if err := casbin.ReplaceRolePolicies(superRole.Code, items); err != nil {
-		return err
-	}
-	var adminUser system.SysUser
-	if err := db.Where("username = ?", admin.Username).First(&adminUser).Error; err != nil {
-		return err
-	}
-	if err := casbin.ReplaceUserRoles(adminUser.ID, []string{superRole.Code}); err != nil {
+	if err := casbin.ReplaceRolePolicies(superRole.ID, items); err != nil {
 		return err
 	}
 	return nil

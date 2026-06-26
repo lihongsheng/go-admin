@@ -10,11 +10,11 @@ import (
 	"io"
 	"time"
 
-	"go-admin/server/core/installer"
-	dtoInstall "go-admin/server/dto/install"
-	"go-admin/server/global"
-	serviceInstall "go-admin/server/service/install"
-	"go-admin/server/utils/response"
+	"github.com/lihongsheng/go-admin/server/core/installer"
+	dtoInstall "github.com/lihongsheng/go-admin/server/dto/install"
+	"github.com/lihongsheng/go-admin/server/global"
+	serviceInstall "github.com/lihongsheng/go-admin/server/service/install"
+	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

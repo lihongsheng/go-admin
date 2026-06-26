@@ -4,10 +4,13 @@ package base
 import (
 	"errors"
 
-	dtoBase "go-admin/server/dto/base"
-	repoSys "go-admin/server/repo/system"
-	"go-admin/server/utils/captcha"
-	"go-admin/server/utils/jwt"
+	dtoBase "github.com/lihongsheng/go-admin/server/dto/base"
+	"github.com/lihongsheng/go-admin/server/enum"
+	"github.com/lihongsheng/go-admin/server/global"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
+	"github.com/lihongsheng/go-admin/server/utils/captcha"
+	"github.com/lihongsheng/go-admin/server/utils/jwt"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -18,6 +21,7 @@ type Service interface {
 	Captcha() (*dtoBase.CaptchaResp, error)
 	Login(req dtoBase.LoginReq) (*dtoBase.LoginResp, error)
 	Info(uid uint) (interface{}, error)
+	GetActiveUser(uid uint) (*system.SysUser, error)
 }
 
 // NewService 构造 base.Service
@@ -42,7 +46,7 @@ func (s *service) Captcha() (*dtoBase.CaptchaResp, error) {
 
 // 业务错误（暴露给 handler 直接作为 message 返回）
 var (
-	ErrCaptcha     = errors.New("captcha invalid or expired")
+	ErrCaptcha      = errors.New("captcha invalid or expired")
 	ErrUserNotFound = errors.New("user not found")
 	ErrUserDisabled = errors.New("user disabled")
 	ErrWrongPwd     = errors.New("wrong password")
@@ -59,17 +63,21 @@ func (s *service) Login(req dtoBase.LoginReq) (*dtoBase.LoginResp, error) {
 		}
 		return nil, err
 	}
-	if u.Status != 1 {
+	if enum.UserStatus(u.Status) == enum.UserStatusDisabled {
 		return nil, ErrUserDisabled
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password)); err != nil {
 		return nil, ErrWrongPwd
 	}
-	roles := make([]string, 0, len(u.Roles))
+	roleIDs := make([]int64, 0, len(u.Roles))
 	for _, r := range u.Roles {
-		roles = append(roles, r.Code)
+		roleIDs = append(roleIDs, int64(r.ID))
 	}
-	token, err := jwt.Sign(u.ID, u.Username, roles)
+		token, err := jwt.Sign(jwt.User{
+			ID:       u.ID,
+			Username: u.Username,
+			Role:     roleIDs,
+		}, global.Cfg.JWT)
 	if err != nil {
 		return nil, err
 	}
@@ -78,4 +86,16 @@ func (s *service) Login(req dtoBase.LoginReq) (*dtoBase.LoginResp, error) {
 
 func (s *service) Info(uid uint) (interface{}, error) {
 	return s.userRepo.GetByID(uid, true)
+}
+
+// GetActiveUser 查询用户并检查是否被禁用
+func (s *service) GetActiveUser(uid uint) (*system.SysUser, error) {
+	u, err := s.userRepo.GetByID(uid, false)
+	if err != nil {
+		return nil, err
+	}
+	if enum.UserStatus(u.Status) == enum.UserStatusDisabled {
+		return nil, ErrUserDisabled
+	}
+	return u, nil
 }

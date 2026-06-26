@@ -1,7 +1,7 @@
 package installer
 
 import (
-	"go-admin/server/model/system"
+	"github.com/lihongsheng/go-admin/server/model/system"
 )
 
 // defaultMenus 默认菜单树（catalog -> menu -> button 三层）

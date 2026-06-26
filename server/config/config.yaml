@@ -14,10 +14,6 @@ db:
     max_idle: 0
     max_open: 0
     log_mode: ""
-upload:
-    drive: local
-    local:
-        path: ./uploads
 install:
     enable: true
 jwt:
@@ -30,20 +26,38 @@ log:
     max_size: 100
     max_backups: 7
     max_age: 30
+observability:
+    trace:
+        enable: true
+        exporter: none
+        endpoint: ""
+        service_name: go-admin-server
+        sample_rate: 1
+    metrics:
+        enable: false
+        exporter: prometheus
+        endpoint: ""
+        path: /metrics
 redis:
     enable: false
     addr: 127.0.0.1:6379
     password: ""
     db: 0
-observability:
-    trace:
-        enable: true
-        exporter: none           # stdout | otlp | none
-        endpoint: ""             # OTLP: "localhost:4317"(gRPC) or "http://localhost:4318"(HTTP)
-        service_name: go-admin-server
-        sample_rate: 1.0
-    metrics:
-        enable: false
-        exporter: prometheus     # prometheus | otlp
-        endpoint: ""             # OTLP push: "localhost:4317"(gRPC) or "http://localhost:4318"(HTTP)
-        path: /metrics           # Prometheus pull endpoint path
+upload:
+    drive: local
+    aliyun_oss:
+        endpoint: ""
+        access_key: ""
+        access_secret: ""
+        bucket_name: ""
+        bucket_url: ""
+        base_path: ""
+    tencent_cos:
+        bucket: ""
+        region: ""
+        secret_id: ""
+        secret_key: ""
+        base_url: ""
+        path_prefix: ""
+    local:
+        path: ./uploads

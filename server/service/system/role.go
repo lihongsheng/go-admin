@@ -1,10 +1,10 @@
 package system
 
 import (
-	dtoSys "go-admin/server/dto/system"
-	"go-admin/server/model/system"
-	repoSys "go-admin/server/repo/system"
-	casbinUtil "go-admin/server/utils/casbin"
+	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
+	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
 )
 
 // RoleService 角色业务接口
@@ -45,9 +45,8 @@ var DefaultRole RoleService
 
 func (s *roleService) Create(req dtoSys.RoleCreateReq) (*system.SysRole, error) {
 	r := &system.SysRole{
-		Name: req.Name, Code: req.Code,
-		Remark: req.Remark, Status: req.Status,
-		DefaultRouter: req.DefaultRouter,
+		Name: req.Name, Remark: req.Remark,
+		Status: req.Status, DefaultRouter: req.DefaultRouter,
 	}
 	if err := s.roleRepo.Create(r); err != nil {
 		return nil, err
@@ -56,16 +55,8 @@ func (s *roleService) Create(req dtoSys.RoleCreateReq) (*system.SysRole, error) 
 }
 
 func (s *roleService) Update(req dtoSys.RoleUpdateReq) error {
-	// 检测 code 变更：需要迁移 Casbin 策略
-	old, err := s.roleRepo.GetByID(req.ID)
-	if err == nil && old.Code != req.Code {
-		// 旧角色的 p 策略需移除（新 code 还没策略）；同时迁移 g 关联
-		_ = s.casbin.RemoveRolePolicies(old.Code)
-		_ = s.casbin.MigrateRoleCode(old.Code, req.Code)
-	}
 	patch := map[string]any{
 		"name":           req.Name,
-		"code":           req.Code,
 		"remark":         req.Remark,
 		"status":         req.Status,
 		"default_router": req.DefaultRouter,
@@ -74,11 +65,8 @@ func (s *roleService) Update(req dtoSys.RoleUpdateReq) error {
 }
 
 func (s *roleService) Delete(id uint) error {
-	role, err := s.roleRepo.GetByID(id)
-	if err == nil {
-		_ = s.casbin.RemoveRolePolicies(role.Code)
-		_ = s.casbin.RemoveRoleFromUsers(role.Code)
-	}
+	// 清理 Casbin 策略
+	_ = s.casbin.RemoveRolePolicies(id)
 	return s.roleRepo.Delete(id)
 }
 
@@ -94,10 +82,6 @@ func (s *roleService) List() (*dtoSys.RoleListResp, error) {
 // 在写入 sys_role_menus 前自动补全所有父级菜单 ID，
 // 防止前端只回传半选叶子节点导致父菜单丢失（前端 v-tree 半选状态修复见 web 端）。
 func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
-	role, err := s.roleRepo.GetByID(req.RoleID)
-	if err != nil {
-		return err
-	}
 	// 补全父级菜单 ID
 	menuIDs, err := s.menuRepo.CompleteParentIDs(req.MenuIDs)
 	if err != nil {
@@ -111,7 +95,7 @@ func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
 	if err != nil {
 		return err
 	}
-	if err := s.roleRepo.ReplaceMenus(role.ID, menus); err != nil {
+	if err := s.roleRepo.ReplaceMenus(req.RoleID, menus); err != nil {
 		return err
 	}
 	// 同步 Casbin 策略（API 权限完全由 Casbin 管理，不再维护 sys_role_apis 表）
@@ -119,7 +103,7 @@ func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
 	for _, a := range apis {
 		items = append(items, [2]string{a.Path, a.Method})
 	}
-	return s.casbin.ReplaceRolePolicies(role.Code, items)
+	return s.casbin.ReplaceRolePolicies(req.RoleID, items)
 }
 
 func (s *roleService) AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error) {
@@ -132,7 +116,7 @@ func (s *roleService) AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error) {
 		menuIDs = append(menuIDs, m.ID)
 	}
 	apiIDs := make([]uint, 0)
-	for _, p := range s.casbin.GetRolePolicies(role.Code) {
+	for _, p := range s.casbin.GetRolePolicies(role.ID) {
 		api, err := s.apiRepo.FindByPathMethod(p[0], p[1])
 		if err == nil && api != nil {
 			apiIDs = append(apiIDs, api.ID)

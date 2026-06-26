@@ -3,17 +3,11 @@ package middleware
 import (
 	"strings"
 
-	"go-admin/server/utils/jwt"
-	"go-admin/server/utils/response"
+	"github.com/lihongsheng/go-admin/server/global"
+	"github.com/lihongsheng/go-admin/server/utils/jwt"
+	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
-)
-
-// CtxUserID / CtxUsername / CtxRoles 上下文 key
-const (
-	CtxUserID   = "uid"
-	CtxUsername = "username"
-	CtxRoles    = "roles"
 )
 
 // JWTAuth 校验 Authorization: Bearer xxx
@@ -29,15 +23,15 @@ func JWTAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		claim, err := jwt.Parse(raw)
+		claim, err := jwt.Parse(raw, global.Cfg.JWT)
 		if err != nil {
 			response.FailCode(c, response.CodeUnauthorized, "invalid token: "+err.Error())
 			c.Abort()
 			return
 		}
-		c.Set(CtxUserID, claim.UserID)
-		c.Set(CtxUsername, claim.Username)
-		c.Set(CtxRoles, claim.Roles)
+		// 将用户信息写入请求上下文，供后续中间件 / handler 通过 jwt.GetUser() 获取
+		ctx := jwt.NewUserCtx(c.Request.Context(), claim.User)
+		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }

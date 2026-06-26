@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"go-admin/server/config"
-	"go-admin/server/global"
-	"go-admin/server/initialize"
-	applog "go-admin/server/log"
+	"github.com/lihongsheng/go-admin/server/config"
+	"github.com/lihongsheng/go-admin/server/global"
+	"github.com/lihongsheng/go-admin/server/initialize"
+	applog "github.com/lihongsheng/go-admin/server/log"
 )
 
 func main() {

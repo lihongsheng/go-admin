@@ -2,11 +2,11 @@
 package base
 
 import (
-	dtoBase "go-admin/server/dto/base"
-	"go-admin/server/middleware"
-	serviceBase "go-admin/server/service/base"
-	serviceSys "go-admin/server/service/system"
-	"go-admin/server/utils/response"
+	dtoBase "github.com/lihongsheng/go-admin/server/dto/base"
+	serviceBase "github.com/lihongsheng/go-admin/server/service/base"
+	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
+	"github.com/lihongsheng/go-admin/server/utils/jwt"
+	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,8 +41,12 @@ func Logout(c *gin.Context) { response.OKMsg(c, "ok") }
 
 // Info GET /api/v1/base/info —— 当前用户信息
 func Info(c *gin.Context) {
-	uid := c.GetUint(middleware.CtxUserID)
-	u, err := serviceBase.Default.Info(uid)
+	user, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	u, err := serviceBase.Default.Info(user.ID)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
@@ -52,8 +56,12 @@ func Info(c *gin.Context) {
 
 // Menu GET /api/v1/base/menu —— 当前用户菜单（树）
 func Menu(c *gin.Context) {
-	uid := c.GetUint(middleware.CtxUserID)
-	menus, err := serviceSys.DefaultMenu.UserTree(uid)
+	user, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
+		return
+	}
+	menus, err := serviceSys.DefaultMenu.UserTree(user.ID)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return

@@ -1,7 +1,7 @@
 // Package base base 模块 DTO：登录 / 验证码 / 当前用户
 package base
 
-import "go-admin/server/model/system"
+import "github.com/lihongsheng/go-admin/server/model/system"
 
 // LoginReq 登录请求
 type LoginReq struct {
@@ -13,7 +13,7 @@ type LoginReq struct {
 
 // LoginResp 登录成功响应
 type LoginResp struct {
-	Token string          `json:"token"`
+	Token string         `json:"token"`
 	User  system.SysUser `json:"user"`
 }
 

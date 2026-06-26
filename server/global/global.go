@@ -5,14 +5,14 @@ package global
 import (
 	"sync/atomic"
 
-	"go-admin/server/config"
+	"github.com/lihongsheng/go-admin/server/config"
 
 	"gorm.io/gorm"
 )
 
 var (
-	Cfg    *config.Config
-	DB     *gorm.DB
+	Cfg *config.Config
+	DB  *gorm.DB
 
 	// Installed 全局安装状态，安装中间件读取
 	Installed atomic.Bool

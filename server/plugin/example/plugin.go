@@ -9,9 +9,9 @@
 package example
 
 import (
-	"go-admin/server/model/system"
-	"go-admin/server/plugin"
-	exampleModel "go-admin/server/plugin/example/model"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	"github.com/lihongsheng/go-admin/server/plugin"
+	exampleModel "github.com/lihongsheng/go-admin/server/plugin/example/model"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

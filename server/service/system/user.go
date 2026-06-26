@@ -2,10 +2,9 @@
 package system
 
 import (
-	dtoSys "go-admin/server/dto/system"
-	"go-admin/server/model/system"
-	repoSys "go-admin/server/repo/system"
-	casbinUtil "go-admin/server/utils/casbin"
+	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/model/system"
+	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,13 +18,12 @@ type UserService interface {
 }
 
 // NewUserService 构造 UserService
-func NewUserService(userRepo repoSys.UserRepo, casbin casbinUtil.Port) UserService {
-	return &userService{repo: userRepo, casbin: casbin}
+func NewUserService(userRepo repoSys.UserRepo) UserService {
+	return &userService{repo: userRepo}
 }
 
 type userService struct {
-	repo   repoSys.UserRepo
-	casbin casbinUtil.Port
+	repo repoSys.UserRepo
 }
 
 // DefaultUser 包级单例
@@ -50,9 +48,6 @@ func (s *userService) Create(req dtoSys.UserCreateReq) (*system.SysUser, error) 
 			return nil, err
 		}
 		if err := s.repo.ReplaceRoles(u.ID, roles); err != nil {
-			return nil, err
-		}
-		if err := s.syncCasbinRoles(u.ID); err != nil {
 			return nil, err
 		}
 	}
@@ -85,19 +80,12 @@ func (s *userService) Update(req dtoSys.UserUpdateReq) error {
 		if err := s.repo.ReplaceRoles(req.ID, roles); err != nil {
 			return err
 		}
-		if err := s.syncCasbinRoles(req.ID); err != nil {
-			return err
-		}
 	}
 	return nil
 }
 
 func (s *userService) Delete(id uint) error {
-	if err := s.repo.Delete(id); err != nil {
-		return err
-	}
-	// 顺手清理 Casbin g 策略，避免 user-role 绑定脏数据
-	return s.casbin.RemoveUserRoles(id)
+	return s.repo.Delete(id)
 }
 
 func (s *userService) List(req dtoSys.UserListReq) (*dtoSys.UserListResp, error) {
@@ -106,17 +94,4 @@ func (s *userService) List(req dtoSys.UserListReq) (*dtoSys.UserListResp, error)
 		return nil, err
 	}
 	return &dtoSys.UserListResp{List: list, Total: total}, nil
-}
-
-// syncCasbinRoles 拉最新的用户角色码同步到 casbin g 策略
-func (s *userService) syncCasbinRoles(uid uint) error {
-	u, err := s.repo.GetByID(uid, true)
-	if err != nil {
-		return err
-	}
-	codes := make([]string, 0, len(u.Roles))
-	for _, r := range u.Roles {
-		codes = append(codes, r.Code)
-	}
-	return s.casbin.ReplaceUserRoles(uid, codes)
 }

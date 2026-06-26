@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/lihongsheng/go-admin/server/utils/jwt/config"
 
 	"github.com/spf13/viper"
 )
@@ -9,7 +10,7 @@ import (
 // Config 服务端总配置
 type Config struct {
 	App           App           `mapstructure:"app"           json:"app"           yaml:"app"`
-	JWT           JWT           `mapstructure:"jwt"           json:"jwt"           yaml:"jwt"`
+	JWT           config.JWT    `mapstructure:"jwt"           json:"jwt"           yaml:"jwt"`
 	Log           Log           `mapstructure:"log"           json:"log"           yaml:"log"`
 	DB            DB            `mapstructure:"db"            json:"db"            yaml:"db"`
 	Redis         Redis         `mapstructure:"redis"         json:"redis"         yaml:"redis"`
@@ -50,12 +51,6 @@ type App struct {
 	Name string `mapstructure:"name" json:"name" yaml:"name"`
 	Mode string `mapstructure:"mode" json:"mode" yaml:"mode"`
 	Port int    `mapstructure:"port" json:"port" yaml:"port"`
-}
-
-type JWT struct {
-	Secret string `mapstructure:"secret" json:"secret" yaml:"secret"`
-	Expire int64  `mapstructure:"expire" json:"expire" yaml:"expire"`
-	Issuer string `mapstructure:"issuer" json:"issuer" yaml:"issuer"`
 }
 
 type Log struct {

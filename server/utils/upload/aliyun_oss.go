@@ -3,8 +3,8 @@ package upload
 import (
 	"context"
 	"errors"
-	"go-admin/server/config"
-	"go-admin/server/log"
+	"github.com/lihongsheng/go-admin/server/config"
+	"github.com/lihongsheng/go-admin/server/log"
 	"mime/multipart"
 	"path/filepath"
 	"time"

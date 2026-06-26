@@ -3,7 +3,7 @@ package system
 import (
 	"sort"
 
-	"go-admin/server/model/system"
+	"github.com/lihongsheng/go-admin/server/model/system"
 
 	"gorm.io/gorm"
 )

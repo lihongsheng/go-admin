@@ -2,9 +2,9 @@ package initialize
 
 import (
 	// 通过空导入触发各插件 init() 自注册
-	_ "go-admin/server/plugin/example"
+	_ "github.com/lihongsheng/go-admin/server/plugin/example"
 
-	"go-admin/server/plugin"
+	"github.com/lihongsheng/go-admin/server/plugin"
 )
 
 // LoadPlugins 仅依赖 init() 完成注册；这里只是给个显式触点

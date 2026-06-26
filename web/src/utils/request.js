@@ -46,7 +46,12 @@ request.interceptors.response.use(
     return Promise.reject(data)
   },
   err => {
-    ElMessage.error(err.message || 'network error')
+    const resp = err.response
+    if (resp && resp.data && resp.data.msg) {
+      ElMessage.error(resp.data.msg)
+    } else {
+      ElMessage.error(err.message || 'network error')
+    }
     return Promise.reject(err)
   }
 )
