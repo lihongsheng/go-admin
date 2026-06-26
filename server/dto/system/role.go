@@ -7,10 +7,12 @@ import (
 
 // RoleCreateReq 新增角色
 type RoleCreateReq struct {
-	Name          string `json:"name"           binding:"required"`
-	Remark        string `json:"remark"`
-	Status        int8   `json:"status"`
-	DefaultRouter string `json:"default_router"`
+	Name          string          `json:"name"           binding:"required"`
+	Remark        string          `json:"remark"`
+	Status        int8            `json:"status"`
+	DefaultRouter string          `json:"default_router"`
+	SystemType    enum.SystemType `json:"system_type"`
+	MchID         int64           `json:"mch_id"`
 }
 
 // RoleUpdateReq 更新角色
@@ -20,6 +22,12 @@ type RoleUpdateReq struct {
 	Remark        string `json:"remark"`
 	Status        int8   `json:"status"`
 	DefaultRouter string `json:"default_router"`
+}
+
+// RoleListReq 角色列表查询
+type RoleListReq struct {
+	MchID      int64 `form:"mch_id"`
+	SystemType int   `form:"system_type"`
 }
 
 // RoleListResp 角色列表响应

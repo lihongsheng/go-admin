@@ -14,6 +14,11 @@
             <el-option v-for="m in ['GET','POST','PUT','DELETE','PATCH']" :key="m" :label="m" :value="m" />
           </el-select>
         </el-form-item>
+        <el-form-item label="系统">
+          <el-select v-model="query.system_type" placeholder="系统类型" style="width:120px" @change="load">
+            <el-option v-for="st in systemTypesList" :key="st.SystemType" :label="st.Name" :value="st.SystemType" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="load">
             <el-icon><Search /></el-icon>搜索
@@ -45,6 +50,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="desc" label="说明" min-width="180" show-overflow-tooltip />
+        <el-table-column label="系统" width="80" align="center">
+          <template #default="s">
+            <el-tag v-if="s.row.system_type" size="small" type="warning">{{ systemTypeName[s.row.system_type] }}</el-tag>
+            <span v-else style="color:#c0c4cc">平台</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="160" fixed="right">
           <template #default="s">
             <el-button v-permission="'api:edit'" type="primary" link size="small" @click="open(s.row)">编辑</el-button>
@@ -70,6 +81,11 @@
         <el-form-item label="分组">
           <el-input v-model="form.group" placeholder="如 user / role / menu" />
         </el-form-item>
+        <el-form-item label="系统">
+          <el-select v-model="form.system_type" style="width:100%">
+            <el-option v-for="st in systemTypesList" :key="st.SystemType" :label="st.Name" :value="st.SystemType" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="说明">
           <el-input v-model="form.desc" placeholder="接口功能描述" />
         </el-form-item>
@@ -83,17 +99,37 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Search, Plus } from '@element-plus/icons-vue'
 import { apiList, apiCreate, apiUpdate, apiDelete } from '@/api/system'
+import { systemTypes } from '@/api/base'
 
 const list = ref([])
 const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
-const query = reactive({ group: '', method: '' })
+const query = reactive({ group: '', method: '', system_type: 1 }) // 默认选中第一个，加载后覆盖
 const form = reactive({ method: 'GET' })
+const systemTypesList = ref([])
+
+const systemTypeName = computed(() => {
+  const m = {}
+  systemTypesList.value.forEach(st => { m[st.SystemType] = st.Name })
+  return m
+})
+
+async function loadSystemTypes() {
+  try {
+    const { data } = await systemTypes()
+    systemTypesList.value = data || []
+    // 默认选中第一个
+    if (systemTypesList.value.length > 0) {
+      query.system_type = systemTypesList.value[0].SystemType
+      load()
+    }
+  } catch (_) { /* ignore */ }
+}
 
 function methodTag(m) {
   const map = { GET: 'success', POST: '', PUT: 'warning', DELETE: 'danger', PATCH: 'info' }
@@ -109,14 +145,14 @@ function resetQuery() {
 async function load() {
   loading.value = true
   try {
-    const { data } = await apiList({ group: query.group })
+    const { data } = await apiList({ group: query.group, system_type: query.system_type })
     list.value = data.list || []
   } finally { loading.value = false }
 }
 
 function open(row) {
   if (row) { Object.assign(form, { ...row }) }
-  else { Object.assign(form, { id: undefined, path: '', method: 'GET', group: '', desc: '' }) }
+  else { Object.assign(form, { id: undefined, path: '', method: 'GET', group: '', desc: '', system_type: query.system_type }) }
   dlg.value = true
 }
 
@@ -137,7 +173,7 @@ async function del(row) {
   load()
 }
 
-load()
+loadSystemTypes()
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@ server/logs/
 server/*.db
 server/server
 server/cmd/server/server
-
+server/tmp/
 # Node
 web/node_modules/
 web/dist/

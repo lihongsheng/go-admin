@@ -13,7 +13,7 @@ type RoleService interface {
 	Create(req dtoSys.RoleCreateReq, mchID int64, systemType enum.SystemType) (*system.SysRole, error)
 	Update(req dtoSys.RoleUpdateReq) error
 	Delete(id uint) error
-	List(mchID int64) (*dtoSys.RoleListResp, error)
+	List(req dtoSys.RoleListReq) (*dtoSys.RoleListResp, error)
 	Auth(req dtoSys.RoleAuthReq) error
 	AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error)
 	SetDefaultRouter(roleID uint, defaultRouter string) error
@@ -73,8 +73,8 @@ func (s *roleService) Delete(id uint) error {
 	return s.roleRepo.Delete(id)
 }
 
-func (s *roleService) List(mchID int64) (*dtoSys.RoleListResp, error) {
-	list, err := s.roleRepo.List(mchID)
+func (s *roleService) List(req dtoSys.RoleListReq) (*dtoSys.RoleListResp, error) {
+	list, err := s.roleRepo.List(req.MchID, req.SystemType)
 	if err != nil {
 		return nil, err
 	}

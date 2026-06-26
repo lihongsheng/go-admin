@@ -2,6 +2,9 @@
   <div class="page-wrap">
     <el-card shadow="never" class="table-card">
       <div class="table-toolbar">
+        <el-select v-model="currentSystemType" placeholder="系统类型" style="width:140px;margin-right:12px" @change="load">
+          <el-option v-for="st in systemTypesList" :key="st.SystemType" :label="st.Name" :value="st.SystemType" />
+        </el-select>
         <el-button v-permission="'menu:add'" type="primary" @click="open()">
           <el-icon><Plus /></el-icon>新增菜单
         </el-button>
@@ -13,6 +16,12 @@
       <el-table-column prop="type" label="类型" width="80" align="center">
         <template #default="s">
           <el-tag :type="tagType(s.row.type)" size="small" effect="dark">{{ typeLabel(s.row.type) }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="系统" width="80" align="center">
+        <template #default="s">
+          <el-tag v-if="s.row.system_type" size="small" type="warning">{{ systemTypeName[s.row.system_type] }}</el-tag>
+          <span v-else style="color:#c0c4cc">平台</span>
         </template>
       </el-table-column>
       <el-table-column prop="icon" label="图标" width="80" align="center" />
@@ -42,6 +51,11 @@
             <el-radio-button label="menu">菜单</el-radio-button>
             <el-radio-button label="button">按钮</el-radio-button>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item label="系统">
+          <el-select v-model="form.system_type" style="width:100%">
+            <el-option v-for="st in systemTypesList" :key="st.SystemType" :label="st.Name" :value="st.SystemType" />
+          </el-select>
         </el-form-item>
         <el-form-item label="父菜单">
           <el-tree-select :model-value="form.parent_id || undefined" :data="parentTreeData"
@@ -138,6 +152,7 @@ import {
   Upload, User, UserFilled, Van, VideoCamera, Warning
 } from '@element-plus/icons-vue'
 import { menuTree, menuCreate, menuUpdate, menuDelete } from '@/api/system'
+import { systemTypes } from '@/api/base'
 
 // 图标名(kebab) → 图标组件映射
 const iconMap = {
@@ -253,6 +268,8 @@ const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
 const form = reactive({ parent_id: 0, type: 'menu', sort: 0, hidden: false, keep_alive: false })
+const systemTypesList = ref([])
+const currentSystemType = ref(1) // 默认选中第一个，加载后覆盖
 
 // ── 父菜单树形数据（编辑时自动禁用自身及所有子孙节点，防止循环引用）──
 const parentTreeData = computed(() => {
@@ -285,10 +302,29 @@ const parentTreeData = computed(() => {
 function typeLabel(t) { return TYPE_MAP[t] || t }
 function tagType(t)   { return TAG_MAP[t] || '' }
 
+// 系统类型名称映射
+const systemTypeName = computed(() => {
+  const m = {}
+  systemTypesList.value.forEach(st => { m[st.SystemType] = st.Name })
+  return m
+})
+
+async function loadSystemTypes() {
+  try {
+    const { data } = await systemTypes()
+    systemTypesList.value = data || []
+    // 默认选中第一个
+    if (systemTypesList.value.length > 0) {
+      currentSystemType.value = systemTypesList.value[0].SystemType
+      load()
+    }
+  } catch (_) { /* ignore */ }
+}
+
 async function load() {
   loading.value = true
   try {
-    const { data } = await menuTree()
+    const { data } = await menuTree({ system_type: currentSystemType.value })
     flat.value = data.list || []
   } finally { loading.value = false }
 }
@@ -299,7 +335,8 @@ function open(row) {
   } else {
     Object.assign(form, {
       id: undefined, parent_id: 0, type: 'menu', sort: 0, hidden: false, keep_alive: false,
-      title: '', name: '', path: '', component: '', permission: '', redirect: '', icon: ''
+      title: '', name: '', path: '', component: '', permission: '', redirect: '', icon: '',
+      system_type: currentSystemType.value || 0
     })
   }
   dlg.value = true
@@ -329,7 +366,7 @@ async function del(row) {
   load()
 }
 
-load()
+loadSystemTypes()
 </script>
 
 <style scoped>

@@ -21,7 +21,17 @@ func RoleCreate(c *gin.Context) {
 		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
 		return
 	}
-	r, err := serviceSys.DefaultRole.Create(req, u.MchID, u.SystemType)
+	mchID := u.MchID
+	sysType := u.SystemType
+	if u.SystemType == enum.SystemTypePlatform {
+		if req.MchID > 0 {
+			mchID = req.MchID
+		}
+		if req.SystemType > 0 {
+			sysType = req.SystemType
+		}
+	}
+	r, err := serviceSys.DefaultRole.Create(req, mchID, sysType)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
@@ -63,7 +73,15 @@ func RoleList(c *gin.Context) {
 		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
 		return
 	}
-	resp, err := serviceSys.DefaultRole.List(u.MchID)
+	var req dtoSys.RoleListReq
+	_ = c.ShouldBindQuery(&req)
+	if req.SystemType == 0 {
+		req.SystemType = int(u.SystemType)
+	}
+	if req.MchID == 0 {
+		req.MchID = u.MchID
+	}
+	resp, err := serviceSys.DefaultRole.List(req)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return

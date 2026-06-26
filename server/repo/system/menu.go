@@ -153,7 +153,9 @@ func (r *menuRepo) MenusByRoleIDs(roleIDs []uint) ([]system.SysMenu, error) {
 
 func (r *menuRepo) ListBySystemType(systemType enum.SystemType) ([]system.SysMenu, error) {
 	var list []system.SysMenu
-	if err := r.db.Where("system_type = ?", systemType).Order("sort").Find(&list).Error; err != nil {
+	query := r.db.Where("system_type = ?", systemType)
+
+	if err := query.Order("sort").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil

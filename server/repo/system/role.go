@@ -13,7 +13,7 @@ type RoleRepo interface {
 	Delete(id uint) error
 	GetByID(id uint) (*system.SysRole, error)
 	GetByIDWithMenus(id uint) (*system.SysRole, error)
-	List(mchID int64) ([]system.SysRole, error)
+	List(mchID int64, systemType int) ([]system.SysRole, error)
 	ReplaceMenus(roleID uint, menus []system.SysMenu) error
 }
 
@@ -50,11 +50,14 @@ func (r *roleRepo) GetByIDWithMenus(id uint) (*system.SysRole, error) {
 	return &role, nil
 }
 
-func (r *roleRepo) List(mchID int64) ([]system.SysRole, error) {
+func (r *roleRepo) List(mchID int64, systemType int) ([]system.SysRole, error) {
 	var list []system.SysRole
 	q := r.db
 	if mchID > 0 {
 		q = q.Where("mch_id = ?", mchID)
+	}
+	if systemType > 0 {
+		q = q.Where("system_type = ?", systemType)
 	}
 	if err := q.Find(&list).Error; err != nil {
 		return nil, err
