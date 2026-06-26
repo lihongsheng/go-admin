@@ -14,6 +14,7 @@ type Config struct {
 	Log           Log           `mapstructure:"log"           json:"log"           yaml:"log"`
 	DB            DB            `mapstructure:"db"            json:"db"            yaml:"db"`
 	Redis         Redis         `mapstructure:"redis"         json:"redis"         yaml:"redis"`
+	Captcha       Captcha       `mapstructure:"captcha"       json:"captcha"       yaml:"captcha"`
 	Install       Install       `mapstructure:"install"       json:"install"       yaml:"install"`
 	Upload        Upload        `mapstructure:"upload"        json:"upload"        yaml:"upload"`
 	Observability Observability `mapstructure:"observability" json:"observability" yaml:"observability"`
@@ -118,6 +119,12 @@ type Redis struct {
 	DB       int    `mapstructure:"db"       json:"db"       yaml:"db"`
 }
 
+// Captcha 验证码配置
+type Captcha struct {
+	// Drive 存储驱动：memory / redis，默认 memory
+	Drive string `mapstructure:"drive" json:"drive" yaml:"drive"`
+}
+
 type Install struct {
 	Enable bool `mapstructure:"enable" json:"enable" yaml:"enable"`
 }
@@ -189,6 +196,7 @@ func Save(c *Config) error {
 	V.Set("log", c.Log)
 	V.Set("db", c.DB)
 	V.Set("redis", c.Redis)
+	V.Set("captcha", c.Captcha)
 	V.Set("install", c.Install)
 	V.Set("upload", c.Upload)
 	V.Set("observability", c.Observability)

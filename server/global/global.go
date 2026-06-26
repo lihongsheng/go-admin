@@ -3,6 +3,7 @@
 package global
 
 import (
+	"github.com/redis/go-redis/v9"
 	"sync/atomic"
 
 	"github.com/lihongsheng/go-admin/server/config"
@@ -11,8 +12,9 @@ import (
 )
 
 var (
-	Cfg *config.Config
-	DB  *gorm.DB
+	Cfg     *config.Config
+	DB      *gorm.DB
+	Redis   *redis.Client
 
 	// Installed 全局安装状态，安装中间件读取
 	Installed atomic.Bool

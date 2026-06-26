@@ -87,6 +87,12 @@ func main() {
 		logger.Warn("db not configured, entering install mode")
 	}
 
+	// 初始化 Redis（如启用）
+	initialize.InitRedis()
+
+	// 初始化验证码存储（根据配置选择 memory / redis）
+	initialize.InitCaptcha()
+
 	// 加载插件（注册 Model 到 installer 注册中心 / 注册路由）
 	initialize.LoadPlugins()
 
