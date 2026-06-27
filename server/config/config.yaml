@@ -17,7 +17,7 @@ db:
     max_open: 0
     log_mode: ""
 install:
-    enable: true
+    enable: false
 jwt:
     secret: please-change-me-in-production
     expire: 86400
