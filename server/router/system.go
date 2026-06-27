@@ -47,11 +47,6 @@ func SystemRouter(g *gin.RouterGroup) {
 	s.DELETE("/menu/:id", system.MenuDelete)
 	s.GET("/menu/tree", system.MenuTree)
 
-	s.POST("/api", system.ApiCreate)
-	s.PUT("/api", system.ApiUpdate)
-	s.DELETE("/api/:id", system.ApiDelete)
-	s.GET("/api/list", system.ApiList)
-
 	s.POST("/mch", system.MchCreate)
 	s.PUT("/mch", system.MchUpdate)
 	s.GET("/mch/:id", system.MchDetail)

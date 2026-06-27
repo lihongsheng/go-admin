@@ -48,15 +48,13 @@ func InitDBServices() {
 	userRepo := repoSys.NewUserRepo(global.DB)
 	roleRepo := repoSys.NewRoleRepo(global.DB)
 	menuRepo := repoSys.NewMenuRepo(global.DB)
-	apiRepo := repoSys.NewApiRepo(global.DB)
 	mchRepo := repoSys.NewMchRepo(global.DB)
 	noteRepo := repoExampleNote.NewNoteRepo(global.DB)
 
 	// system service
 	serviceSys.DefaultUser = serviceSys.NewUserService(userRepo)
-	serviceSys.DefaultRole = serviceSys.NewRoleService(roleRepo, menuRepo, apiRepo, casbinPort)
+	serviceSys.DefaultRole = serviceSys.NewRoleService(roleRepo, menuRepo, casbinPort)
 	serviceSys.DefaultMenu = serviceSys.NewMenuService(menuRepo, userRepo)
-	serviceSys.DefaultApi = serviceSys.NewApiService(apiRepo)
 	serviceSys.DefaultMch = serviceSys.NewMchService(mchRepo)
 
 	// base service

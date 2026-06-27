@@ -31,10 +31,6 @@ export const menuUpdate = (data)    => request.put('/api/v1/system/menu', data)
 export const menuDelete = (id)      => request.delete('/api/v1/system/menu/' + id)
 
 // api
-export const apiList    = (params)  => request.get('/api/v1/system/api/list', { params })
-export const apiCreate  = (data)    => request.post('/api/v1/system/api', data)
-export const apiUpdate  = (data)    => request.put('/api/v1/system/api', data)
-export const apiDelete  = (id)      => request.delete('/api/v1/system/api/' + id)
 
 // plugin
 export const pluginList = ()        => request.get('/api/v1/plugin/list')

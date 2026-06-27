@@ -2,7 +2,7 @@
   <div>
     <!-- 统计卡片 -->
     <el-row :gutter="16">
-      <el-col :xs="24" :sm="12" :lg="6" v-for="c in cards" :key="c.label" style="margin-bottom:16px">
+      <el-col :xs="24" :sm="12" :lg="8" v-for="c in cards" :key="c.label" style="margin-bottom:16px">
         <el-card shadow="hover" class="stat-card">
           <div class="stat-body">
             <div class="stat-icon" :style="{ background: c.color }">
@@ -36,31 +36,28 @@
 
 <script setup>
 import { ref } from 'vue'
-import { User, Avatar, Grid, Link } from '@element-plus/icons-vue'
+import { User, Avatar, Grid } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/modules/user'
-import { userList, roleList, menuTree, apiList } from '@/api/system'
+import { userList, roleList, menuTree } from '@/api/system'
 
 const userStore = useUserStore()
 
 const cards = ref([
   { label: '用户数', value: 0, icon: User, color: '#409EFF' },
   { label: '角色数', value: 0, icon: Avatar, color: '#67C23A' },
-  { label: '菜单数', value: 0, icon: Grid, color: '#E6A23C' },
-  { label: 'API 数', value: 0, icon: Link, color: '#F56C6C' }
+  { label: '菜单数', value: 0, icon: Grid, color: '#E6A23C' }
 ])
 
 async function loadStats() {
   try {
-    const [users, roles, menus, apis] = await Promise.all([
+    const [users, roles, menus] = await Promise.all([
       userList({ page: 1, size: 1 }),
       roleList(),
-      menuTree(),
-      apiList({})
+      menuTree()
     ])
     cards.value[0].value = users.data.total || 0
     cards.value[1].value = (roles.data.list || []).length
     cards.value[2].value = countMenuNodes(menus.data.list || [])
-    cards.value[3].value = (apis.data.list || []).length
   } catch (_) { /* ignore */ }
 }
 

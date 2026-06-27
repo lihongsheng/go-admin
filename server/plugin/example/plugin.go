@@ -43,14 +43,6 @@ func (p) Menus() []system.SysMenu {
 	}
 }
 
-func (p) Apis() []system.SysApi {
-	return []system.SysApi{
-		{Path: "/api/v1/plugin/example/note", Method: "POST", Group: "example", Desc: "新增笔记"},
-		{Path: "/api/v1/plugin/example/note/:id", Method: "DELETE", Group: "example", Desc: "删除笔记"},
-		{Path: "/api/v1/plugin/example/note/list", Method: "GET", Group: "example", Desc: "笔记列表"},
-	}
-}
-
 func (p) RegisterRoute(g *gin.Engine) {
 	g.POST("/note", create)
 	g.DELETE("/note/:id", del)

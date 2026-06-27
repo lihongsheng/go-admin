@@ -17,6 +17,7 @@
 package plugin
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/lihongsheng/go-admin/server/core/installer"
@@ -33,8 +34,7 @@ type Plugin interface {
 	Name() string                // 唯一名（路由前缀 / 表前缀建议同名）
 	Version() string             // 版本号
 	Models() []interface{}       // 参与 AutoMigrate 的 Model
-	Menus() []system.SysMenu     // 注入菜单树（含 catalog/menu/button；按 Name 幂等）
-	Apis() []system.SysApi       // 注入 API（按 path+method 幂等）
+	Menus() []system.SysMenu     // 注入菜单树（含 catalog/menu/button；按 Name 幂等）；API 规则通过菜单 ApiRules 字段注入
 	RegisterRoute(g *gin.Engine) // 注册自身路由（已在 /api/v1/plugin/<name> 下）
 	SeedTable(db *gorm.DB) error // 插件自身业务表的初始数据；仅在目标表为空时调用
 }
@@ -94,28 +94,21 @@ func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
 		}
 	}
 
-	// ----- APIs（按 path+method 幂等）-----
-	for _, a := range p.Apis() {
-		var exist system.SysApi
-		err := db.Where("path = ? AND method = ?", a.Path, a.Method).First(&exist).Error
-		if err == gorm.ErrRecordNotFound {
-			if err := db.Create(&a).Error; err != nil {
-				return err
-			}
-			exist = a
-		} else if err != nil {
-			return err
-		} else {
-			// 已存在则更新 desc / group / system_type
-			db.Model(&exist).Updates(map[string]interface{}{
-				"desc": a.Desc, "group": a.Group,
-				"system_type": a.SystemType,
-			})
+	// ----- APIs: 从插件菜单 api_rules 提取并写入 Casbin（兼容旧 Apis() 方法）-----
+	// 1) 从插件菜单提取 API 规则
+	for _, m := range p.Menus() {
+		if m.ApiRules == "" {
+			continue
 		}
-		// 仅平台级 API 自动挂到超级管理员
-		if attachSuper && superRoleID > 0 && a.SystemType == enum.SystemTypePlatform {
-			if _, err := casbin.AddPolicy(superRoleID, a.Path, a.Method); err != nil {
-				return err
+		var rules []system.ApiRule
+		if err := json.Unmarshal([]byte(m.ApiRules), &rules); err != nil {
+			continue
+		}
+		for _, r := range rules {
+			if attachSuper && superRoleID > 0 && m.SystemType == enum.SystemTypePlatform {
+				if _, err := casbin.AddPolicy(superRoleID, r.Path, r.Method); err != nil {
+					return err
+				}
 			}
 		}
 	}

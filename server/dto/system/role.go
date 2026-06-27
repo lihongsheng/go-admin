@@ -43,10 +43,10 @@ type RoleAuthReq struct {
 	ApiIDs  []uint `json:"api_ids"`
 }
 
-// RoleAuthDetailResp 角色已分配的菜单/API id 列表 + 默认首页路由 + 系统类型
+// RoleAuthDetailResp 角色已分配的菜单 id 列表 + 默认首页路由 + 系统类型
+// (API 权限已合并到菜单 api_rules 中，不再单独返回)
 type RoleAuthDetailResp struct {
 	MenuIDs       []uint           `json:"menu_ids"`
-	ApiIDs        []uint           `json:"api_ids"`
 	DefaultRouter string           `json:"default_router"`
 	SystemType    enum.SystemType  `json:"system_type"`
 }
