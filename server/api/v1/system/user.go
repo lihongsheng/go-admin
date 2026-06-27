@@ -2,6 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
 	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
@@ -21,7 +22,17 @@ func UserCreate(c *gin.Context) {
 		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
 		return
 	}
-	usr, err := serviceSys.DefaultUser.Create(req, u.MchID, u.SystemType)
+	mchID := u.MchID
+	sysType := u.SystemType
+	if u.SystemType == enum.SystemTypePlatform {
+		if req.MchID > 0 {
+			mchID = req.MchID
+		}
+		if req.SystemType > 0 {
+			sysType = req.SystemType
+		}
+	}
+	usr, err := serviceSys.DefaultUser.Create(req, mchID, sysType)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
@@ -41,7 +52,11 @@ func UserUpdate(c *gin.Context) {
 		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
 		return
 	}
-	if err := serviceSys.DefaultUser.Update(req, u.MchID); err != nil {
+	mchID := u.MchID
+	if u.SystemType == enum.SystemTypePlatform && req.MchID > 0 {
+		mchID = req.MchID
+	}
+	if err := serviceSys.DefaultUser.Update(req, mchID); err != nil {
 		response.Fail(c, err.Error())
 		return
 	}
@@ -73,7 +88,19 @@ func UserList(c *gin.Context) {
 		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
 		return
 	}
-	resp, err := serviceSys.DefaultUser.List(req, u.MchID)
+	mchID := u.MchID
+	sysType := int(u.SystemType)
+	if u.SystemType == enum.SystemTypePlatform {
+		if req.MchID > 0 {
+			mchID = req.MchID
+		}
+		if req.SystemType > 0 {
+			sysType = req.SystemType
+		} else {
+			sysType = 0
+		}
+	}
+	resp, err := serviceSys.DefaultUser.List(req, mchID, sysType)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return

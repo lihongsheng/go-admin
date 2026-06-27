@@ -40,7 +40,7 @@ func (r *apiRepo) List(group string, systemType int) ([]system.SysApi, error) {
 	if group != "" {
 		q = q.Where("`group` = ?", group)
 	}
-	if systemType > 0 {
+	if systemType >= 0 {
 		q = q.Where("system_type = ?", systemType)
 	}
 	var list []system.SysApi

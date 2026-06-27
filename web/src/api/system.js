@@ -16,7 +16,7 @@ export const uploadFile = (file) => {
 }
 
 // role
-export const roleList       = ()        => request.get('/api/v1/system/role/list')
+export const roleList       = (params)  => request.get('/api/v1/system/role/list', { params })
 export const roleCreate     = (data)    => request.post('/api/v1/system/role', data)
 export const roleUpdate     = (data)    => request.put('/api/v1/system/role', data)
 export const roleDelete     = (id)      => request.delete('/api/v1/system/role/' + id)

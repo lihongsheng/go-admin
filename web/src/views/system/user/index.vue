@@ -95,6 +95,20 @@
         <el-form-item label="状态">
           <el-switch v-model="form.statusBool" active-text="启用" inactive-text="禁用" />
         </el-form-item>
+        <template v-if="isPlatformUser">
+          <el-form-item label="系统类型">
+            <el-select v-model="form.system_type" placeholder="选择系统类型" @change="onSysTypeChange" style="width:100%">
+              <el-option v-for="t in SYS_TYPES" :key="t.system_type" :label="t.name" :value="t.system_type" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="所属商户" v-if="form.system_type === 1">
+            <el-select v-model="form.mch_id" placeholder="输入商户名称搜索" filterable remote
+                       :remote-method="searchMch" :loading="mchLoading" style="width:100%"
+                       @change="onMchChange">
+              <el-option v-for="m in merchants" :key="m.id" :label="m.mch_name" :value="m.id" />
+            </el-select>
+          </el-form-item>
+        </template>
         <el-form-item label="角色">
           <el-select v-model="form.role_ids" multiple placeholder="请选择角色" style="width:100%">
             <el-option v-for="r in roles" :key="r.id" :label="r.name" :value="r.id" />
@@ -110,10 +124,18 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Search, Plus, Upload } from '@element-plus/icons-vue'
-import { userList, userCreate, userUpdate, userDelete, roleList, uploadFile } from '@/api/system'
+import { useUserStore } from '@/store/modules/user'
+import { userList, userCreate, userUpdate, userDelete, roleList, uploadFile, mchList } from '@/api/system'
+
+// 系统类型常量（与服务端 enum.SystemType 保持一致）
+const SYS_TYPES = [
+  { system_type: 0, name: '平台' },
+  { system_type: 1, name: '商户' },
+  { system_type: 2, name: '代理' },
+]
 
 const list = ref([])
 const total = ref(0)
@@ -123,10 +145,46 @@ const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
 const query = reactive({ kw: '' })
-const form = reactive({ statusBool: true, role_ids: [], status: 1, phone: '', avatar: '' })
+const form = reactive({ statusBool: true, role_ids: [], status: 1, phone: '', avatar: '', system_type: 0, mch_id: null })
 const roles = ref([])
 const avatarFile = ref(null)
 const avatarInput = ref(null)
+
+const userStore = useUserStore()
+const isPlatformUser = computed(() => userStore.userInfo?.system_type === 0)
+const isMerchantUser = computed(() => userStore.userInfo?.system_type === 1)
+const merchants = ref([])
+const mchLoading = ref(false)
+
+async function searchMch(keyword) {
+  mchLoading.value = true
+  try {
+    const params = { page: 1, limit: 10 }
+    if (keyword) params.mch_name = keyword
+    const { data } = await mchList(params)
+    merchants.value = data.list || []
+  } catch (_) {
+    merchants.value = []
+  } finally {
+    mchLoading.value = false
+  }
+}
+
+function onSysTypeChange(val) {
+  form.mch_id = null
+  form.role_ids = []
+  // 按选择的系统类型加载角色
+  const params = { system_type: val }
+  fetchRoles(params)
+  if (val === 1) searchMch('')
+}
+
+function onMchChange(val) {
+  if (!val) return
+  form.role_ids = []
+  // 按选中的商户加载角色
+  fetchRoles({ system_type: 1, mch_id: val })
+}
 
 function onAvatarPick(e) {
   const file = e.target.files[0]
@@ -157,15 +215,16 @@ function resetQuery() {
   load()
 }
 
-async function fetchRoles() {
-  const { data } = await roleList()
+async function fetchRoles(params) {
+  const { data } = await roleList(params)
   roles.value = data.list || []
 }
 
 async function load() {
   loading.value = true
   try {
-    const { data } = await userList({ page: page.value, size: size.value, keyword: query.kw })
+    const params = { page: page.value, size: size.value, keyword: query.kw }
+    const { data } = await userList(params)
     list.value = data.list || []
     total.value = data.total || 0
   } finally { loading.value = false }
@@ -175,8 +234,17 @@ function open(row) {
   avatarFile.value = null
   if (row) {
     Object.assign(form, { ...row, statusBool: row.status === 1, role_ids: (row.roles || []).map(r => r.id), password: '', avatar: row.avatar || '' })
+    // 编辑时按角色所属系统类型加载角色列表
+    const roleParams = {}
+    if (row.system_type > 0) roleParams.system_type = row.system_type
+    if (row.mch_id > 0) roleParams.mch_id = row.mch_id
+    fetchRoles(roleParams)
+    // 如果是商户用户，加载商户列表供选择
+    if (isPlatformUser.value && row.system_type === 1 && row.mch_id > 0) {
+      searchMch('')
+    }
   } else {
-    Object.assign(form, { id: undefined, username: '', password: '', nickname: '', email: '', phone: '', avatar: '', statusBool: true, role_ids: [], status: 1 })
+    Object.assign(form, { id: undefined, username: '', password: '', nickname: '', email: '', phone: '', avatar: '', statusBool: true, role_ids: [], status: 1, system_type: 0, mch_id: null })
   }
   dlg.value = true
 }
@@ -200,7 +268,12 @@ async function del(row) {
   load()
 }
 
-fetchRoles()
+// 初始化：商户用户自动加载其商户的角色列表
+if (isMerchantUser.value) {
+  fetchRoles()
+} else {
+  fetchRoles({ system_type: 0 })
+}
 load()
 </script>
 

@@ -14,7 +14,7 @@ type UserRepo interface {
 	Delete(id uint) error
 	GetByID(id uint, preloadRoles bool) (*system.SysUser, error)
 	GetByUsername(username string) (*system.SysUser, error)
-	List(keyword string, page, size int, mchID int64) ([]system.SysUser, int64, error)
+	List(keyword string, page, size int, mchID int64, systemType int) ([]system.SysUser, int64, error)
 	ReplaceRoles(uid uint, roles []system.SysRole) error
 	FindRolesByIDs(ids []uint, mchID int64) ([]system.SysRole, error)
 }
@@ -56,7 +56,7 @@ func (r *userRepo) GetByUsername(username string) (*system.SysUser, error) {
 	return &u, nil
 }
 
-func (r *userRepo) List(keyword string, page, size int, mchID int64) ([]system.SysUser, int64, error) {
+func (r *userRepo) List(keyword string, page, size int, mchID int64, systemType int) ([]system.SysUser, int64, error) {
 	if page <= 0 {
 		page = 1
 	}
@@ -69,6 +69,9 @@ func (r *userRepo) List(keyword string, page, size int, mchID int64) ([]system.S
 	}
 	if mchID > 0 {
 		q = q.Where("mch_id = ?", mchID)
+	}
+	if systemType > 0 {
+		q = q.Where("system_type = ?", systemType)
 	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {

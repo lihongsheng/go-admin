@@ -2,6 +2,11 @@
   <div class="page-wrap">
     <el-card shadow="never" class="table-card">
       <div class="table-toolbar">
+        <template v-if="isPlatformUser">
+          <el-select v-model="currentSysType" placeholder="系统类型" style="width:140px;margin-right:12px" @change="load">
+            <el-option v-for="t in SYS_TYPES" :key="t.system_type" :label="t.name" :value="t.system_type" />
+          </el-select>
+        </template>
         <el-button v-permission="'role:add'" type="primary" @click="open()">
           <el-icon><Plus /></el-icon>新增角色
         </el-button>
@@ -52,6 +57,19 @@
         <el-form-item label="状态">
           <el-switch v-model="form.statusBool" active-text="启用" inactive-text="禁用" />
         </el-form-item>
+        <template v-if="isPlatformUser">
+          <el-form-item label="系统类型">
+            <el-select v-model="form.system_type" placeholder="选择系统类型" @change="onSysTypeChange" style="width:100%">
+              <el-option v-for="t in SYS_TYPES" :key="t.system_type" :label="t.name" :value="t.system_type" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="所属商户" v-if="form.system_type === 1">
+            <el-select v-model="form.mch_id" placeholder="输入商户名称搜索" filterable remote
+                       :remote-method="searchMch" :loading="mchLoading" style="width:100%">
+              <el-option v-for="m in merchants" :key="m.id" :label="m.mch_name" :value="m.id" />
+            </el-select>
+          </el-form-item>
+        </template>
       </el-form>
       <template #footer>
         <el-button @click="dlg = false">取消</el-button>
@@ -111,22 +129,55 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { roleList, roleCreate, roleUpdate, roleDelete, roleAuth, roleAuthDetail, roleSetDefaultRouter, menuTree, apiList } from '@/api/system'
+import { useUserStore } from '@/store/modules/user'
+import { roleList, roleCreate, roleUpdate, roleDelete, roleAuth, roleAuthDetail, roleSetDefaultRouter, menuTree, apiList, mchList } from '@/api/system'
+
+// 系统类型常量（与服务端 enum.SystemType 保持一致）
+const SYS_TYPES = [
+  { system_type: 0, name: '平台' },
+  { system_type: 1, name: '商户' },
+  { system_type: 2, name: '代理' },
+]
 
 const list = ref([])
 const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
-const form = reactive({ statusBool: true, status: 1, default_router: '' })
+const form = reactive({ statusBool: true, status: 1, default_router: '', system_type: 0, mch_id: null })
+const currentSysType = ref(0)
 const authDlg = ref(false)
 const authTab = ref('menu')
 const authForm = reactive({ role_id: 0, menu_ids: [], api_ids: [], default_router: '' })
 const menuTreeData = ref([])
 const apiGroups = ref([])
 const menuTreeRef = ref(null)
+
+const userStore = useUserStore()
+const isPlatformUser = computed(() => userStore.userInfo?.system_type === 0)
+const merchants = ref([])
+const mchLoading = ref(false)
+
+function onSysTypeChange(val) {
+  form.mch_id = null
+  if (val === 1) searchMch('')
+}
+
+async function searchMch(keyword) {
+  mchLoading.value = true
+  try {
+    const params = { page: 1, limit: 10 }
+    if (keyword) params.mch_name = keyword
+    const { data } = await mchList(params)
+    merchants.value = data.list || []
+  } catch (_) {
+    merchants.value = []
+  } finally {
+    mchLoading.value = false
+  }
+}
 
 function formatTime(t) {
   if (!t) return '-'
@@ -193,7 +244,9 @@ async function clearDefaultRouter() {
 async function load() {
   loading.value = true
   try {
-    const { data } = await roleList()
+    const params = {}
+    if (isPlatformUser.value) params.system_type = currentSysType.value
+    const { data } = await roleList(params)
     list.value = data.list || []
   } finally { loading.value = false }
 }
@@ -201,8 +254,13 @@ async function load() {
 function open(row) {
   if (row) {
     Object.assign(form, { ...row, statusBool: row.status === 1, default_router: row.default_router || '' })
+    // 编辑商户角色时加载商户列表
+    if (isPlatformUser.value && row.system_type === 1) {
+      searchMch('')
+    }
   } else {
-    Object.assign(form, { id: undefined, name: '', remark: '', default_router: '', statusBool: true, status: 1 })
+    const defaultSysType = isPlatformUser.value ? currentSysType.value : 0
+    Object.assign(form, { id: undefined, name: '', remark: '', default_router: '', statusBool: true, status: 1, system_type: defaultSysType, mch_id: null })
   }
   dlg.value = true
 }

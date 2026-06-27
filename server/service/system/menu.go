@@ -100,21 +100,17 @@ func (s *menuService) UserTree(userID uint, systemType enum.SystemType) ([]syste
 	var menus []system.SysMenu
 	var err error
 
-	if systemType != enum.SystemTypePlatform {
-		// 非平台用户：加载对应 systemType 的全部菜单（含平台通用菜单 systemType=0）
-		menus, err = s.menuRepo.ListBySystemTypes([]enum.SystemType{enum.SystemTypePlatform, systemType})
-	} else {
-		// 平台用户：按角色加载菜单
-		u, err2 := s.userRepo.GetByID(userID, true)
-		if err2 != nil {
-			return nil, err2
-		}
-		roleIDs := make([]uint, 0, len(u.Roles))
-		for _, r := range u.Roles {
-			roleIDs = append(roleIDs, r.ID)
-		}
-		menus, err = s.menuRepo.MenusByRoleIDs(roleIDs)
+	// 平台用户：按角色加载菜单
+	u, err2 := s.userRepo.GetByID(userID, true)
+	if err2 != nil {
+		return nil, err2
 	}
+	roleIDs := make([]uint, 0, len(u.Roles))
+	for _, r := range u.Roles {
+		roleIDs = append(roleIDs, r.ID)
+	}
+	menus, err = s.menuRepo.MenusByRoleIDs(roleIDs)
+
 	if err != nil {
 		return nil, err
 	}

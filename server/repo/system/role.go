@@ -56,9 +56,9 @@ func (r *roleRepo) List(mchID int64, systemType int) ([]system.SysRole, error) {
 	if mchID > 0 {
 		q = q.Where("mch_id = ?", mchID)
 	}
-	if systemType > 0 {
-		q = q.Where("system_type = ?", systemType)
-	}
+
+	q = q.Where("system_type = ?", systemType)
+
 	if err := q.Find(&list).Error; err != nil {
 		return nil, err
 	}

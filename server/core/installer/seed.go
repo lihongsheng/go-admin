@@ -96,12 +96,6 @@ func defaultMenus() []system.SysMenu {
 // defaultApis 默认 API 列表（与路由 / 控制器对应）
 func defaultApis() []system.SysApi {
 	return []system.SysApi{
-		{Path: "/api/v1/base/login", Method: "POST", Group: "base", Desc: "登录"},
-		{Path: "/api/v1/base/logout", Method: "POST", Group: "base", Desc: "登出"},
-		{Path: "/api/v1/base/info", Method: "GET", Group: "base", Desc: "当前用户信息"},
-		{Path: "/api/v1/base/menu", Method: "GET", Group: "base", Desc: "当前用户菜单"},
-			{Path: "/api/v1/base/system/types", Method: "GET", Group: "base", Desc: "系统类型列表"},
-
 		{Path: "/api/v1/system/user", Method: "POST", Group: "user", Desc: "新增用户"},
 		{Path: "/api/v1/system/user", Method: "PUT", Group: "user", Desc: "编辑用户"},
 		{Path: "/api/v1/system/user/:id", Method: "DELETE", Group: "user", Desc: "删除用户"},
@@ -191,14 +185,9 @@ func merchantAdminMenus() []system.SysMenu {
 	}
 }
 
-// merchantAdminApis 商户管理员 API（仅基础 + 用户 + 角色）
+// merchantAdminApis 商户管理员 API（基础 + 用户 + 角色 + 菜单树 + API列表）
 func merchantAdminApis() []system.SysApi {
 	return []system.SysApi{
-		{Path: "/api/v1/base/login", Method: "POST", Group: "base", Desc: "登录", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/base/logout", Method: "POST", Group: "base", Desc: "登出", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/base/info", Method: "GET", Group: "base", Desc: "当前用户信息", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/base/menu", Method: "GET", Group: "base", Desc: "当前用户菜单", SystemType: enum.SystemTypeMch},
-			{Path: "/api/v1/base/system/types", Method: "GET", Group: "base", Desc: "系统类型列表", SystemType: enum.SystemTypeMch},
 
 		{Path: "/api/v1/system/user", Method: "POST", Group: "user", Desc: "新增用户", SystemType: enum.SystemTypeMch},
 		{Path: "/api/v1/system/user", Method: "PUT", Group: "user", Desc: "编辑用户", SystemType: enum.SystemTypeMch},
@@ -211,6 +200,9 @@ func merchantAdminApis() []system.SysApi {
 		{Path: "/api/v1/system/role/list", Method: "GET", Group: "role", Desc: "角色列表", SystemType: enum.SystemTypeMch},
 		{Path: "/api/v1/system/role/auth", Method: "POST", Group: "role", Desc: "角色授权", SystemType: enum.SystemTypeMch},
 		{Path: "/api/v1/system/role/auth/:id", Method: "GET", Group: "role", Desc: "查询角色授权详情", SystemType: enum.SystemTypeMch},
+
+		{Path: "/api/v1/system/menu/tree", Method: "GET", Group: "menu", Desc: "菜单树", SystemType: enum.SystemTypeMch},
+		{Path: "/api/v1/system/api/list", Method: "GET", Group: "api", Desc: "API列表", SystemType: enum.SystemTypeMch},
 	}
 }
 

@@ -2,6 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
 	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
@@ -64,6 +65,14 @@ func ApiList(c *gin.Context) {
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.Fail(c, err.Error())
 		return
+	}
+	user, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.Fail(c, err.Error())
+		return
+	}
+	if user.SystemType != enum.SystemTypePlatform {
+		req.SystemType = int(user.SystemType)
 	}
 	resp, err := serviceSys.DefaultApi.List(req)
 	if err != nil {

@@ -2,6 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
 	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
@@ -65,19 +66,20 @@ func MenuTree(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	if req.SystemType > 0 {
-		resp, err := serviceSys.DefaultMenu.TreeBySystemType(req.SystemType)
-		if err != nil {
-			response.Fail(c, err.Error())
-			return
-		}
-		response.OK(c, resp)
+	user, err := jwt.GetUser(c.Request.Context())
+	if err != nil {
+		response.Fail(c, err.Error())
 		return
 	}
-	resp, err := serviceSys.DefaultMenu.Tree()
+	if user.SystemType != enum.SystemTypePlatform {
+		req.SystemType = int(user.SystemType)
+	}
+	resp, err := serviceSys.DefaultMenu.TreeBySystemType(req.SystemType)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
 	}
 	response.OK(c, resp)
+	return
+
 }

@@ -3,7 +3,7 @@
     <el-card shadow="never" class="table-card">
       <div class="table-toolbar">
         <el-select v-model="currentSystemType" placeholder="系统类型" style="width:140px;margin-right:12px" @change="load">
-          <el-option v-for="st in systemTypesList" :key="st.SystemType" :label="st.Name" :value="st.SystemType" />
+          <el-option v-for="st in systemTypesList" :key="st.system_type" :label="st.name" :value="st.system_type" />
         </el-select>
         <el-button v-permission="'menu:add'" type="primary" @click="open()">
           <el-icon><Plus /></el-icon>新增菜单
@@ -54,7 +54,7 @@
         </el-form-item>
         <el-form-item label="系统">
           <el-select v-model="form.system_type" style="width:100%">
-            <el-option v-for="st in systemTypesList" :key="st.SystemType" :label="st.Name" :value="st.SystemType" />
+            <el-option v-for="st in systemTypesList" :key="st.system_type" :label="st.name" :value="st.system_type" />
           </el-select>
         </el-form-item>
         <el-form-item label="父菜单">
@@ -269,7 +269,7 @@ const dlg = ref(false)
 const submitting = ref(false)
 const form = reactive({ parent_id: 0, type: 'menu', sort: 0, hidden: false, keep_alive: false })
 const systemTypesList = ref([])
-const currentSystemType = ref(1) // 默认选中第一个，加载后覆盖
+const currentSystemType = ref(0) // 默认选中"平台"，加载后覆盖
 
 // ── 父菜单树形数据（编辑时自动禁用自身及所有子孙节点，防止循环引用）──
 const parentTreeData = computed(() => {
@@ -305,7 +305,7 @@ function tagType(t)   { return TAG_MAP[t] || '' }
 // 系统类型名称映射
 const systemTypeName = computed(() => {
   const m = {}
-  systemTypesList.value.forEach(st => { m[st.SystemType] = st.Name })
+  systemTypesList.value.forEach(st => { m[st.system_type] = st.name })
   return m
 })
 
@@ -315,7 +315,7 @@ async function loadSystemTypes() {
     systemTypesList.value = data || []
     // 默认选中第一个
     if (systemTypesList.value.length > 0) {
-      currentSystemType.value = systemTypesList.value[0].SystemType
+      currentSystemType.value = systemTypesList.value[0].system_type
       load()
     }
   } catch (_) { /* ignore */ }

@@ -2,6 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
+	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
 	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"

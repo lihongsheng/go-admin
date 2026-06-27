@@ -15,7 +15,7 @@ type UserService interface {
 	Create(req dtoSys.UserCreateReq, mchID int64, systemType enum.SystemType) (*system.SysUser, error)
 	Update(req dtoSys.UserUpdateReq, mchID int64) error
 	Delete(id uint) error
-	List(req dtoSys.UserListReq, mchID int64) (*dtoSys.UserListResp, error)
+	List(req dtoSys.UserListReq, mchID int64, systemType int) (*dtoSys.UserListResp, error)
 }
 
 // NewUserService 构造 UserService
@@ -94,8 +94,8 @@ func (s *userService) Delete(id uint) error {
 	return s.repo.Delete(id)
 }
 
-func (s *userService) List(req dtoSys.UserListReq, mchID int64) (*dtoSys.UserListResp, error) {
-	list, total, err := s.repo.List(req.Keyword, req.Page, req.Size, mchID)
+func (s *userService) List(req dtoSys.UserListReq, mchID int64, systemType int) (*dtoSys.UserListResp, error) {
+	list, total, err := s.repo.List(req.Keyword, req.Page, req.Size, mchID, systemType)
 	if err != nil {
 		return nil, err
 	}
