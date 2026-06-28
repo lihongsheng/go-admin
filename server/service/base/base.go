@@ -73,13 +73,11 @@ func (s *service) Login(req dtoBase.LoginReq) (*dtoBase.LoginResp, error) {
 	for _, r := range u.Roles {
 		roleIDs = append(roleIDs, int64(r.ID))
 	}
-		token, err := jwt.Sign(jwt.User{
-			ID:         u.ID,
-			Username:   u.Username,
-			Role:       roleIDs,
-			MchID:      u.MchID,
-			SystemType: u.SystemType,
-		}, global.Cfg.JWT)
+	token, err := jwt.Sign(jwt.User{
+		ID:       u.ID,
+		Username: u.Username,
+		Role:     roleIDs,
+	}, global.Cfg.JWT)
 	if err != nil {
 		return nil, err
 	}

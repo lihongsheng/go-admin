@@ -3,7 +3,6 @@ package system
 import (
 	"encoding/json"
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
 	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
@@ -11,7 +10,7 @@ import (
 
 // RoleService 角色业务接口
 type RoleService interface {
-	Create(req dtoSys.RoleCreateReq, mchID int64, systemType enum.SystemType) (*system.SysRole, error)
+	Create(req dtoSys.RoleCreateReq) (*system.SysRole, error)
 	Update(req dtoSys.RoleUpdateReq) error
 	Delete(id uint) error
 	List(req dtoSys.RoleListReq) (*dtoSys.RoleListResp, error)
@@ -42,12 +41,10 @@ type roleService struct {
 // DefaultRole 包级单例
 var DefaultRole RoleService
 
-func (s *roleService) Create(req dtoSys.RoleCreateReq, mchID int64, systemType enum.SystemType) (*system.SysRole, error) {
+func (s *roleService) Create(req dtoSys.RoleCreateReq) (*system.SysRole, error) {
 	r := &system.SysRole{
 		Name: req.Name, Remark: req.Remark,
 		Status: req.Status, DefaultRouter: req.DefaultRouter,
-		MchID:      mchID,
-		SystemType: systemType,
 	}
 	if err := s.roleRepo.Create(r); err != nil {
 		return nil, err
@@ -72,7 +69,7 @@ func (s *roleService) Delete(id uint) error {
 }
 
 func (s *roleService) List(req dtoSys.RoleListReq) (*dtoSys.RoleListResp, error) {
-	list, err := s.roleRepo.List(req.MchID, req.SystemType)
+	list, err := s.roleRepo.List()
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +110,6 @@ func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
 		}
 	}
 
-
 	return s.casbin.ReplaceRolePolicies(req.RoleID, items)
 }
 
@@ -129,7 +125,6 @@ func (s *roleService) AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error) {
 	return &dtoSys.RoleAuthDetailResp{
 		MenuIDs:       menuIDs,
 		DefaultRouter: role.DefaultRouter,
-		SystemType:    role.SystemType,
 	}, nil
 }
 

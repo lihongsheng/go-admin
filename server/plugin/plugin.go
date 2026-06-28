@@ -21,7 +21,6 @@ import (
 	"sync"
 
 	"github.com/lihongsheng/go-admin/server/core/installer"
-	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 	"github.com/lihongsheng/go-admin/server/utils/casbin"
 
@@ -105,7 +104,7 @@ func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
 			continue
 		}
 		for _, r := range rules {
-			if attachSuper && superRoleID > 0 && m.SystemType == enum.SystemTypePlatform {
+			if attachSuper && superRoleID > 0 {
 				if _, err := casbin.AddPolicy(superRoleID, r.Path, r.Method); err != nil {
 					return err
 				}
@@ -139,12 +138,11 @@ func upsertMenuTree(db *gorm.DB, m *system.SysMenu, parentID uint, attachSuper b
 			"title": m.Title, "icon": m.Icon, "sort": m.Sort,
 			"permission": m.Permission, "hidden": m.Hidden,
 			"keep_alive": m.KeepAlive, "redirect": m.Redirect,
-			"system_type": m.SystemType,
 		})
 	}
 
 	// 仅平台级菜单自动挂到超级管理员
-	if attachSuper && m.SystemType == enum.SystemTypePlatform {
+	if attachSuper {
 		if err := attachMenuToSuper(db, exist.ID); err != nil {
 			return err
 		}

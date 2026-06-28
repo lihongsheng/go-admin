@@ -3,7 +3,6 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
 	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
 
@@ -12,10 +11,10 @@ import (
 
 // UserService 用户业务接口
 type UserService interface {
-	Create(req dtoSys.UserCreateReq, mchID int64, systemType enum.SystemType) (*system.SysUser, error)
-	Update(req dtoSys.UserUpdateReq, mchID int64) error
+	Create(req dtoSys.UserCreateReq) (*system.SysUser, error)
+	Update(req dtoSys.UserUpdateReq) error
 	Delete(id uint) error
-	List(req dtoSys.UserListReq, mchID int64, systemType int) (*dtoSys.UserListResp, error)
+	List(req dtoSys.UserListReq) (*dtoSys.UserListResp, error)
 }
 
 // NewUserService 构造 UserService
@@ -30,26 +29,24 @@ type userService struct {
 // DefaultUser 包级单例
 var DefaultUser UserService
 
-func (s *userService) Create(req dtoSys.UserCreateReq, mchID int64, systemType enum.SystemType) (*system.SysUser, error) {
+func (s *userService) Create(req dtoSys.UserCreateReq) (*system.SysUser, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 	u := &system.SysUser{
-		Username:   req.Username,
-		Password:   string(hash),
-		Nickname:   req.Nickname,
-		Email:      req.Email,
-		Phone:      req.Phone,
-		Status:     req.Status,
-		MchID:      mchID,
-		SystemType: systemType,
+		Username: req.Username,
+		Password: string(hash),
+		Nickname: req.Nickname,
+		Email:    req.Email,
+		Phone:    req.Phone,
+		Status:   req.Status,
 	}
 	if err := s.repo.Create(u); err != nil {
 		return nil, err
 	}
 	if len(req.RoleIDs) > 0 {
-		roles, err := s.repo.FindRolesByIDs(req.RoleIDs, mchID)
+		roles, err := s.repo.FindRolesByIDs(req.RoleIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +57,7 @@ func (s *userService) Create(req dtoSys.UserCreateReq, mchID int64, systemType e
 	return u, nil
 }
 
-func (s *userService) Update(req dtoSys.UserUpdateReq, mchID int64) error {
+func (s *userService) Update(req dtoSys.UserUpdateReq) error {
 	patch := map[string]any{
 		"nickname": req.Nickname,
 		"avatar":   req.Avatar,
@@ -79,7 +76,7 @@ func (s *userService) Update(req dtoSys.UserUpdateReq, mchID int64) error {
 		return err
 	}
 	if req.RoleIDs != nil {
-		roles, err := s.repo.FindRolesByIDs(req.RoleIDs, mchID)
+		roles, err := s.repo.FindRolesByIDs(req.RoleIDs)
 		if err != nil {
 			return err
 		}
@@ -94,8 +91,8 @@ func (s *userService) Delete(id uint) error {
 	return s.repo.Delete(id)
 }
 
-func (s *userService) List(req dtoSys.UserListReq, mchID int64, systemType int) (*dtoSys.UserListResp, error) {
-	list, total, err := s.repo.List(req.Keyword, req.Page, req.Size, mchID, systemType)
+func (s *userService) List(req dtoSys.UserListReq) (*dtoSys.UserListResp, error) {
+	list, total, err := s.repo.List(req.Keyword, req.Page, req.Size)
 	if err != nil {
 		return nil, err
 	}

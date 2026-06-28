@@ -2,9 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
-	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -16,12 +14,6 @@ func MenuCreate(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Fail(c, err.Error())
 		return
-	}
-	// 如果前端没有传 system_type，从 JWT 中取（商户管理员）
-	if req.SystemType == 0 {
-		if u, err := jwt.GetUser(c.Request.Context()); err == nil {
-			req.SystemType = u.SystemType
-		}
 	}
 	m, err := serviceSys.DefaultMenu.Create(req)
 	if err != nil {
@@ -59,27 +51,11 @@ func MenuDelete(c *gin.Context) {
 }
 
 // MenuTree GET /system/menu/tree —— 全量菜单树
-// 支持 ?system_type=N 按系统类型过滤
 func MenuTree(c *gin.Context) {
-	var req dtoSys.MenuTreeReq
-	if err := c.ShouldBindQuery(&req); err != nil {
-		response.Fail(c, err.Error())
-		return
-	}
-	user, err := jwt.GetUser(c.Request.Context())
-	if err != nil {
-		response.Fail(c, err.Error())
-		return
-	}
-	if user.SystemType != enum.SystemTypePlatform {
-		req.SystemType = int(user.SystemType)
-	}
-	resp, err := serviceSys.DefaultMenu.TreeBySystemType(req.SystemType)
+	resp, err := serviceSys.DefaultMenu.Tree()
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
 	}
 	response.OK(c, resp)
-	return
-
 }

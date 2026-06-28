@@ -19,7 +19,6 @@
 package system
 
 import (
-  "github.com/lihongsheng/go-admin/server/enum"
   "time"
 
   "gorm.io/gorm"
@@ -46,8 +45,6 @@ type SysUser struct {
   Phone      string          `gorm:"size:32"                       json:"phone"`
   Status     int8            `gorm:"default:1"                     json:"status"` // 1启用 0禁用
   Roles      []SysRole       `gorm:"many2many:sys_user_roles"      json:"roles"`
-  MchID      int64           `gorm:"default:0" json:"mch_id"`        // 商户ID, 平台默认为0
-  SystemType enum.SystemType `gorm:"default:0"   json:"system_type"` // 商户ID, 平台默认为0
 }
 
 // ---------- 角色 ----------
@@ -61,8 +58,6 @@ type SysRole struct {
   Status        int8            `gorm:"default:1"                     json:"status"`
   DefaultRouter string          `gorm:"size:255;default:/dashboard"   json:"default_router"` // 登录后默认首页路由
   Menus         []SysMenu       `gorm:"many2many:sys_role_menus"      json:"menus"`
-  MchID         int64           `gorm:"default:0" json:"mch_id"`        // 商户ID, 平台默认为0
-  SystemType    enum.SystemType `gorm:"default:0"   json:"system_type"` // 商户ID, 平台默认为0
 }
 
 // ---------- 菜单树节点类型 ----------
@@ -99,7 +94,6 @@ type SysMenu struct {
   Hidden     bool            `gorm:"default:false"                          json:"hidden"`             // 是否隐藏
   KeepAlive  bool            `gorm:"default:false"                          json:"keep_alive"`         // 是否缓存页面
   Children   []SysMenu       `gorm:"-"                                      json:"children,omitempty"` // 虚拟字段，仅用于 JSON 序列化时组装树
-  SystemType enum.SystemType `gorm:"default:0"   json:"system_type"`                                   // 商户ID, 平台默认为0
   ApiRules   string          `gorm:"type:text"                              json:"api_rules"`          // JSON 数组：[{"path":"/api/...","method":"GET"},...]
 }
 

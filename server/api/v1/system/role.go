@@ -2,9 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
-	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -17,22 +15,7 @@ func RoleCreate(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	u, err := jwt.GetUser(c.Request.Context())
-	if err != nil {
-		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
-		return
-	}
-	mchID := u.MchID
-	sysType := u.SystemType
-	if u.SystemType == enum.SystemTypePlatform {
-		if req.MchID > 0 {
-			mchID = req.MchID
-		}
-		if req.SystemType > 0 {
-			sysType = req.SystemType
-		}
-	}
-	r, err := serviceSys.DefaultRole.Create(req, mchID, sysType)
+	r, err := serviceSys.DefaultRole.Create(req)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
@@ -69,19 +52,8 @@ func RoleDelete(c *gin.Context) {
 
 // RoleList GET /system/role/list
 func RoleList(c *gin.Context) {
-	u, err := jwt.GetUser(c.Request.Context())
-	if err != nil {
-		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
-		return
-	}
 	var req dtoSys.RoleListReq
 	_ = c.ShouldBindQuery(&req)
-	if req.SystemType == 0 {
-		req.SystemType = int(u.SystemType)
-	}
-	if req.MchID == 0 {
-		req.MchID = u.MchID
-	}
 	resp, err := serviceSys.DefaultRole.List(req)
 	if err != nil {
 		response.Fail(c, err.Error())

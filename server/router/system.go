@@ -21,11 +21,9 @@ func BaseRouter(g *gin.RouterGroup) {
 	// 上传接口：登录用户均可上传，不走 CasbinAuth
 	upload := b.Group("/upload", middleware.JWTAuth())
 	upload.POST("", base.Upload)
-	baseSystem := b.Group("/system", middleware.JWTAuth())
-	baseSystem.GET("/types", base.GetSystemTypeInfo)
 }
 
-// SystemRouter 用户 / 角色 / 菜单 / API
+// SystemRouter 用户 / 角色 / 菜单
 func SystemRouter(g *gin.RouterGroup) {
 	s := g.Group("/system", middleware.JWTAuth(), middleware.CasbinAuth())
 

@@ -3,7 +3,6 @@ package base
 
 import (
   dtoBase "github.com/lihongsheng/go-admin/server/dto/base"
-  "github.com/lihongsheng/go-admin/server/enum"
   serviceBase "github.com/lihongsheng/go-admin/server/service/base"
   serviceSys "github.com/lihongsheng/go-admin/server/service/system"
   "github.com/lihongsheng/go-admin/server/utils/jwt"
@@ -62,14 +61,10 @@ func Menu(c *gin.Context) {
     response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
     return
   }
-  menus, err := serviceSys.DefaultMenu.UserTree(user.ID, user.SystemType)
+  menus, err := serviceSys.DefaultMenu.UserTree(user.ID)
   if err != nil {
     response.Fail(c, err.Error())
     return
   }
   response.OK(c, gin.H{"menus": menus})
-}
-
-func GetSystemTypeInfo(c *gin.Context) {
-  response.OK(c, enum.GetAllSystemTypeInfo())
 }

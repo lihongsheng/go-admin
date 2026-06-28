@@ -2,9 +2,7 @@ package system
 
 import (
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
-	"github.com/lihongsheng/go-admin/server/utils/jwt"
 	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -17,22 +15,7 @@ func UserCreate(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	u, err := jwt.GetUser(c.Request.Context())
-	if err != nil {
-		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
-		return
-	}
-	mchID := u.MchID
-	sysType := u.SystemType
-	if u.SystemType == enum.SystemTypePlatform {
-		if req.MchID > 0 {
-			mchID = req.MchID
-		}
-		if req.SystemType > 0 {
-			sysType = req.SystemType
-		}
-	}
-	usr, err := serviceSys.DefaultUser.Create(req, mchID, sysType)
+	usr, err := serviceSys.DefaultUser.Create(req)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
@@ -47,16 +30,7 @@ func UserUpdate(c *gin.Context) {
 		response.Fail(c, "invalid body")
 		return
 	}
-	u, err := jwt.GetUser(c.Request.Context())
-	if err != nil {
-		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
-		return
-	}
-	mchID := u.MchID
-	if u.SystemType == enum.SystemTypePlatform && req.MchID > 0 {
-		mchID = req.MchID
-	}
-	if err := serviceSys.DefaultUser.Update(req, mchID); err != nil {
+	if err := serviceSys.DefaultUser.Update(req); err != nil {
 		response.Fail(c, err.Error())
 		return
 	}
@@ -83,24 +57,7 @@ func UserList(c *gin.Context) {
 		response.Fail(c, err.Error())
 		return
 	}
-	u, err := jwt.GetUser(c.Request.Context())
-	if err != nil {
-		response.FailHTTP(c, 401, response.CodeUnauthorized, err.Error())
-		return
-	}
-	mchID := u.MchID
-	sysType := int(u.SystemType)
-	if u.SystemType == enum.SystemTypePlatform {
-		if req.MchID > 0 {
-			mchID = req.MchID
-		}
-		if req.SystemType > 0 {
-			sysType = req.SystemType
-		} else {
-			sysType = 0
-		}
-	}
-	resp, err := serviceSys.DefaultUser.List(req, mchID, sysType)
+	resp, err := serviceSys.DefaultUser.List(req)
 	if err != nil {
 		response.Fail(c, err.Error())
 		return
