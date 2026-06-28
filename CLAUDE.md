@@ -161,7 +161,4 @@ cd server && go run cmd/server/main.go -c config/config.yaml
 
 # 前端
 cd web && npm run dev
-
-# 代码生成（utils/gen.go）
-cd server && go run utils/gen.go
 ```
