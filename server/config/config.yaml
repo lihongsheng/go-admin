@@ -9,8 +9,8 @@ db:
     host: 127.0.0.1
     port: 3306
     username: root
-    password: user_root
-    database: go_mch_admin
+    password: code_101
+    database: go_admin
     path: ""
     charset: utf8mb4
     max_idle: 0
