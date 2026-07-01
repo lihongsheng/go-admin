@@ -34,7 +34,7 @@ const loading = ref(false)
 async function load() {
   loading.value = true
   try {
-    const { data } = await request.get('/api/v1/plugin/example/note/list')
+    const { data } = await request.get('/api/plugin/example/v1/note/list')
     list.value = data.list || []
   } finally { loading.value = false }
 }
@@ -46,7 +46,7 @@ async function add() {
       cancelButtonText: '取消'
     })
     if (value) {
-      await request.post('/api/v1/plugin/example/note', { title: value, content: value })
+      await request.post('/api/plugin/example/v1/note', { title: value, content: value })
       ElMessage.success('新增成功')
       load()
     }
@@ -55,7 +55,7 @@ async function add() {
 
 async function del(row) {
   await ElMessageBox.confirm(`确认删除笔记「${row.title}」？`, '提示', { type: 'warning' })
-  await request.delete('/api/v1/plugin/example/note/' + row.id)
+  await request.delete('/api/plugin/example/v1/note/' + row.id)
   ElMessage.success('删除成功')
   load()
 }

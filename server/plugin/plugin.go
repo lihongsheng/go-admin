@@ -31,12 +31,12 @@ import (
 
 // Plugin 插件契约
 type Plugin interface {
-	Name() string                // 唯一名（路由前缀 / 表前缀建议同名）
-	Version() string             // 版本号
-	Models() []interface{}       // 参与 AutoMigrate 的 Model
-	Menus() []system.SysMenu     // 注入菜单树（含 catalog/menu/button；按 Name 幂等）；API 规则通过菜单 ApiRules 字段注入
-	RegisterRoute(g *gin.Engine) // 注册自身路由（已在 /api/v1/plugin/<name> 下）
-	SeedTable(db *gorm.DB) error // 插件自身业务表的初始数据；仅在目标表为空时调用
+	Name() string                                                // 唯一名（路由前缀 / 表前缀建议同名）
+	Version() string                                             // 版本号
+	Models() []interface{}                                       // 参与 AutoMigrate 的 Model
+	Menus() []system.SysMenu                                     // 注入菜单树（含 catalog/menu/button；按 Name 幂等）；API 规则通过菜单 ApiRules 字段注入
+	RegisterRoute(g *gin.Engine, privatePlugin *gin.RouterGroup) // 注册自身路由（已在 /api/v1/plugin/<name> 下）
+	SeedTable(db *gorm.DB) error                                 // 插件自身业务表的初始数据；仅在目标表为空时调用
 }
 
 var (
