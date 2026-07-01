@@ -34,16 +34,16 @@ func (p) Menus() []system.SysMenu {
 			Title:     "示例插件",
 			Icon:      "edit",
 			Sort:      91,
-			// button 权限节点作为 Children（type=button，仅承载 permission 字段）
+			ApiRules:  `[{"path":"/api/plugin/example/v1/note/list","method":"GET"}]`,
 			Children: []system.SysMenu{
-				{Type: system.MenuTypeButton, Name: "新增笔记", Permission: "example:add"},
-				{Type: system.MenuTypeButton, Name: "删除笔记", Permission: "example:del"},
+				{Type: system.MenuTypeButton, Name: "新增笔记", Permission: "example:add", ApiRules: `[{"path":"/api/plugin/example/v1/note","method":"POST"}]`},
+				{Type: system.MenuTypeButton, Name: "删除笔记", Permission: "example:del", ApiRules: `[{"path":"/api/plugin/example/v1/note/:id","method":"DELETE"}]`},
 			},
 		},
 	}
 }
 
-func (p) RegisterRoute(g *gin.Engine) {
+func (p) RegisterRoute(g *gin.Engine, privatePlugin *gin.RouterGroup) {
 	g.POST("/note", create)
 	g.DELETE("/note/:id", del)
 	g.GET("/note/list", list)

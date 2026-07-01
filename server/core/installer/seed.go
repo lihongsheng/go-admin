@@ -67,7 +67,7 @@ func defaultMenus() []system.SysMenu {
 					Type: system.MenuTypeMenu,
 					Path: "list", Name: "PluginList", Component: "plugin/list/index",
 					Title: "已装插件", Icon: "list", Sort: 1,
-					ApiRules: `[{"path":"/api/v1/plugin/list","method":"GET"}]`,
+					ApiRules: `[{"path":"/api/plugin/list","method":"GET"}]`,
 				},
 			},
 		},

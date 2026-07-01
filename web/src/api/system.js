@@ -33,7 +33,7 @@ export const menuDelete = (id)      => request.delete('/api/v1/system/menu/' + i
 // api
 
 // plugin
-export const pluginList = ()        => request.get('/api/v1/plugin/list')
+export const pluginList = ()        => request.get('/api/plugin/list')
 
 // merchant
 export const mchList   = (params) => request.get('/api/v1/system/mch/list', { params })
