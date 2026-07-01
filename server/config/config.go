@@ -19,6 +19,7 @@ type Config struct {
 	Install       Install         `mapstructure:"install"       json:"install"       yaml:"install"`
 	Upload        Upload          `mapstructure:"upload"        json:"upload"        yaml:"upload"`
 	Observability Observability   `mapstructure:"observability" json:"observability" yaml:"observability"`
+	Plugin        Plugin          `mapstructure:"plugin"       json:"plugin"       yaml:"plugin"`
 }
 
 type Upload struct {
