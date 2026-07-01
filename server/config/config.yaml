@@ -9,7 +9,7 @@ db:
     host: 127.0.0.1
     port: 3306
     username: root
-    password: user_root
+    password: code_101
     database: go_mch_admin
     path: ""
     charset: utf8mb4

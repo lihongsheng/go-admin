@@ -166,19 +166,19 @@ var (
 )
 
 // Load 读取 config.yaml
-func Load(path string) (*Config, error) {
+func Load(path string) (*Config, *viper.Viper, error) {
 	cfgPath = path
 	V = viper.New()
 	V.SetConfigFile(path)
 	V.SetConfigType("yaml")
 	if err := V.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("read config %s: %w", path, err)
+		return nil, nil, fmt.Errorf("read config %s: %w", path, err)
 	}
 	c := &Config{}
 	if err := V.Unmarshal(c); err != nil {
-		return nil, fmt.Errorf("unmarshal config: %w", err)
+		return nil, nil, fmt.Errorf("unmarshal config: %w", err)
 	}
-	return c, nil
+	return c, V, nil
 }
 
 // Path 返回当前配置文件路径
