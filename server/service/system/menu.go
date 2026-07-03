@@ -48,6 +48,7 @@ func (s *menuService) Create(req dtoSys.MenuCreateReq) (*system.SysMenu, error) 
 		Title:      req.Title, Icon: req.Icon,
 		Sort: req.Sort, Hidden: req.Hidden, KeepAlive: req.KeepAlive,
 		SystemType: req.SystemType,
+		ApiRules:   req.ApiRules,
 	}
 	if err := s.menuRepo.Create(m); err != nil {
 		return nil, err
@@ -70,6 +71,7 @@ func (s *menuService) Update(req dtoSys.MenuUpdateReq) error {
 		"hidden":      req.Hidden,
 		"keep_alive":  req.KeepAlive,
 		"system_type": req.SystemType,
+		"api_rules":   req.ApiRules,
 	}
 	return s.menuRepo.Update(req.ID, patch)
 }

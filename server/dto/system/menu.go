@@ -20,6 +20,7 @@ type MenuCreateReq struct {
 	Hidden     bool            `json:"hidden"`
 	KeepAlive  bool            `json:"keep_alive"`
 	SystemType enum.SystemType `json:"system_type"`
+	ApiRules   string          `json:"api_rules"`
 }
 
 // MenuUpdateReq 更新菜单
@@ -38,6 +39,7 @@ type MenuUpdateReq struct {
 	Hidden     bool            `json:"hidden"`
 	KeepAlive  bool            `json:"keep_alive"`
 	SystemType enum.SystemType `json:"system_type"`
+	ApiRules   string          `json:"api_rules"`
 }
 
 // MenuTreeResp 菜单树响应

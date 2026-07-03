@@ -79,8 +79,7 @@
 
     <!-- 角色授权 -->
     <el-dialog v-model="authDlg" title="角色授权" width="680px" destroy-on-close>
-      <el-tabs v-model="authTab" type="border-card">
-        <el-tab-pane label="菜单权限" name="menu">
+      <div class="auth-menu-section">
           <!-- 当前首页提示 -->
           <el-alert v-if="authForm.default_router" type="warning" :closable="false" show-icon style="margin-bottom:12px">
             <template #title>
@@ -106,19 +105,8 @@
               </span>
             </template>
           </el-tree>
-        </el-tab-pane>
-        <el-tab-pane label="API 权限" name="api">
-          <el-checkbox-group v-model="authForm.api_ids">
-            <div v-for="g in apiGroups" :key="g.name" class="api-group">
-              <div class="api-group-title">{{ g.name }}</div>
-              <el-checkbox v-for="a in g.items" :key="a.id" :label="a.id" class="api-item">
-                <el-tag size="small" :type="methodTag(a.method)">{{ a.method }}</el-tag>
-                <span class="api-path">{{ a.path }}</span>
-              </el-checkbox>
-            </div>
-          </el-checkbox-group>
-        </el-tab-pane>
-      </el-tabs>
+
+      </div>
       <template #footer>
         <el-button @click="authDlg = false">取消</el-button>
         <el-button type="primary" @click="submitAuth" :loading="submitting">保存授权</el-button>
@@ -133,7 +121,7 @@ import { ref, reactive, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/modules/user'
-import { roleList, roleCreate, roleUpdate, roleDelete, roleAuth, roleAuthDetail, roleSetDefaultRouter, menuTree, apiList, mchList } from '@/api/system'
+import { roleList, roleCreate, roleUpdate, roleDelete, roleAuth, roleAuthDetail, roleSetDefaultRouter, menuTree, mchList } from '@/api/system'
 
 // 系统类型常量（与服务端 enum.SystemType 保持一致）
 const SYS_TYPES = [
@@ -149,10 +137,10 @@ const submitting = ref(false)
 const form = reactive({ statusBool: true, status: 1, default_router: '', system_type: 0, mch_id: null })
 const currentSysType = ref(0)
 const authDlg = ref(false)
-const authTab = ref('menu')
-const authForm = reactive({ role_id: 0, menu_ids: [], api_ids: [], default_router: '' })
+// authTab removed - ('menu')
+const authForm = reactive({ role_id: 0, menu_ids: [], default_router: '' })
 const menuTreeData = ref([])
-const apiGroups = ref([])
+// apiGroups removed - ([])
 const menuTreeRef = ref(null)
 
 const userStore = useUserStore()
@@ -302,21 +290,12 @@ function collectParentIds(tree, parentSet = new Set()) {
 
 async function auth(row) {
   try {
-    const detail = await roleAuthDetail(row.id).catch(() => ({ data: { menu_ids: [], api_ids: [], default_router: '', system_type: 0 } }))
+    const detail = await roleAuthDetail(row.id).catch(() => ({ data: { menu_ids: [], default_router: '', system_type: 0 } }))
     const sysType = detail.data.system_type || 0
     const params = sysType > 0 ? { system_type: sysType } : {}
-    const [m, a] = await Promise.all([
-      menuTree(params),
-      apiList(params),
-    ])
+    const m = await menuTree(params)
     menuTreeData.value = m.data.list || []
-    const map = {}
-    ;(a.data.list || []).forEach(x => {
-      const key = x.group || '默认'
-      if (!map[key]) map[key] = []
-      map[key].push(x)
-    })
-    apiGroups.value = Object.entries(map).map(([name, items]) => ({ name, items }))
+    // API rules are now extracted from menu api_rules on the backend
     authForm.role_id = row.id
     // 关键修复：el-tree 在非 check-strictly 模式下，勾选父节点会自动勾选全部子节点。
     // 后端为保持菜单树完整性会保存所有父级 ID，因此渲染时必须过滤掉父级 ID，
@@ -324,7 +303,6 @@ async function auth(row) {
     const parentSet = collectParentIds(menuTreeData.value)
     const allIds = detail.data.menu_ids || []
     authForm.menu_ids = allIds.filter(id => !parentSet.has(id))
-    authForm.api_ids = detail.data.api_ids || []
     authForm.default_router = detail.data.default_router || ''
     authDlg.value = true
   } catch (e) {
@@ -342,8 +320,7 @@ async function submitAuth() {
     authForm.menu_ids = [...checked, ...halfChecked]
     await roleAuth({
       role_id: authForm.role_id,
-      menu_ids: authForm.menu_ids,
-      api_ids: authForm.api_ids
+      menu_ids: authForm.menu_ids
     })
     authDlg.value = false
     ElMessage.success('授权已保存')
@@ -360,10 +337,6 @@ load()
 .table-toolbar { margin-bottom: 12px; }
 .text-muted { color: #909399; font-size: 12px; }
 .form-tip { color: #909399; font-size: 12px; margin-top: 4px; }
-.api-group { margin-bottom: 16px; }
-.api-group-title { font-weight: 600; font-size: 13px; color: #606266; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #ebeef5; }
-.api-item { display: flex; align-items: center; gap: 8px; margin: 4px 0 4px 8px; }
-.api-path { font-size: 12px; color: #909399; font-family: monospace; }
 
 /* 菜单树节点样式 */
 .tree-node {

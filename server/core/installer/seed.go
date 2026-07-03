@@ -25,53 +25,46 @@ func defaultMenus() []system.SysMenu {
 					Type: system.MenuTypeMenu,
 					Path: "user", Name: "SysUser", Component: "system/user/index",
 					Title: "用户管理", Icon: "user", Sort: 1,
+					ApiRules: `[{"path":"/api/v1/system/user/list","method":"GET"}]`,
 					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增用户", Permission: "user:add"},
-						{Type: system.MenuTypeButton, Name: "编辑用户", Permission: "user:edit"},
-						{Type: system.MenuTypeButton, Name: "删除用户", Permission: "user:del"},
-						{Type: system.MenuTypeButton, Name: "重置密码", Permission: "user:reset"},
+						{Type: system.MenuTypeButton, Name: "新增用户", Permission: "user:add", ApiRules: `[{"path":"/api/v1/system/user","method":"POST"}]`},
+						{Type: system.MenuTypeButton, Name: "编辑用户", Permission: "user:edit", ApiRules: `[{"path":"/api/v1/system/user","method":"PUT"}]`},
+						{Type: system.MenuTypeButton, Name: "删除用户", Permission: "user:del", ApiRules: `[{"path":"/api/v1/system/user/:id","method":"DELETE"}]`},
 					},
 				},
 				{
 					Type: system.MenuTypeMenu,
 					Path: "role", Name: "SysRole", Component: "system/role/index",
 					Title: "角色管理", Icon: "peoples", Sort: 2,
+					ApiRules: `[{"path":"/api/v1/system/role/list","method":"GET"}]`,
 					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增角色", Permission: "role:add"},
-						{Type: system.MenuTypeButton, Name: "编辑角色", Permission: "role:edit"},
-						{Type: system.MenuTypeButton, Name: "删除角色", Permission: "role:del"},
-						{Type: system.MenuTypeButton, Name: "角色授权", Permission: "role:auth"},
+						{Type: system.MenuTypeButton, Name: "新增角色", Permission: "role:add", ApiRules: `[{"path":"/api/v1/system/role","method":"POST"}]`},
+						{Type: system.MenuTypeButton, Name: "编辑角色", Permission: "role:edit", ApiRules: `[{"path":"/api/v1/system/role","method":"PUT"}]`},
+						{Type: system.MenuTypeButton, Name: "删除角色", Permission: "role:del", ApiRules: `[{"path":"/api/v1/system/role/:id","method":"DELETE"}]`},
+						{Type: system.MenuTypeButton, Name: "角色授权", Permission: "role:auth", ApiRules: `[{"path":"/api/v1/system/role/auth","method":"POST"},{"path":"/api/v1/system/role/auth/:id","method":"GET"}]`},
 					},
 				},
 				{
 					Type: system.MenuTypeMenu,
 					Path: "menu", Name: "SysMenu", Component: "system/menu/index",
 					Title: "菜单管理", Icon: "tree-table", Sort: 3,
+					ApiRules: `[{"path":"/api/v1/system/menu/tree","method":"GET"}]`,
 					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增菜单", Permission: "menu:add"},
-						{Type: system.MenuTypeButton, Name: "编辑菜单", Permission: "menu:edit"},
-						{Type: system.MenuTypeButton, Name: "删除菜单", Permission: "menu:del"},
-					},
-				},
-				{
-					Type: system.MenuTypeMenu,
-					Path: "api", Name: "SysApi", Component: "system/api/index",
-					Title: "API管理", Icon: "api", Sort: 4,
-					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增API", Permission: "api:add"},
-						{Type: system.MenuTypeButton, Name: "编辑API", Permission: "api:edit"},
-						{Type: system.MenuTypeButton, Name: "删除API", Permission: "api:del"},
+						{Type: system.MenuTypeButton, Name: "新增菜单", Permission: "menu:add", ApiRules: `[{"path":"/api/v1/system/menu","method":"POST"}]`},
+						{Type: system.MenuTypeButton, Name: "编辑菜单", Permission: "menu:edit", ApiRules: `[{"path":"/api/v1/system/menu","method":"PUT"}]`},
+						{Type: system.MenuTypeButton, Name: "删除菜单", Permission: "menu:del", ApiRules: `[{"path":"/api/v1/system/menu/:id","method":"DELETE"}]`},
 					},
 				},
 				{
 					Type: system.MenuTypeMenu,
 					Path: "mch", Name: "SysMch", Component: "plugin/mch/view/index",
 					Title: "商户管理", Icon: "shop", Sort: 5,
+					ApiRules: `[{"path":"/api/v1/system/mch/list","method":"GET"}]`,
 					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增商户", Permission: "mch:add"},
-						{Type: system.MenuTypeButton, Name: "编辑商户", Permission: "mch:edit"},
-						{Type: system.MenuTypeButton, Name: "查看商户", Permission: "mch:view"},
-						{Type: system.MenuTypeButton, Name: "商户状态", Permission: "mch:status"},
+						{Type: system.MenuTypeButton, Name: "新增商户", Permission: "mch:add", ApiRules: `[{"path":"/api/v1/system/mch","method":"POST"}]`},
+						{Type: system.MenuTypeButton, Name: "编辑商户", Permission: "mch:edit", ApiRules: `[{"path":"/api/v1/system/mch","method":"PUT"}]`},
+						{Type: system.MenuTypeButton, Name: "查看商户", Permission: "mch:view", ApiRules: `[{"path":"/api/v1/system/mch/:id","method":"GET"},{"path":"/api/v1/system/mch/no/:mchNo","method":"GET"}]`},
+						{Type: system.MenuTypeButton, Name: "商户状态", Permission: "mch:status", ApiRules: `[{"path":"/api/v1/system/mch/status","method":"PUT"}]`},
 					},
 				},
 			},
@@ -87,45 +80,10 @@ func defaultMenus() []system.SysMenu {
 					Type: system.MenuTypeMenu,
 					Path: "list", Name: "PluginList", Component: "plugin/list/index",
 					Title: "已装插件", Icon: "list", Sort: 1,
+					ApiRules: `[{"path":"/api/plugin/list","method":"GET"}]`,
 				},
 			},
 		},
-	}
-}
-
-// defaultApis 默认 API 列表（与路由 / 控制器对应）
-func defaultApis() []system.SysApi {
-	return []system.SysApi{
-		{Path: "/api/v1/system/user", Method: "POST", Group: "user", Desc: "新增用户"},
-		{Path: "/api/v1/system/user", Method: "PUT", Group: "user", Desc: "编辑用户"},
-		{Path: "/api/v1/system/user/:id", Method: "DELETE", Group: "user", Desc: "删除用户"},
-		{Path: "/api/v1/system/user/list", Method: "GET", Group: "user", Desc: "用户列表"},
-
-		{Path: "/api/v1/system/role", Method: "POST", Group: "role", Desc: "新增角色"},
-		{Path: "/api/v1/system/role", Method: "PUT", Group: "role", Desc: "编辑角色"},
-		{Path: "/api/v1/system/role/:id", Method: "DELETE", Group: "role", Desc: "删除角色"},
-		{Path: "/api/v1/system/role/list", Method: "GET", Group: "role", Desc: "角色列表"},
-		{Path: "/api/v1/system/role/auth", Method: "POST", Group: "role", Desc: "角色授权"},
-		{Path: "/api/v1/system/role/auth/:id", Method: "GET", Group: "role", Desc: "查询角色授权详情"},
-
-		{Path: "/api/v1/system/menu", Method: "POST", Group: "menu", Desc: "新增菜单"},
-		{Path: "/api/v1/system/menu", Method: "PUT", Group: "menu", Desc: "编辑菜单"},
-		{Path: "/api/v1/system/menu/:id", Method: "DELETE", Group: "menu", Desc: "删除菜单"},
-		{Path: "/api/v1/system/menu/tree", Method: "GET", Group: "menu", Desc: "菜单树"},
-
-		{Path: "/api/v1/system/api", Method: "POST", Group: "api", Desc: "新增API"},
-		{Path: "/api/v1/system/api", Method: "PUT", Group: "api", Desc: "编辑API"},
-		{Path: "/api/v1/system/api/:id", Method: "DELETE", Group: "api", Desc: "删除API"},
-		{Path: "/api/v1/system/api/list", Method: "GET", Group: "api", Desc: "API列表"},
-
-		{Path: "/api/v1/plugin/list", Method: "GET", Group: "plugin", Desc: "插件列表"},
-
-		{Path: "/api/v1/system/mch", Method: "POST", Group: "mch", Desc: "新增商户"},
-		{Path: "/api/v1/system/mch", Method: "PUT", Group: "mch", Desc: "编辑商户"},
-		{Path: "/api/v1/system/mch/:id", Method: "GET", Group: "mch", Desc: "商户详情"},
-		{Path: "/api/v1/system/mch/no/:mchNo", Method: "GET", Group: "mch", Desc: "按编号查商户"},
-		{Path: "/api/v1/system/mch/list", Method: "GET", Group: "mch", Desc: "商户列表"},
-		{Path: "/api/v1/system/mch/status", Method: "PUT", Group: "mch", Desc: "修改商户状态"},
 	}
 }
 
@@ -161,11 +119,11 @@ func merchantAdminMenus() []system.SysMenu {
 					Path: "user", Name: "SysUser", Component: "system/user/index",
 					Title: "用户管理", Icon: "user", Sort: 1,
 					SystemType: enum.SystemTypeMch,
+					ApiRules:   `[{"path":"/api/v1/system/user/list","method":"GET"}]`,
 					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增用户", Permission: "user:add", SystemType: enum.SystemTypeMch},
-						{Type: system.MenuTypeButton, Name: "编辑用户", Permission: "user:edit", SystemType: enum.SystemTypeMch},
-						{Type: system.MenuTypeButton, Name: "删除用户", Permission: "user:del", SystemType: enum.SystemTypeMch},
-						{Type: system.MenuTypeButton, Name: "重置密码", Permission: "user:reset", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "新增用户", Permission: "user:add", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/user","method":"POST"}]`},
+						{Type: system.MenuTypeButton, Name: "编辑用户", Permission: "user:edit", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/user","method":"PUT"}]`},
+						{Type: system.MenuTypeButton, Name: "删除用户", Permission: "user:del", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/user/:id","method":"DELETE"}]`},
 					},
 				},
 				{
@@ -173,36 +131,16 @@ func merchantAdminMenus() []system.SysMenu {
 					Path: "role", Name: "SysRole", Component: "system/role/index",
 					Title: "角色管理", Icon: "peoples", Sort: 2,
 					SystemType: enum.SystemTypeMch,
+					ApiRules:   `[{"path":"/api/v1/system/role/list","method":"GET"}]`,
 					Children: []system.SysMenu{
-						{Type: system.MenuTypeButton, Name: "新增角色", Permission: "role:add", SystemType: enum.SystemTypeMch},
-						{Type: system.MenuTypeButton, Name: "编辑角色", Permission: "role:edit", SystemType: enum.SystemTypeMch},
-						{Type: system.MenuTypeButton, Name: "删除角色", Permission: "role:del", SystemType: enum.SystemTypeMch},
-						{Type: system.MenuTypeButton, Name: "角色授权", Permission: "role:auth", SystemType: enum.SystemTypeMch},
+						{Type: system.MenuTypeButton, Name: "新增角色", Permission: "role:add", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/role","method":"POST"}]`},
+						{Type: system.MenuTypeButton, Name: "编辑角色", Permission: "role:edit", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/role","method":"PUT"}]`},
+						{Type: system.MenuTypeButton, Name: "删除角色", Permission: "role:del", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/role/:id","method":"DELETE"}]`},
+						{Type: system.MenuTypeButton, Name: "角色授权", Permission: "role:auth", SystemType: enum.SystemTypeMch, ApiRules: `[{"path":"/api/v1/system/role/auth","method":"POST"},{"path":"/api/v1/system/menu/tree","method":"GET"},{"path":"/api/v1/system/role/auth/:id","method":"GET"}]`},
 					},
 				},
 			},
 		},
-	}
-}
-
-// merchantAdminApis 商户管理员 API（基础 + 用户 + 角色 + 菜单树 + API列表）
-func merchantAdminApis() []system.SysApi {
-	return []system.SysApi{
-
-		{Path: "/api/v1/system/user", Method: "POST", Group: "user", Desc: "新增用户", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/user", Method: "PUT", Group: "user", Desc: "编辑用户", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/user/:id", Method: "DELETE", Group: "user", Desc: "删除用户", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/user/list", Method: "GET", Group: "user", Desc: "用户列表", SystemType: enum.SystemTypeMch},
-
-		{Path: "/api/v1/system/role", Method: "POST", Group: "role", Desc: "新增角色", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/role", Method: "PUT", Group: "role", Desc: "编辑角色", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/role/:id", Method: "DELETE", Group: "role", Desc: "删除角色", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/role/list", Method: "GET", Group: "role", Desc: "角色列表", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/role/auth", Method: "POST", Group: "role", Desc: "角色授权", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/role/auth/:id", Method: "GET", Group: "role", Desc: "查询角色授权详情", SystemType: enum.SystemTypeMch},
-
-		{Path: "/api/v1/system/menu/tree", Method: "GET", Group: "menu", Desc: "菜单树", SystemType: enum.SystemTypeMch},
-		{Path: "/api/v1/system/api/list", Method: "GET", Group: "api", Desc: "API列表", SystemType: enum.SystemTypeMch},
 	}
 }
 

@@ -2,7 +2,7 @@
 //
 // 表结构设计说明：
 //
-//  1. RBAC 模型：用户(SysUser) ←多对多→ 角色(SysRole) ←多对多→ 菜单(SysMenu) / API(SysApi)
+//  1. RBAC 模型：用户(SysUser) ←多对多→ 角色(SysRole) ←多对多→ 菜单(SysMenu)
 //     Casbin 负责 API 级别鉴权，策略存储在 casbin_rule 表（由 gorm-adapter 自动建表）。
 //     casbin_rule 中 p 策略格式：p(role_id, /api/path, method)
 //     casbin_rule 中 g 策略格式：g(user_id, role_id)
@@ -100,20 +100,16 @@ type SysMenu struct {
   KeepAlive  bool            `gorm:"default:false"                          json:"keep_alive"`         // 是否缓存页面
   Children   []SysMenu       `gorm:"-"                                      json:"children,omitempty"` // 虚拟字段，仅用于 JSON 序列化时组装树
   SystemType enum.SystemType `gorm:"default:0"   json:"system_type"`                                   // 商户ID, 平台默认为0
+  ApiRules   string          `gorm:"type:text"                              json:"api_rules"`          // JSON 数组：[{"path":"/api/...","method":"GET"},...]
 }
 
-// ---------- API 元数据 ----------
 
-// SysApi 后端 API 元数据
-// 供"角色授权"界面列出可选 API，Casbin 真实策略（p 规则）写入 casbin_rule 表。
-type SysApi struct {
-  Base
-  Path       string          `gorm:"size:255;index"   json:"path"`   // 接口路径，如 /api/v1/system/user
-  Method     string          `gorm:"size:16;index"    json:"method"` // HTTP 方法：GET/POST/PUT/DELETE
-  Group      string          `gorm:"size:64"          json:"group"`  // 分组标签，如 user / role / menu
-  Desc       string          `gorm:"size:255"         json:"desc"`   // 中文描述
-  SystemType enum.SystemType `gorm:"default:0"   json:"system_type"` // 商户ID, 平台默认为0
+// ApiRule 菜单关联的单个 API 规则
+type ApiRule struct {
+  Path   string `json:"path"`
+  Method string `json:"method"`
 }
+
 
 // ---------- 安装状态 ----------
 
@@ -132,6 +128,6 @@ type SysInstall struct {
 func CoreModels() []interface{} {
   return []interface{}{
     &SysUser{}, &SysRole{}, &SysMenu{},
-    &SysApi{}, &SysInstall{}, &Merchant{},
+    &SysInstall{}, &Merchant{},
   }
 }

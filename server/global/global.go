@@ -4,6 +4,7 @@ package global
 
 import (
 	"github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
 	"sync/atomic"
 
 	"github.com/lihongsheng/go-admin/server/config"
@@ -12,10 +13,10 @@ import (
 )
 
 var (
-	Cfg     *config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
-
+	Cfg   *config.Config
+	DB    *gorm.DB
+	Redis *redis.Client
+	Viper *viper.Viper
 	// Installed 全局安装状态，安装中间件读取
 	Installed atomic.Bool
 )

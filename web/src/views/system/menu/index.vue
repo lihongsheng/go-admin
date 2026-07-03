@@ -127,6 +127,19 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <!-- API 规则编辑器（仅菜单和按钮类型） -->
+        <el-form-item v-if="form.type === 'menu' || form.type === 'button'" label="API 规则">
+          <div style="width:100%">
+            <div v-for="(rule, i) in apiRuleList" :key="i" style="display:flex;gap:6px;margin-bottom:6px">
+              <el-input v-model="rule.path" placeholder="/api/v1/system/xxx" style="flex:1" />
+              <el-select v-model="rule.method" style="width:100px">
+                <el-option v-for="m in ['GET','POST','PUT','DELETE','PATCH']" :key="m" :label="m" :value="m" />
+              </el-select>
+              <el-button type="danger" :icon="Delete" @click="removeApiRule(i)" />
+            </div>
+            <el-button type="primary" link @click="addApiRule">+ 添加 API</el-button>
+          </div>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dlg = false">取消</el-button>
@@ -268,6 +281,7 @@ const loading = ref(false)
 const dlg = ref(false)
 const submitting = ref(false)
 const form = reactive({ parent_id: 0, type: 'menu', sort: 0, hidden: false, keep_alive: false })
+const apiRuleList = ref([])
 const systemTypesList = ref([])
 const currentSystemType = ref(0) // 默认选中"平台"，加载后覆盖
 
@@ -321,6 +335,14 @@ async function loadSystemTypes() {
   } catch (_) { /* ignore */ }
 }
 
+function addApiRule() {
+  apiRuleList.value.push({ path: '', method: 'GET' })
+}
+
+function removeApiRule(i) {
+  apiRuleList.value.splice(i, 1)
+}
+
 async function load() {
   loading.value = true
   try {
@@ -332,12 +354,14 @@ async function load() {
 function open(row) {
   if (row) {
     Object.assign(form, { ...row })
+    try { apiRuleList.value = row.api_rules ? JSON.parse(row.api_rules) : [] } catch (_) { apiRuleList.value = [] }
   } else {
     Object.assign(form, {
       id: undefined, parent_id: 0, type: 'menu', sort: 0, hidden: false, keep_alive: false,
       title: '', name: '', path: '', component: '', permission: '', redirect: '', icon: '',
       system_type: currentSystemType.value || 0
     })
+    apiRuleList.value = []
   }
   dlg.value = true
 }
@@ -348,10 +372,10 @@ async function submit() {
   submitting.value = true
   try {
     if (form.id) {
-      await menuUpdate({ ...form })
+      await menuUpdate({ ...form, api_rules: JSON.stringify(apiRuleList.value) })
       ElMessage.success('编辑成功')
     } else {
-      await menuCreate({ ...form })
+      await menuCreate({ ...form, api_rules: JSON.stringify(apiRuleList.value) })
       ElMessage.success('新增成功')
     }
     dlg.value = false

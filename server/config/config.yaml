@@ -9,7 +9,7 @@ db:
     host: 127.0.0.1
     port: 3306
     username: root
-    password: user_root
+    password: code_101
     database: go_mch_admin
     path: ""
     charset: utf8mb4
@@ -17,7 +17,7 @@ db:
     max_open: 0
     log_mode: ""
 install:
-    enable: true
+    enable: false
 jwt:
     secret: please-change-me-in-production
     expire: 86400

@@ -2,6 +2,7 @@ package installer
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -165,12 +166,7 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 			return err
 		}
 
-		// 4) API 元数据（平台）
-		if err := tx.Create(defaultApis()).Error; err != nil {
-			return err
-		}
-
-		// 5) super_admin 拥有所有平台菜单
+		// 4) super_admin 拥有所有平台菜单
 		var allMenus []system.SysMenu
 		if err := tx.Find(&allMenus).Error; err != nil {
 			return err
@@ -179,14 +175,14 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 			return err
 		}
 
-		// 6) 默认商户
+		// 5) 默认商户
 		merchant = defaultMerchant()
 		merchant.MchNo = "M" + genid.GenDeviceID.Generate0X()
 		if err := tx.Create(&merchant).Error; err != nil {
 			return err
 		}
 
-		// 7) 商户管理员角色
+		// 6) 商户管理员角色
 		mchAdminRole = system.SysRole{
 			Name:          "商户管理员",
 			Remark:        "商户管理员，拥有用户管理和角色管理权限",
@@ -199,7 +195,7 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 			return err
 		}
 
-		// 8) 商户管理员用户
+		// 7) 商户管理员用户
 		mchHash, err := bcrypt.GenerateFromPassword([]byte("mchadmin123"), bcrypt.DefaultCost)
 		if err != nil {
 			return err
@@ -218,21 +214,16 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 			return err
 		}
 
-		// 9) 商户管理员菜单树（systemType=Mch）
+		// 8) 商户管理员菜单树（systemType=Mch）
 		if err := createMenusTree(tx, merchantAdminMenus(), 0); err != nil {
 			return err
 		}
+			// 9) 商户管理员角色拥有对应 systemType 的菜单
+			var mchMenus []system.SysMenu
+			if err := tx.Where("system_type = ?", enum.SystemTypeMch).Find(&mchMenus).Error; err != nil {
+				return err
+			}
 
-		// 10) 商户管理员 API 元数据（systemType=Mch）
-		if err := tx.Create(merchantAdminApis()).Error; err != nil {
-			return err
-		}
-
-		// 11) 商户管理员角色拥有对应 systemType 的菜单
-		var mchMenus []system.SysMenu
-		if err := tx.Where("system_type = ?", enum.SystemTypeMch).Find(&mchMenus).Error; err != nil {
-			return err
-		}
 		if err := tx.Model(&mchAdminRole).Association("Menus").Replace(mchMenus); err != nil {
 			return err
 		}
@@ -243,33 +234,43 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 		return err
 	}
 
-	// 12) Casbin 策略：超级管理员角色拥有所有平台 API
-	var allApis []system.SysApi
-	if err := db.Where("system_type = ?", enum.SystemTypePlatform).Find(&allApis).Error; err != nil {
+	// 12) Casbin 策略：超级管理员角色拥有所有平台菜单关联的 API
+	var allMenus []system.SysMenu
+	if err := db.Where("system_type = ?", enum.SystemTypePlatform).Find(&allMenus).Error; err != nil {
 		return err
 	}
-	items := make([][2]string, 0, len(allApis))
-	for _, a := range allApis {
-		items = append(items, [2]string{a.Path, a.Method})
-	}
-	if err := casbin.ReplaceRolePolicies(superRole.ID, items); err != nil {
+	if err := casbin.ReplaceRolePolicies(superRole.ID, extractApiRules(allMenus)); err != nil {
 		return err
 	}
 
-	// 13) Casbin 策略：商户管理员角色拥有商户 API
-	var mchApis []system.SysApi
-	if err := db.Where("system_type = ?", enum.SystemTypeMch).Find(&mchApis).Error; err != nil {
+	// 13) Casbin 策略：商户管理员角色拥有商户菜单关联的 API
+	var mchMenus []system.SysMenu
+	if err := db.Where("system_type = ?", enum.SystemTypeMch).Find(&mchMenus).Error; err != nil {
 		return err
 	}
-	mchItems := make([][2]string, 0, len(mchApis))
-	for _, a := range mchApis {
-		mchItems = append(mchItems, [2]string{a.Path, a.Method})
-	}
-	if err := casbin.ReplaceRolePolicies(mchAdminRole.ID, mchItems); err != nil {
+	if err := casbin.ReplaceRolePolicies(mchAdminRole.ID, extractApiRules(mchMenus)); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// extractApiRules 从菜单列表中提取所有 API 规则（path + method）
+func extractApiRules(menus []system.SysMenu) [][2]string {
+	var items [][2]string
+	for _, m := range menus {
+		if m.ApiRules == "" {
+			continue
+		}
+		var rules []system.ApiRule
+		if err := json.Unmarshal([]byte(m.ApiRules), &rules); err != nil {
+			continue
+		}
+		for _, r := range rules {
+			items = append(items, [2]string{r.Path, r.Method})
+		}
+	}
+	return items
 }
 
 // createMenusTree 递归插入菜单树

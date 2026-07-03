@@ -21,12 +21,12 @@ func main() {
 	cfgPath := flag.String("c", "config/config.yaml", "config file path")
 	flag.Parse()
 
-	cfg, err := config.Load(*cfgPath)
+	cfg, v, err := config.Load(*cfgPath)
 	if err != nil {
 		stdlog.Fatalf("load config: %v", err)
 	}
 	global.Cfg = cfg
-
+	global.Viper = v
 	// 初始化日志系统
 	logger, err := initialize.Logger(cfg.Log)
 	if err != nil {

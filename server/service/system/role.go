@@ -1,6 +1,7 @@
 package system
 
 import (
+	"encoding/json"
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
 	"github.com/lihongsheng/go-admin/server/enum"
 	"github.com/lihongsheng/go-admin/server/model/system"
@@ -23,13 +24,11 @@ type RoleService interface {
 func NewRoleService(
 	roleRepo repoSys.RoleRepo,
 	menuRepo repoSys.MenuRepo,
-	apiRepo repoSys.ApiRepo,
 	casbin casbinUtil.Port,
 ) RoleService {
 	return &roleService{
 		roleRepo: roleRepo,
 		menuRepo: menuRepo,
-		apiRepo:  apiRepo,
 		casbin:   casbin,
 	}
 }
@@ -37,7 +36,6 @@ func NewRoleService(
 type roleService struct {
 	roleRepo repoSys.RoleRepo
 	menuRepo repoSys.MenuRepo
-	apiRepo  repoSys.ApiRepo
 	casbin   casbinUtil.Port
 }
 
@@ -84,6 +82,8 @@ func (s *roleService) List(req dtoSys.RoleListReq) (*dtoSys.RoleListResp, error)
 // Auth 角色授权（菜单 + API）
 // 在写入 sys_role_menus 前自动补全所有父级菜单 ID，
 // 防止前端只回传半选叶子节点导致父菜单丢失（前端 v-tree 半选状态修复见 web 端）。
+// 优先从菜单 api_rules 字段提取 API 权限写入 Casbin，
+// 同时兼容旧的 ApiIDs 入参（已废弃，后续版本移除）。
 func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
 	// 补全父级菜单 ID
 	menuIDs, err := s.menuRepo.CompleteParentIDs(req.MenuIDs)
@@ -94,18 +94,26 @@ func (s *roleService) Auth(req dtoSys.RoleAuthReq) error {
 	if err != nil {
 		return err
 	}
-	apis, err := s.apiRepo.FindByIDs(req.ApiIDs)
-	if err != nil {
-		return err
-	}
 	if err := s.roleRepo.ReplaceMenus(req.RoleID, menus); err != nil {
 		return err
 	}
-	// 同步 Casbin 策略（API 权限完全由 Casbin 管理，不再维护 sys_role_apis 表）
-	items := make([][2]string, 0, len(apis))
-	for _, a := range apis {
-		items = append(items, [2]string{a.Path, a.Method})
+
+	// 从菜单 api_rules 提取 Casbin 策略
+	items := make([][2]string, 0)
+	for _, m := range menus {
+		if m.ApiRules == "" {
+			continue
+		}
+		var rules []system.ApiRule
+		if err := json.Unmarshal([]byte(m.ApiRules), &rules); err != nil {
+			continue
+		}
+		for _, r := range rules {
+			items = append(items, [2]string{r.Path, r.Method})
+		}
 	}
+
+
 	return s.casbin.ReplaceRolePolicies(req.RoleID, items)
 }
 
@@ -118,16 +126,8 @@ func (s *roleService) AuthDetail(id uint) (*dtoSys.RoleAuthDetailResp, error) {
 	for _, m := range role.Menus {
 		menuIDs = append(menuIDs, m.ID)
 	}
-	apiIDs := make([]uint, 0)
-	for _, p := range s.casbin.GetRolePolicies(role.ID) {
-		api, err := s.apiRepo.FindByPathMethod(p[0], p[1])
-		if err == nil && api != nil {
-			apiIDs = append(apiIDs, api.ID)
-		}
-	}
 	return &dtoSys.RoleAuthDetailResp{
 		MenuIDs:       menuIDs,
-		ApiIDs:        apiIDs,
 		DefaultRouter: role.DefaultRouter,
 		SystemType:    role.SystemType,
 	}, nil

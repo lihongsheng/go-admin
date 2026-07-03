@@ -47,10 +47,9 @@
         <el-table-column label="创建时间" width="170" show-overflow-tooltip>
           <template #default="s">{{ formatTime(s.row.created_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="s">
             <el-button v-permission="'user:edit'" type="primary" link size="small" @click="open(s.row)">编辑</el-button>
-            <el-button v-permission="'user:reset'" type="warning" link size="small">重置密码</el-button>
             <el-button v-permission="'user:del'"  type="danger"  link size="small" @click="del(s.row)">删除</el-button>
           </template>
         </el-table-column>
