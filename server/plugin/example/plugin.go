@@ -43,6 +43,10 @@ func (p) Menus() []system.SysMenu {
 	}
 }
 
+// InitServices 示例插件无需初始化服务层，返回 nil
+func (p) InitServices(ctx plugin.InitContext) error {
+	return nil
+}
 func (p) RegisterRoute(g *gin.Engine, privatePlugin *gin.RouterGroup) {
 	g.POST("/note", create)
 	g.DELETE("/note/:id", del)
