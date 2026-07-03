@@ -17,6 +17,10 @@
 package plugin
 
 import (
+	"fmt"
+	"github.com/lihongsheng/go-admin/server/config"
+	"github.com/lihongsheng/go-admin/server/log"
+	"github.com/redis/go-redis/v9"
 	"sync"
 
 	"github.com/lihongsheng/go-admin/server/core/installer"
@@ -28,15 +32,24 @@ import (
 	"gorm.io/gorm"
 )
 
+// InitContext 插件初始化上下文，包含插件可能需要的所有依赖
+type InitContext struct {
+	DB     *gorm.DB      // 数据库连接
+	Redis  *redis.Client // Redis 客户端
+	Config config.Config // 全局配置
+	// 可扩展：Casbin、Kafka Producer 等
+}
+
 // Plugin 插件契约
 type Plugin interface {
-	Name() string                // 唯一名（路由前缀 / 表前缀建议同名）
-	Version() string             // 版本号
-	Models() []interface{}       // 参与 AutoMigrate 的 Model
-	Menus() []system.SysMenu     // 注入菜单树（含 catalog/menu/button；按 Name 幂等）
-	Apis() []system.SysApi       // 注入 API（按 path+method 幂等）
-	RegisterRoute(g *gin.Engine) // 注册自身路由（已在 /api/v1/plugin/<name> 下）
-	SeedTable(db *gorm.DB) error // 插件自身业务表的初始数据；仅在目标表为空时调用
+	Name() string                       // 唯一名（路由前缀 / 表前缀建议同名）
+	Version() string                    // 版本号
+	Models() []interface{}              // 参与 AutoMigrate 的 Model
+	Menus() []system.SysMenu            // 注入菜单树（含 catalog/menu/button；按 Name 幂等）
+	Apis() []system.SysApi              // 注入 API（按 path+method 幂等）
+	InitServices(ctx InitContext) error // 初始化插件自身服务层（在 SyncOnBoot 之后、RegisterRoute 之前调用）
+	RegisterRoute(g *gin.Engine)        // 注册自身路由（已在 /api/v1/plugin/<name> 下）
+	SeedTable(db *gorm.DB) error        // 插件自身业务表的初始数据；仅在目标表为空时调用
 }
 
 var (
@@ -217,4 +230,16 @@ func seedIfEmpty(db *gorm.DB, p Plugin) error {
 		return nil
 	}
 	return p.SeedTable(db)
+}
+
+// InitPlugins 在 SyncOnBoot 之后调用，初始化所有插件的服务层
+// 依赖 DB/Redis/Config 已就绪，插件可在此初始化自身服务对象
+func InitPlugins(ctx InitContext) error {
+	for _, p := range All() {
+		if err := p.InitServices(ctx); err != nil {
+			return fmt.Errorf("plugin %s InitServices failed: %w", p.Name(), err)
+		}
+		log.Info("plugin services initialized: " + p.Name())
+	}
+	return nil
 }

@@ -22,4 +22,14 @@ func SyncOnBoot() {
 		return
 	}
 	log.Info("plugin sync on boot completed")
+	// 初始化所有插件的服务层
+	if err := plugin.InitPlugins(plugin.InitContext{
+		DB:     global.DB,
+		Redis:  global.Redis,
+		Config: *global.Cfg,
+	}); err != nil {
+		log.Error("plugin InitServices: " + err.Error())
+		return
+	}
+	log.Info("plugin services initialized")
 }
