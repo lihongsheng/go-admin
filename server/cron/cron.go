@@ -19,27 +19,34 @@ type Job struct {
 type JobFun func(ctx context.Context) error
 
 type Server struct {
-	c   *cron2.Cron
-	log *log
+	c    *cron2.Cron
+	log  *log
+	jobs []Job
 }
 
-func NewCronServer() *Server {
+func NewCronServer(jobs ...Job) *Server {
 	c := &Server{
-		log: new(log),
-		c:   cron2.New(cron2.WithSeconds(), cron2.WithLogger(new(log)), cron2.WithChain(cron2.SkipIfStillRunning(new(log)))),
+		log:  new(log),
+		c:    cron2.New(cron2.WithSeconds(), cron2.WithLogger(new(log)), cron2.WithChain(cron2.SkipIfStillRunning(new(log)))),
+		jobs: jobs,
 	}
 	_, _ = c.c.AddFunc("@every 5m", func() {
 		log2.Info("NewCronStart", zap.Any("time", time.Now()))
 	})
-	c.c.Start()
+
 	return c
 }
 
-func (c *Server) Start() error {
+func (c *Server) Start(ctx context.Context) error {
+	err := c.AddJob(c.jobs...)
+	if err != nil {
+		return err
+	}
+	c.c.Start()
 	return nil
 }
 
-func (c *Server) Stop() error {
+func (c *Server) Stop(ctx context.Context) error {
 	c.c.Stop()
 	return nil
 }
