@@ -1,7 +1,6 @@
 # Go
 server/logs/
 server/*.db
-server/server
 server/cmd/server/server
 server/tmp/
 # Node
