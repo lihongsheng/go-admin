@@ -2,9 +2,12 @@
 SHELL := /bin/bash
 SERVER_DIR := server
 SWAG_VERSION := v1.16.6
-SWAG_CMD := go run github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION)
+SWAG_CMD := swag
 
 .PHONY: swagger swagger-fmt run dev build test tidy install clean
+
+swag:
+	go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 ## 生成 Swagger 文档到 server/docs/
 swagger:

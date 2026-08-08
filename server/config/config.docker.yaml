@@ -6,11 +6,11 @@ captcha:
     drive: ""
 db:
     driver: mysql
-    host: mysql
-    port: 3306
-    username: root
-    password: code_101
-    database: go_admin
+    host:
+    port:
+    username:
+    password:
+    database:
     path: ""
     charset: utf8mb4
     max_idle: 10

@@ -7,7 +7,6 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: code_101
-      MYSQL_DATABASE: go_admin
       TZ: Asia/Shanghai
     ports:
       - "3306:3306"
@@ -32,13 +31,10 @@ services:
       dockerfile: Dockerfile
     container_name: go-admin-server
     restart: unless-stopped
-    ports:
-      - "8989:8989"
+    network_mode: "service:mysql"
     depends_on:
       mysql:
         condition: service_healthy
-    networks:
-      - go-admin-net
 
   web:
     build:

@@ -35,17 +35,10 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
-      minify: 'terser', // 是否进行压缩,boolean | 'terser' | 'esbuild',默认使用terser
+      minify: 'esbuild', // 使用 esbuild 压缩（Vite 内置，无需额外依赖）
       manifest: false, // 是否产出manifest.json
       sourcemap: false, // 是否产出sourcemap.json
       outDir: outDir, // 产出目录
-      terserOptions: {
-        compress: {
-          //生产环境时移除console
-          drop_console: true,
-          drop_debugger: true
-        }
-      },
       rollupOptions
     }
   }
