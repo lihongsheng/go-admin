@@ -7,11 +7,14 @@ import (
 	"time"
 
 	"github.com/lihongsheng/go-admin/server/config"
+	_ "github.com/lihongsheng/go-admin/server/docs" // swag 生成的 OpenAPI 文档
 	"github.com/lihongsheng/go-admin/server/log"
 	"github.com/lihongsheng/go-admin/server/middleware"
 	"github.com/lihongsheng/go-admin/server/router"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
@@ -98,6 +101,9 @@ func Router(opts ...RouterOption) *gin.Engine {
 
 	// 健康检查 / 安装状态前置（不走 InstallGuard）
 	r.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"ok": true}) })
+
+	// Swagger 文档（免安装拦截，公开访问）
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Prometheus metrics 端点（放在 InstallGuard 之前，确保始终可达）
 	if cfg.cfg.Observability.Metrics.Enable && cfg.metricsHandler != nil {

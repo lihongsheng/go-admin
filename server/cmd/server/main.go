@@ -1,3 +1,11 @@
+// @title           go-admin API
+// @version         1.0.0
+// @description     基于 Gin + Vue3 的后台管理系统 API。<br/>统一响应格式：<code>{"code":0,"msg":"ok","data":...}</code>，code=0 成功，code=7 业务失败。<br/>所有 <code>/api/v1/system/*</code> 接口需要 <code>Authorization: Bearer &lt;token&gt;</code>。
+// @host            localhost:8989
+// @BasePath        /
+// @securityDefinitions.apikey  BearerAuth
+// @in              header
+// @name            Authorization
 package main
 
 import (
@@ -13,6 +21,7 @@ import (
 	"time"
 
 	"github.com/lihongsheng/go-admin/server/config"
+	_ "github.com/lihongsheng/go-admin/server/docs" // swag 生成的 OpenAPI 文档
 	"github.com/lihongsheng/go-admin/server/global"
 	"github.com/lihongsheng/go-admin/server/initialize"
 	applog "github.com/lihongsheng/go-admin/server/log"
@@ -27,6 +36,9 @@ func main() {
 		stdlog.Fatalf("load config: %v", err)
 	}
 	global.Cfg = cfg
+
+	// 根据配置文件端口动态设置 swagger host
+	// docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%d", cfg.App.Port)
 
 	// 初始化日志系统
 	logger, err := initialize.Logger(cfg.Log)

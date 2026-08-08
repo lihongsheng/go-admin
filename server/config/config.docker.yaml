@@ -1,0 +1,65 @@
+app:
+    name: go-admin
+    mode: debug
+    port: 8989
+captcha:
+    drive: ""
+db:
+    driver: mysql
+    host: mysql
+    port: 3306
+    username: root
+    password: code_101
+    database: go_admin
+    path: ""
+    charset: utf8mb4
+    max_idle: 10
+    max_open: 100
+    log_mode: ""
+install:
+    enable: false
+jwt:
+    secret: please-change-me-in-production
+    expire: 86400
+    issuer: go-admin
+log:
+    level: debug
+    dir: ./logs
+    max_size: 100
+    max_backups: 7
+    max_age: 30
+observability:
+    trace:
+        enable: true
+        exporter: none
+        endpoint: ""
+        service_name: go-admin-server
+        sample_rate: 1
+    metrics:
+        enable: false
+        exporter: prometheus
+        endpoint: ""
+        path: /metrics
+redis:
+    enable: false
+    addr: 127.0.0.1:6379
+    password: ""
+    db: 0
+upload:
+    drive: local
+    aliyun_oss:
+        endpoint: ""
+        access_key: ""
+        access_secret: ""
+        bucket_name: ""
+        bucket_url: ""
+        base_path: ""
+    tencent_cos:
+        bucket: ""
+        region: ""
+        secret_id: ""
+        secret_key: ""
+        base_url: ""
+        path_prefix: ""
+    local:
+        path: ./uploads

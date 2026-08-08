@@ -5,13 +5,25 @@ import (
 
 	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
 	"github.com/lihongsheng/go-admin/server/enum"
+	modelSys "github.com/lihongsheng/go-admin/server/model/system"
 	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
 	"github.com/lihongsheng/go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )
 
-// MchCreate POST /system/mch
+// swagger type hints
+var _ = (*modelSys.Merchant)(nil)
+
+// MchCreate 新增商户
+// @Summary      新增商户
+// @Tags         商户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dtoSys.MchCreateRequest  true  "商户信息"
+// @Success      200   {object}  response.Body
+// @Security     BearerAuth
+// @Router       /api/v1/system/mch [post]
 func MchCreate(c *gin.Context) {
 	var req dtoSys.MchCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -29,7 +41,15 @@ func MchCreate(c *gin.Context) {
 	response.OKMsg(c, "ok")
 }
 
-// MchUpdate PUT /system/mch
+// MchUpdate 更新商户（与创建共用结构体，ID 决定新增或更新）
+// @Summary      更新商户
+// @Tags         商户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dtoSys.MchCreateRequest  true  "商户信息（需包含 ID）"
+// @Success      200   {object}  response.Body
+// @Security     BearerAuth
+// @Router       /api/v1/system/mch [put]
 func MchUpdate(c *gin.Context) {
 	var req dtoSys.MchCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -47,7 +67,14 @@ func MchUpdate(c *gin.Context) {
 	response.OKMsg(c, "ok")
 }
 
-// MchDetail GET /system/mch/:id
+// MchDetail 商户详情
+// @Summary      根据 ID 获取商户详情
+// @Tags         商户管理
+// @Produce      json
+// @Param        id   path      int64  true  "商户ID"
+// @Success      200  {object}  response.Body{data=modelSys.Merchant}
+// @Security     BearerAuth
+// @Router       /api/v1/system/mch/{id} [get]
 func MchDetail(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -62,7 +89,14 @@ func MchDetail(c *gin.Context) {
 	response.OK(c, mch)
 }
 
-// MchDetailByNo GET /system/mch/no/:mchNo
+// MchDetailByNo 根据编号获取商户详情
+// @Summary      根据编号获取商户详情
+// @Tags         商户管理
+// @Produce      json
+// @Param        mchNo  path      string  true  "商户编号"
+// @Success      200    {object}  response.Body{data=modelSys.Merchant}
+// @Security     BearerAuth
+// @Router       /api/v1/system/mch/no/{mchNo} [get]
 func MchDetailByNo(c *gin.Context) {
 	mchNo := c.Param("mchNo")
 	mch, err := serviceSys.DefaultMch.GetByMchNo(c.Request.Context(), mchNo)
@@ -73,7 +107,18 @@ func MchDetailByNo(c *gin.Context) {
 	response.OK(c, mch)
 }
 
-// MchList GET /system/mch/list
+// MchList 商户列表
+// @Summary      商户列表
+// @Tags         商户管理
+// @Produce      json
+// @Param        mch_name  query     string  false  "公司名称"
+// @Param        mch_no    query     string  false  "商户编号"
+// @Param        status    query     int     false  "状态（1正常 2停用）"
+// @Param        limit     query     int     false  "每页条数（最大50）"
+// @Param        page      query     int     false  "页码"
+// @Success      200       {object}  response.Body{data=object{list=array,total=integer}}
+// @Security     BearerAuth
+// @Router       /api/v1/system/mch/list [get]
 func MchList(c *gin.Context) {
 	var req dtoSys.MchQueryRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -97,7 +142,7 @@ func MchList(c *gin.Context) {
 	response.OK(c, gin.H{"list": list, "total": total})
 }
 
-// MchChangeStatus PUT /system/mch/status
+// MchChangeStatus 修改商户状态（暂未注册到路由，保留以备后用）
 func MchChangeStatus(c *gin.Context) {
 	var req dtoSys.MchStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

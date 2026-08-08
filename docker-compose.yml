@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: go-admin-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: code_101
+      MYSQL_DATABASE: go_admin
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pcode_101"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - go-admin-net
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: go-admin-server
+    restart: unless-stopped
+    ports:
+      - "8989:8989"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - go-admin-net
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: go-admin-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - go-admin-net
+
+volumes:
+  mysql_data:
+
+networks:
+  go-admin-net:
+    driver: bridge

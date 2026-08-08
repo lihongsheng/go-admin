@@ -11,7 +11,15 @@ import (
 
 const maxUploadSize = 10 << 20 // 10 MB
 
-// Upload POST /api/v1/base/upload —— 上传文件（登录用户均可上传）
+// Upload 上传文件
+// @Summary      上传文件（登录用户均可上传）
+// @Tags         基础接口
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "上传文件（最大 10MB）"
+// @Success      200   {object}  response.Body{data=object{url=string,name=string}}
+// @Security     BearerAuth
+// @Router       /api/v1/base/upload [post]
 func Upload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
