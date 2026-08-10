@@ -15,14 +15,14 @@ definitions:
     x-enum-varnames:
     - MchStatusDisabled
     - MchStatusEnabled
-  github_com_lihongsheng_go-admin_server_dto_base.CaptchaResp:
+  go-admin_server_dto_base.CaptchaResp:
     properties:
       captcha_b64:
         type: string
       captcha_id:
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_dto_base.LoginReq:
+  go-admin_server_dto_base.LoginReq:
     properties:
       captcha_code:
         type: string
@@ -38,14 +38,14 @@ definitions:
     - password
     - username
     type: object
-  github_com_lihongsheng_go-admin_server_dto_base.LoginResp:
+  go-admin_server_dto_base.LoginResp:
     properties:
       token:
         type: string
       user:
-        $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser'
+        $ref: '#/definitions/go-admin_server_model_system.SysUser'
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.MchCreateRequest:
+  go-admin_server_dto_system.MchCreateRequest:
     properties:
       address:
         description: 地址
@@ -72,7 +72,7 @@ definitions:
         - $ref: '#/definitions/enum.MchStatus'
         description: 0 停用 1 正常
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.MenuCreateReq:
+  go-admin_server_dto_system.MenuCreateReq:
     properties:
       api_rules:
         type: string
@@ -102,14 +102,14 @@ definitions:
         description: catalog / menu / button，空字符串表示 menu
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.MenuTreeResp:
+  go-admin_server_dto_system.MenuTreeResp:
     properties:
       list:
         items:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu'
+          $ref: '#/definitions/go-admin_server_model_system.SysMenu'
         type: array
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.MenuUpdateReq:
+  go-admin_server_dto_system.MenuUpdateReq:
     properties:
       api_rules:
         type: string
@@ -142,7 +142,7 @@ definitions:
     required:
     - id
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.RoleAuthDetailResp:
+  go-admin_server_dto_system.RoleAuthDetailResp:
     properties:
       default_router:
         type: string
@@ -151,7 +151,7 @@ definitions:
           type: integer
         type: array
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.RoleAuthReq:
+  go-admin_server_dto_system.RoleAuthReq:
     properties:
       api_ids:
         items:
@@ -166,7 +166,7 @@ definitions:
     required:
     - role_id
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.RoleCreateReq:
+  go-admin_server_dto_system.RoleCreateReq:
     properties:
       default_router:
         type: string
@@ -179,21 +179,21 @@ definitions:
     required:
     - name
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.RoleListResp:
+  go-admin_server_dto_system.RoleListResp:
     properties:
       list:
         items:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysRole'
+          $ref: '#/definitions/go-admin_server_model_system.SysRole'
         type: array
       total:
         type: integer
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.RoleSetDefaultRouterReq:
+  go-admin_server_dto_system.RoleSetDefaultRouterReq:
     properties:
       default_router:
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.RoleUpdateReq:
+  go-admin_server_dto_system.RoleUpdateReq:
     properties:
       default_router:
         type: string
@@ -209,7 +209,7 @@ definitions:
     - id
     - name
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.UserCreateReq:
+  go-admin_server_dto_system.UserCreateReq:
     properties:
       email:
         type: string
@@ -231,16 +231,16 @@ definitions:
     - password
     - username
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.UserListResp:
+  go-admin_server_dto_system.UserListResp:
     properties:
       list:
         items:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser'
+          $ref: '#/definitions/go-admin_server_model_system.SysUser'
         type: array
       total:
         type: integer
     type: object
-  github_com_lihongsheng_go-admin_server_dto_system.UserUpdateReq:
+  go-admin_server_dto_system.UserUpdateReq:
     properties:
       avatar:
         type: string
@@ -264,7 +264,7 @@ definitions:
     required:
     - id
     type: object
-  github_com_lihongsheng_go-admin_server_model_system.Merchant:
+  go-admin_server_model_system.Merchant:
     properties:
       address:
         description: 地址
@@ -297,7 +297,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_model_system.SysMenu:
+  go-admin_server_model_system.SysMenu:
     properties:
       api_rules:
         description: JSON 数组：[{"path":"/api/...","method":"GET"},...]
@@ -305,7 +305,7 @@ definitions:
       children:
         description: 虚拟字段，仅用于 JSON 序列化时组装树
         items:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu'
+          $ref: '#/definitions/go-admin_server_model_system.SysMenu'
         type: array
       component:
         description: 前端组件路径；catalog 用 "Layout"
@@ -350,7 +350,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_model_system.SysRole:
+  go-admin_server_model_system.SysRole:
     properties:
       created_at:
         type: string
@@ -361,7 +361,7 @@ definitions:
         type: integer
       menus:
         items:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu'
+          $ref: '#/definitions/go-admin_server_model_system.SysMenu'
         type: array
       name:
         type: string
@@ -372,7 +372,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_model_system.SysUser:
+  go-admin_server_model_system.SysUser:
     properties:
       avatar:
         type: string
@@ -388,7 +388,7 @@ definitions:
         type: string
       roles:
         items:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysRole'
+          $ref: '#/definitions/go-admin_server_model_system.SysRole'
         type: array
       status:
         description: 1启用 0禁用
@@ -398,7 +398,34 @@ definitions:
       username:
         type: string
     type: object
-  github_com_lihongsheng_go-admin_server_utils_response.Body:
+  go-admin_server_plugin_resource_dto.ResourceBatchDeleteReq:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  go-admin_server_plugin_resource_dto.ResourceCreateReq:
+    properties:
+      name:
+        type: string
+      status:
+        type: integer
+      type:
+        type: string
+    type: object
+  go-admin_server_plugin_resource_dto.ResourceUpdateReq:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: integer
+      type:
+        type: string
+    type: object
+  go-admin_server_utils_response.Body:
     properties:
       code:
         type: integer
@@ -415,6 +442,139 @@ info:
   title: go-admin API
   version: 1.0.0
 paths:
+  /api/plugin/resource/v1:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资源信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_server_plugin_resource_dto.ResourceCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
+      security:
+      - BearerAuth: []
+      summary: 新增资源
+      tags:
+      - 资源管理
+  /api/plugin/resource/v1/{id}:
+    get:
+      parameters:
+      - description: 资源 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
+      security:
+      - BearerAuth: []
+      summary: 资源详情
+      tags:
+      - 资源管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资源 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 资源信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_server_plugin_resource_dto.ResourceUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
+      security:
+      - BearerAuth: []
+      summary: 编辑资源
+      tags:
+      - 资源管理
+  /api/plugin/resource/v1/batch:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资源 ID 列表
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_server_plugin_resource_dto.ResourceBatchDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
+      security:
+      - BearerAuth: []
+      summary: 批量删除资源
+      tags:
+      - 资源管理
+  /api/plugin/resource/v1/list:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 资源名称关键字
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
+            - properties:
+                data:
+                  properties:
+                    list:
+                      type: array
+                    total:
+                      format: int64
+                      type: integer
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: 资源列表
+      tags:
+      - 资源管理
   /api/v1/base/captcha:
     get:
       produces:
@@ -424,10 +584,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_base.CaptchaResp'
+                  $ref: '#/definitions/go-admin_server_dto_base.CaptchaResp'
               type: object
       summary: 获取图形验证码
       tags:
@@ -441,15 +601,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser'
+                  $ref: '#/definitions/go-admin_server_model_system.SysUser'
               type: object
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 获取当前登录用户信息
@@ -465,7 +625,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_base.LoginReq'
+          $ref: '#/definitions/go-admin_server_dto_base.LoginReq'
       produces:
       - application/json
       responses:
@@ -473,10 +633,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_base.LoginResp'
+                  $ref: '#/definitions/go-admin_server_dto_base.LoginResp'
               type: object
       summary: 用户登录
       tags:
@@ -489,7 +649,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 退出登录
@@ -504,7 +664,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
                   properties:
@@ -515,7 +675,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 获取当前用户菜单树
@@ -538,7 +698,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
                   properties:
@@ -563,14 +723,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MchCreateRequest'
+          $ref: '#/definitions/go-admin_server_dto_system.MchCreateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 新增商户
@@ -585,14 +745,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MchCreateRequest'
+          $ref: '#/definitions/go-admin_server_dto_system.MchCreateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 更新商户
@@ -614,10 +774,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.Merchant'
+                  $ref: '#/definitions/go-admin_server_model_system.Merchant'
               type: object
       security:
       - BearerAuth: []
@@ -654,7 +814,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
                   properties:
@@ -684,10 +844,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.Merchant'
+                  $ref: '#/definitions/go-admin_server_model_system.Merchant'
               type: object
       security:
       - BearerAuth: []
@@ -704,7 +864,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MenuCreateReq'
+          $ref: '#/definitions/go-admin_server_dto_system.MenuCreateReq'
       produces:
       - application/json
       responses:
@@ -712,10 +872,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu'
+                  $ref: '#/definitions/go-admin_server_model_system.SysMenu'
               type: object
       security:
       - BearerAuth: []
@@ -731,14 +891,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MenuUpdateReq'
+          $ref: '#/definitions/go-admin_server_dto_system.MenuUpdateReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 更新菜单
@@ -758,7 +918,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 删除菜单（递归删除子节点）
@@ -773,10 +933,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MenuTreeResp'
+                  $ref: '#/definitions/go-admin_server_dto_system.MenuTreeResp'
               type: object
       security:
       - BearerAuth: []
@@ -793,7 +953,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleCreateReq'
+          $ref: '#/definitions/go-admin_server_dto_system.RoleCreateReq'
       produces:
       - application/json
       responses:
@@ -801,10 +961,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysRole'
+                  $ref: '#/definitions/go-admin_server_model_system.SysRole'
               type: object
       security:
       - BearerAuth: []
@@ -820,14 +980,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleUpdateReq'
+          $ref: '#/definitions/go-admin_server_dto_system.RoleUpdateReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 更新角色
@@ -847,7 +1007,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 删除角色
@@ -868,14 +1028,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleSetDefaultRouterReq'
+          $ref: '#/definitions/go-admin_server_dto_system.RoleSetDefaultRouterReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 设置角色默认首页路由
@@ -891,14 +1051,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleAuthReq'
+          $ref: '#/definitions/go-admin_server_dto_system.RoleAuthReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 设置角色的菜单/API 权限
@@ -919,10 +1079,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleAuthDetailResp'
+                  $ref: '#/definitions/go-admin_server_dto_system.RoleAuthDetailResp'
               type: object
       security:
       - BearerAuth: []
@@ -938,10 +1098,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleListResp'
+                  $ref: '#/definitions/go-admin_server_dto_system.RoleListResp'
               type: object
       security:
       - BearerAuth: []
@@ -958,7 +1118,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.UserCreateReq'
+          $ref: '#/definitions/go-admin_server_dto_system.UserCreateReq'
       produces:
       - application/json
       responses:
@@ -966,10 +1126,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser'
+                  $ref: '#/definitions/go-admin_server_model_system.SysUser'
               type: object
       security:
       - BearerAuth: []
@@ -985,14 +1145,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.UserUpdateReq'
+          $ref: '#/definitions/go-admin_server_dto_system.UserUpdateReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 更新用户
@@ -1012,7 +1172,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            $ref: '#/definitions/go-admin_server_utils_response.Body'
       security:
       - BearerAuth: []
       summary: 删除用户
@@ -1040,10 +1200,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body'
+            - $ref: '#/definitions/go-admin_server_utils_response.Body'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_lihongsheng_go-admin_server_dto_system.UserListResp'
+                  $ref: '#/definitions/go-admin_server_dto_system.UserListResp'
               type: object
       security:
       - BearerAuth: []

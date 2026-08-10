@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 资源管理插件（云 ECS 资源）API
+// 资源管理插件 API（统一 mock 方案：mock 由 api/mock/resource.js 注册表覆盖）
 export const resourceList = (params) => request.get('/api/plugin/resource/v1/list', { params })
 
 export const resourceDetail = (id) => request.get('/api/plugin/resource/v1/' + id)

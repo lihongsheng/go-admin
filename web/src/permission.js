@@ -3,6 +3,7 @@ import pinia from '@/store'
 import { useUserStore } from '@/store/modules/user'
 import { usePermissionStore } from '@/store/modules/permission'
 import { getInstallStatus } from '@/api/install'
+import { getMockEnabled } from '@/api/mock'
 
 let installChecked = false
 let installed = false
@@ -49,6 +50,11 @@ router.beforeEach(async (to, _from, next) => {
   // Pinia 必须在 app.use(pinia) 之后才能使用，在路由守卫中通过 pinia 实例获取 store
   const userStore = useUserStore(pinia)
   const permStore = usePermissionStore(pinia)
+
+  // Mock 模式免登录：无 token 时自动注入，直接进入系统（跳过登录页）
+  if (getMockEnabled() && !userStore.token) {
+    userStore.setToken('mock-token-1')
+  }
 
   if (userStore.token) {
     if (!userStore.userInfo) {

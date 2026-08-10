@@ -15,6 +15,225 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/plugin/resource/v1": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "资源管理"
+                ],
+                "summary": "新增资源",
+                "parameters": [
+                    {
+                        "description": "资源信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_plugin_resource_dto.ResourceCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/resource/v1/batch": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "资源管理"
+                ],
+                "summary": "批量删除资源",
+                "parameters": [
+                    {
+                        "description": "资源 ID 列表",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_plugin_resource_dto.ResourceBatchDeleteReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/resource/v1/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "资源管理"
+                ],
+                "summary": "资源列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "资源名称关键字",
+                        "name": "keyword",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "list": {
+                                                    "type": "array"
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "format": "int64"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/resource/v1/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "资源管理"
+                ],
+                "summary": "资源详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "资源 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "资源管理"
+                ],
+                "summary": "编辑资源",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "资源 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "资源信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_plugin_resource_dto.ResourceUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/base/captcha": {
             "get": {
                 "produces": [
@@ -30,13 +249,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_base.CaptchaResp"
+                                            "$ref": "#/definitions/go-admin_server_dto_base.CaptchaResp"
                                         }
                                     }
                                 }
@@ -66,13 +285,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser"
+                                            "$ref": "#/definitions/go-admin_server_model_system.SysUser"
                                         }
                                     }
                                 }
@@ -82,7 +301,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -107,7 +326,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_base.LoginReq"
+                            "$ref": "#/definitions/go-admin_server_dto_base.LoginReq"
                         }
                     }
                 ],
@@ -117,13 +336,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_base.LoginResp"
+                                            "$ref": "#/definitions/go-admin_server_dto_base.LoginResp"
                                         }
                                     }
                                 }
@@ -151,7 +370,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -177,7 +396,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
@@ -198,7 +417,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -236,7 +455,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
@@ -284,7 +503,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MchCreateRequest"
+                            "$ref": "#/definitions/go-admin_server_dto_system.MchCreateRequest"
                         }
                     }
                 ],
@@ -292,7 +511,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -320,7 +539,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MchCreateRequest"
+                            "$ref": "#/definitions/go-admin_server_dto_system.MchCreateRequest"
                         }
                     }
                 ],
@@ -328,7 +547,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -386,7 +605,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
@@ -439,13 +658,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.Merchant"
+                                            "$ref": "#/definitions/go-admin_server_model_system.Merchant"
                                         }
                                     }
                                 }
@@ -485,13 +704,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.Merchant"
+                                            "$ref": "#/definitions/go-admin_server_model_system.Merchant"
                                         }
                                     }
                                 }
@@ -525,7 +744,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MenuUpdateReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.MenuUpdateReq"
                         }
                     }
                 ],
@@ -533,7 +752,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -561,7 +780,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MenuCreateReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.MenuCreateReq"
                         }
                     }
                 ],
@@ -571,13 +790,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu"
+                                            "$ref": "#/definitions/go-admin_server_model_system.SysMenu"
                                         }
                                     }
                                 }
@@ -607,13 +826,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.MenuTreeResp"
+                                            "$ref": "#/definitions/go-admin_server_dto_system.MenuTreeResp"
                                         }
                                     }
                                 }
@@ -650,7 +869,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -680,7 +899,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleUpdateReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.RoleUpdateReq"
                         }
                     }
                 ],
@@ -688,7 +907,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -716,7 +935,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleCreateReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.RoleCreateReq"
                         }
                     }
                 ],
@@ -726,13 +945,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysRole"
+                                            "$ref": "#/definitions/go-admin_server_model_system.SysRole"
                                         }
                                     }
                                 }
@@ -766,7 +985,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleAuthReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.RoleAuthReq"
                         }
                     }
                 ],
@@ -774,7 +993,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -809,13 +1028,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleAuthDetailResp"
+                                            "$ref": "#/definitions/go-admin_server_dto_system.RoleAuthDetailResp"
                                         }
                                     }
                                 }
@@ -845,13 +1064,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleListResp"
+                                            "$ref": "#/definitions/go-admin_server_dto_system.RoleListResp"
                                         }
                                     }
                                 }
@@ -888,7 +1107,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -925,7 +1144,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.RoleSetDefaultRouterReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.RoleSetDefaultRouterReq"
                         }
                     }
                 ],
@@ -933,7 +1152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -963,7 +1182,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.UserUpdateReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.UserUpdateReq"
                         }
                     }
                 ],
@@ -971,7 +1190,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -999,7 +1218,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.UserCreateReq"
+                            "$ref": "#/definitions/go-admin_server_dto_system.UserCreateReq"
                         }
                     }
                 ],
@@ -1009,13 +1228,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser"
+                                            "$ref": "#/definitions/go-admin_server_model_system.SysUser"
                                         }
                                     }
                                 }
@@ -1065,13 +1284,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                                    "$ref": "#/definitions/go-admin_server_utils_response.Body"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_dto_system.UserListResp"
+                                            "$ref": "#/definitions/go-admin_server_dto_system.UserListResp"
                                         }
                                     }
                                 }
@@ -1108,7 +1327,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_utils_response.Body"
+                            "$ref": "#/definitions/go-admin_server_utils_response.Body"
                         }
                     }
                 }
@@ -1136,7 +1355,7 @@ const docTemplate = `{
                 "MchStatusEnabled"
             ]
         },
-        "github_com_lihongsheng_go-admin_server_dto_base.CaptchaResp": {
+        "go-admin_server_dto_base.CaptchaResp": {
             "type": "object",
             "properties": {
                 "captcha_b64": {
@@ -1147,7 +1366,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_base.LoginReq": {
+        "go-admin_server_dto_base.LoginReq": {
             "type": "object",
             "required": [
                 "captcha_code",
@@ -1170,18 +1389,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_base.LoginResp": {
+        "go-admin_server_dto_base.LoginResp": {
             "type": "object",
             "properties": {
                 "token": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser"
+                    "$ref": "#/definitions/go-admin_server_model_system.SysUser"
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.MchCreateRequest": {
+        "go-admin_server_dto_system.MchCreateRequest": {
             "type": "object",
             "properties": {
                 "address": {
@@ -1221,7 +1440,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.MenuCreateReq": {
+        "go-admin_server_dto_system.MenuCreateReq": {
             "type": "object",
             "properties": {
                 "api_rules": {
@@ -1266,18 +1485,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.MenuTreeResp": {
+        "go-admin_server_dto_system.MenuTreeResp": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu"
+                        "$ref": "#/definitions/go-admin_server_model_system.SysMenu"
                     }
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.MenuUpdateReq": {
+        "go-admin_server_dto_system.MenuUpdateReq": {
             "type": "object",
             "required": [
                 "id"
@@ -1327,7 +1546,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.RoleAuthDetailResp": {
+        "go-admin_server_dto_system.RoleAuthDetailResp": {
             "type": "object",
             "properties": {
                 "default_router": {
@@ -1341,7 +1560,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.RoleAuthReq": {
+        "go-admin_server_dto_system.RoleAuthReq": {
             "type": "object",
             "required": [
                 "role_id"
@@ -1364,7 +1583,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.RoleCreateReq": {
+        "go-admin_server_dto_system.RoleCreateReq": {
             "type": "object",
             "required": [
                 "name"
@@ -1384,13 +1603,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.RoleListResp": {
+        "go-admin_server_dto_system.RoleListResp": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysRole"
+                        "$ref": "#/definitions/go-admin_server_model_system.SysRole"
                     }
                 },
                 "total": {
@@ -1398,7 +1617,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.RoleSetDefaultRouterReq": {
+        "go-admin_server_dto_system.RoleSetDefaultRouterReq": {
             "type": "object",
             "properties": {
                 "default_router": {
@@ -1406,7 +1625,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.RoleUpdateReq": {
+        "go-admin_server_dto_system.RoleUpdateReq": {
             "type": "object",
             "required": [
                 "id",
@@ -1430,7 +1649,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.UserCreateReq": {
+        "go-admin_server_dto_system.UserCreateReq": {
             "type": "object",
             "required": [
                 "password",
@@ -1463,13 +1682,13 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.UserListResp": {
+        "go-admin_server_dto_system.UserListResp": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysUser"
+                        "$ref": "#/definitions/go-admin_server_model_system.SysUser"
                     }
                 },
                 "total": {
@@ -1477,7 +1696,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_dto_system.UserUpdateReq": {
+        "go-admin_server_dto_system.UserUpdateReq": {
             "type": "object",
             "required": [
                 "id"
@@ -1513,7 +1732,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_model_system.Merchant": {
+        "go-admin_server_model_system.Merchant": {
             "type": "object",
             "properties": {
                 "address": {
@@ -1559,7 +1778,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_model_system.SysMenu": {
+        "go-admin_server_model_system.SysMenu": {
             "type": "object",
             "properties": {
                 "api_rules": {
@@ -1570,7 +1789,7 @@ const docTemplate = `{
                     "description": "虚拟字段，仅用于 JSON 序列化时组装树",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu"
+                        "$ref": "#/definitions/go-admin_server_model_system.SysMenu"
                     }
                 },
                 "component": {
@@ -1632,7 +1851,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_model_system.SysRole": {
+        "go-admin_server_model_system.SysRole": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -1648,7 +1867,7 @@ const docTemplate = `{
                 "menus": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysMenu"
+                        "$ref": "#/definitions/go-admin_server_model_system.SysMenu"
                     }
                 },
                 "name": {
@@ -1665,7 +1884,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_model_system.SysUser": {
+        "go-admin_server_model_system.SysUser": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -1689,7 +1908,7 @@ const docTemplate = `{
                 "roles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_lihongsheng_go-admin_server_model_system.SysRole"
+                        "$ref": "#/definitions/go-admin_server_model_system.SysRole"
                     }
                 },
                 "status": {
@@ -1704,7 +1923,49 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lihongsheng_go-admin_server_utils_response.Body": {
+        "go-admin_server_plugin_resource_dto.ResourceBatchDeleteReq": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "go-admin_server_plugin_resource_dto.ResourceCreateReq": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_server_plugin_resource_dto.ResourceUpdateReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_server_utils_response.Body": {
             "type": "object",
             "properties": {
                 "code": {

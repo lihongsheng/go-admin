@@ -142,8 +142,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Plus, Delete } from '@element-plus/icons-vue'
-// 页面只依赖适配层方法，不直接拼接后端 URL
-import { resourceAdapter } from '@/api/resourceAdapter'
+import { resourceList, resourceDetail, resourceCreate, resourceUpdate, resourceBatchDelete } from '@/api/resource'
 
 // 资源类型选项（ECS 实例规格族，可手动输入）
 const TYPE_OPTIONS = ['通用型 g6', '计算型 c6', '内存型 r6', '大数据型 d6', '突发性能型 t6', '共享型 s6']
@@ -191,7 +190,7 @@ async function load() {
   loading.value = true
   try {
     const params = { page: page.value, limit: size.value, keyword: query.keyword }
-    const { data } = await resourceAdapter.listResources(params)
+    const { data } = await resourceList(params)
     list.value = data.list || []
     total.value = data.total || 0
   } finally { loading.value = false }
@@ -219,7 +218,7 @@ async function submitAdd() {
   } catch (_) { return }
   submitting.value = true
   try {
-    await resourceAdapter.createResource({ ...addForm })
+    await resourceCreate({ ...addForm })
     ElMessage.success('新增成功')
     addDlg.value = false
     load()
@@ -227,7 +226,7 @@ async function submitAdd() {
 }
 
 async function openView(row) {
-  const { data } = await resourceAdapter.getResourceDetail(row.id)
+  const { data } = await resourceDetail(row.id)
   Object.assign(viewForm, data)
   viewDlg.value = true
 }
@@ -243,7 +242,7 @@ async function submitEdit() {
   } catch (_) { return }
   submitting.value = true
   try {
-    await resourceAdapter.updateResource(editForm.id, { ...editForm })
+    await resourceUpdate(editForm.id, { ...editForm })
     ElMessage.success('编辑成功')
     editDlg.value = false
     load()
@@ -258,7 +257,7 @@ async function batchDel() {
   const ids = [...selectedIds.value]
   if (ids.length === 0) return
   await ElMessageBox.confirm(`确认删除选中的 ${ids.length} 个资源？`, '提示', { type: 'warning' })
-  await resourceAdapter.batchDeleteResources(ids)
+  await resourceBatchDelete(ids)
   ElMessage.success('删除成功')
   load()
 }

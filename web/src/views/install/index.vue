@@ -4,7 +4,8 @@
       <template #header>
         <span>go-admin 安装向导</span>
       </template>
-      <el-steps :active="step" align-center finish-status="success">
+      <!-- 点击开始安装后隐藏步骤条，仅展示安装进度 -->
+      <el-steps v-if="!started" :active="step" align-center finish-status="success">
         <el-step title="环境检测" />
         <el-step title="数据库配置" />
         <el-step title="初始化" />
@@ -50,16 +51,18 @@
                             : ('连接失败：' + (checkResult.reason || ''))" />
       </div>
 
-      <!-- 3. 管理员 + 执行 -->
+      <!-- 3. 管理员 + 执行（开始安装后隐藏表单，只展示进度） -->
       <div v-else class="pane">
-        <el-form :model="admin" label-width="100px" size="small">
+        <el-form v-if="!started" :model="admin" label-width="100px" size="small">
           <el-form-item label="用户名"><el-input v-model="admin.username" /></el-form-item>
           <el-form-item label="密码"><el-input v-model="admin.password" show-password /></el-form-item>
           <el-form-item label="昵称"><el-input v-model="admin.nickname" /></el-form-item>
           <el-form-item label="Email"><el-input v-model="admin.email" /></el-form-item>
         </el-form>
-        <el-button @click="step = 1">上一步</el-button>
-        <el-button type="primary" :loading="loading" @click="onInstall">开始安装</el-button>
+        <template v-if="!started">
+          <el-button @click="step = 1">上一步</el-button>
+          <el-button type="primary" :loading="loading" @click="onInstall">开始安装</el-button>
+        </template>
 
         <el-table v-if="steps.length" :data="steps" size="small" style="margin-top:12px">
           <el-table-column prop="table" label="表/步骤" />
@@ -99,6 +102,7 @@ const db = reactive({ driver: 'mysql', host: 'go-admin-mysql', port: 3306, usern
 const admin = reactive({ username: 'admin', password: '', nickname: '管理员', email: '' })
 const steps = ref([])
 const done = ref(false)
+const started = ref(false)
 
 const canNext = computed(() => checkResult.value && checkResult.value.db_connected && !checkResult.value.installed)
 
@@ -130,6 +134,7 @@ async function onCreateDB() {
 
 async function onInstall() {
   loading.value = true
+  started.value = true // 隐藏步骤条与管理表单，仅展示安装进度
   steps.value = []
   try {
     const r = await doInstall({ db: { ...db }, admin: { ...admin } })

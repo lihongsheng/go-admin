@@ -12,10 +12,10 @@ services:
       - "3306:3306"
 #    volumes:
 #      - mysql_data:/var/lib/mysql
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --default-authentication-plugin=mysql_native_password
+#    command:
+#      - --character-set-server=utf8mb4
+#      - --collation-server=utf8mb4_unicode_ci
+#      - --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pcode_101"]
       interval: 5s
@@ -31,7 +31,10 @@ services:
       dockerfile: Dockerfile
     container_name: go-admin-server
     restart: unless-stopped
-    network_mode: "service:mysql"
+    ports:
+      - "8989:8989"
+    networks:
+      - go-admin-net
     depends_on:
       mysql:
         condition: service_healthy
@@ -46,6 +49,21 @@ services:
       - "80:80"
     depends_on:
       - server
+    networks:
+      - go-admin-net
+
+  # Mock 模式前端：构建时注入 VITE_USE_MOCK=true，
+  # 全系统接口由前端拦截器返回模拟数据，无需后端/数据库，打开即用
+  web-mock:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        VITE_USE_MOCK: "true"
+    container_name: go-admin-web-mock
+    restart: unless-stopped
+    ports:
+      - "8080:80"
     networks:
       - go-admin-net
 
