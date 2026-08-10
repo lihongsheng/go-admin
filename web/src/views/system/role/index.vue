@@ -41,8 +41,8 @@
       </el-table-column>
     </el-table>
 
-    <!-- 新增/编辑角色 -->
-    <el-dialog v-model="dlg" :title="form.id ? '编辑角色' : '新增角色'" width="480px" destroy-on-close>
+    <!-- 新增/编辑角色（右侧抽屉） -->
+    <el-drawer v-model="dlg" :title="form.id ? '编辑角色' : '新增角色'" size="480px" destroy-on-close>
       <el-form :model="form" label-width="80px">
         <el-form-item label="名称" required>
           <el-input v-model="form.name" placeholder="角色名称" />
@@ -72,13 +72,15 @@
         </template>
       </el-form>
       <template #footer>
-        <el-button @click="dlg = false">取消</el-button>
-        <el-button type="primary" @click="submit" :loading="submitting">确定</el-button>
+        <div class="drawer-footer">
+          <el-button @click="dlg = false">取消</el-button>
+          <el-button type="primary" @click="submit" :loading="submitting">确定</el-button>
+        </div>
       </template>
-    </el-dialog>
+    </el-drawer>
 
-    <!-- 角色授权 -->
-    <el-dialog v-model="authDlg" title="角色授权" width="680px" destroy-on-close>
+    <!-- 角色授权（右侧抽屉） -->
+    <el-drawer v-model="authDlg" title="角色授权" size="720px" destroy-on-close>
       <div class="auth-menu-section">
           <!-- 当前首页提示 -->
           <el-alert v-if="authForm.default_router" type="warning" :closable="false" show-icon style="margin-bottom:12px">
@@ -108,10 +110,12 @@
 
       </div>
       <template #footer>
-        <el-button @click="authDlg = false">取消</el-button>
-        <el-button type="primary" @click="submitAuth" :loading="submitting">保存授权</el-button>
+        <div class="drawer-footer">
+          <el-button @click="authDlg = false">取消</el-button>
+          <el-button type="primary" @click="submitAuth" :loading="submitting">保存授权</el-button>
+        </div>
       </template>
-    </el-dialog>
+    </el-drawer>
     </el-card>
   </div>
 </template>
@@ -337,6 +341,9 @@ load()
 .table-toolbar { margin-bottom: 12px; }
 .text-muted { color: #909399; font-size: 12px; }
 .form-tip { color: #909399; font-size: 12px; margin-top: 4px; }
+
+/* 抽屉底部操作区 */
+.drawer-footer { display: flex; justify-content: flex-end; gap: 12px; }
 
 /* 菜单树节点样式 */
 .tree-node {

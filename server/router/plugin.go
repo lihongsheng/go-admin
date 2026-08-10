@@ -1,10 +1,10 @@
 package router
 
 import (
-	"github.com/lihongsheng/go-admin/server/log"
-	"github.com/lihongsheng/go-admin/server/middleware"
-	"github.com/lihongsheng/go-admin/server/plugin"
-	"github.com/lihongsheng/go-admin/server/utils/response"
+	"go-admin/server/log"
+	"go-admin/server/middleware"
+	"go-admin/server/plugin"
+	"go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

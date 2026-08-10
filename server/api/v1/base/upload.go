@@ -1,9 +1,9 @@
 package base
 
 import (
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/utils/response"
-	"github.com/lihongsheng/go-admin/server/utils/upload"
+	"go-admin/server/global"
+	"go-admin/server/utils/response"
+	"go-admin/server/utils/upload"
 	"strings"
 
 	"github.com/gin-gonic/gin"

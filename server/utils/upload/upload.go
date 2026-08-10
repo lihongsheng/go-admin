@@ -5,7 +5,7 @@ package upload
 
 import (
 	"context"
-	"github.com/lihongsheng/go-admin/server/config"
+	"go-admin/server/config"
 	"mime/multipart"
 )
 

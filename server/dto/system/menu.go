@@ -1,7 +1,7 @@
 package system
 
 import (
-	"github.com/lihongsheng/go-admin/server/model/system"
+	"go-admin/server/model/system"
 )
 
 // MenuCreateReq 新增菜单

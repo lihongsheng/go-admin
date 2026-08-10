@@ -34,7 +34,8 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="dlg" :title="form.id ? '编辑菜单' : '新增菜单'" width="580px" destroy-on-close>
+    <!-- 新增/编辑菜单（右侧抽屉） -->
+    <el-drawer v-model="dlg" :title="form.id ? '编辑菜单' : '新增菜单'" size="620px" destroy-on-close>
       <el-form :model="form" label-width="90px">
         <el-form-item label="类型" required>
           <el-radio-group v-model="form.type">
@@ -128,10 +129,12 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dlg = false">取消</el-button>
-        <el-button type="primary" @click="submit" :loading="submitting">确定</el-button>
+        <div class="drawer-footer">
+          <el-button @click="dlg = false">取消</el-button>
+          <el-button type="primary" @click="submit" :loading="submitting">确定</el-button>
+        </div>
       </template>
-    </el-dialog>
+    </el-drawer>
     </el-card>
   </div>
 </template>
@@ -363,4 +366,7 @@ load()
 
 /* 组件树选择器：让树选择器宽度与表单项一致 */
 .component-tree-select { width: 100%; }
+
+/* 抽屉底部操作区 */
+.drawer-footer { display: flex; justify-content: flex-end; gap: 12px; }
 </style>

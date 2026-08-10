@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lihongsheng/go-admin/server/config"
-	"github.com/lihongsheng/go-admin/server/model/system"
+	"go-admin/server/config"
+	"go-admin/server/model/system"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"

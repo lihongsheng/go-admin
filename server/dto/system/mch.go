@@ -2,7 +2,7 @@ package system
 
 import (
 	"errors"
-	"github.com/lihongsheng/go-admin/server/enum"
+	"go-admin/server/enum"
 )
 
 type MchCreateRequest struct {

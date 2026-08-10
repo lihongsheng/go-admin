@@ -2,9 +2,9 @@
 package service
 
 import (
-	dtoExample "github.com/lihongsheng/go-admin/server/plugin/example/dto"
-	exampleModel "github.com/lihongsheng/go-admin/server/plugin/example/model"
-	repoExample "github.com/lihongsheng/go-admin/server/plugin/example/repo"
+	dtoExample "go-admin/server/plugin/example/dto"
+	exampleModel "go-admin/server/plugin/example/model"
+	repoExample "go-admin/server/plugin/example/repo"
 )
 
 // NoteService 笔记业务接口

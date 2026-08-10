@@ -1,7 +1,7 @@
 package cron
 
 import (
-	log2 "github.com/lihongsheng/go-admin/server/log"
+	log2 "go-admin/server/log"
 )
 
 type log struct{}

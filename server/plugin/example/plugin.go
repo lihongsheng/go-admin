@@ -9,9 +9,9 @@
 package example
 
 import (
-	"github.com/lihongsheng/go-admin/server/model/system"
-	"github.com/lihongsheng/go-admin/server/plugin"
-	exampleModel "github.com/lihongsheng/go-admin/server/plugin/example/model"
+	"go-admin/server/model/system"
+	"go-admin/server/plugin"
+	exampleModel "go-admin/server/plugin/example/model"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -48,9 +48,9 @@ func (p) InitServices(ctx plugin.InitContext) error {
 	return nil
 }
 func (p) RegisterRoute(g *gin.Engine, privatePlugin *gin.RouterGroup) {
-	g.POST("/note", create)
-	g.DELETE("/note/:id", del)
-	g.GET("/note/list", list)
+	privatePlugin.POST("example/v1/note", create)
+	privatePlugin.DELETE("example/v1/note/:id", del)
+	privatePlugin.GET("example/v1/note/list", list)
 }
 
 func (p) SeedTable(db *gorm.DB) error {

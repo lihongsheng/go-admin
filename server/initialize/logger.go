@@ -3,8 +3,8 @@ package initialize
 import (
 	"os"
 
-	"github.com/lihongsheng/go-admin/server/config"
-	"github.com/lihongsheng/go-admin/server/log"
+	"go-admin/server/config"
+	"go-admin/server/log"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

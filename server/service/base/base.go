@@ -4,13 +4,13 @@ package base
 import (
 	"errors"
 
-	dtoBase "github.com/lihongsheng/go-admin/server/dto/base"
-	"github.com/lihongsheng/go-admin/server/enum"
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/model/system"
-	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
-	"github.com/lihongsheng/go-admin/server/utils/captcha"
-	"github.com/lihongsheng/go-admin/server/utils/jwt"
+	dtoBase "go-admin/server/dto/base"
+	"go-admin/server/enum"
+	"go-admin/server/global"
+	"go-admin/server/model/system"
+	repoSys "go-admin/server/repo/system"
+	"go-admin/server/utils/captcha"
+	"go-admin/server/utils/jwt"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"

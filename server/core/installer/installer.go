@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lihongsheng/go-admin/server/model/system"
-	"github.com/lihongsheng/go-admin/server/utils/casbin"
+	"go-admin/server/model/system"
+	"go-admin/server/utils/casbin"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -126,7 +126,7 @@ func seedCore(db *gorm.DB, admin AdminSeed) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// 1) 超级管理员角色
 		superRole = system.SysRole{
-			Name: "超级管理员",
+			Name:   "超级管理员",
 			Remark: "拥有全部权限", Status: 1,
 			DefaultRouter: "/dashboard",
 		}

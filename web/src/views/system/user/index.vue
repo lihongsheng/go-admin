@@ -62,8 +62,8 @@
       </div>
     </el-card>
 
-    <!-- 新增/编辑弹窗 -->
-    <el-dialog v-model="dlg" :title="form.id ? '编辑用户' : '新增用户'" width="520px" destroy-on-close>
+    <!-- 新增/编辑用户（右侧抽屉） -->
+    <el-drawer v-model="dlg" :title="form.id ? '编辑用户' : '新增用户'" size="520px" destroy-on-close>
       <el-form ref="formRef" :model="form" label-width="70px">
         <el-form-item label="用户名" required>
           <el-input v-model="form.username" :disabled="!!form.id" placeholder="请输入用户名" />
@@ -115,10 +115,12 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dlg = false">取消</el-button>
-        <el-button type="primary" @click="submit" :loading="submitting">确定</el-button>
+        <div class="drawer-footer">
+          <el-button @click="dlg = false">取消</el-button>
+          <el-button type="primary" @click="submit" :loading="submitting">确定</el-button>
+        </div>
       </template>
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -284,4 +286,7 @@ load()
 .table-card { }
 .table-toolbar { margin-bottom: 12px; }
 .pagination-wrap { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+/* 抽屉底部操作区 */
+.drawer-footer { display: flex; justify-content: flex-end; gap: 12px; }
 </style>

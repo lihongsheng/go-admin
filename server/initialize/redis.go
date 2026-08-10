@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lihongsheng/go-admin/server/global"
+	"go-admin/server/global"
 
 	"github.com/redis/go-redis/v9"
 )

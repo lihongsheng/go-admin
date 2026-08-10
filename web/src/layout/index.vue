@@ -66,6 +66,9 @@
         </div>
       </el-header>
 
+      <!-- 顶部多标签页（首页常驻，打开菜单自动追加） -->
+      <TagsView />
+
       <!-- 内容区 -->
       <el-main class="main-content">
         <router-view />
@@ -82,13 +85,16 @@ import {
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/modules/user'
 import { usePermissionStore } from '@/store/modules/permission'
+import { useTagsStore } from '@/store/modules/tags'
 import { useDarkMode } from '@/composables/useDarkMode'
 import router from '@/router'
 import SubTree from './SubTree.vue'
+import TagsView from './TagsView.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
 const permStore = usePermissionStore()
+const tagsStore = useTagsStore()
 const dark = useDarkMode()
 
 const collapsed = ref(false)
@@ -96,6 +102,7 @@ const collapsed = ref(false)
 async function onCmd(c) {
   if (c === 'logout') {
     await userStore.doLogout()
+    tagsStore.closeAll() // 清空历史 tab，避免切换账号后残留
     router.replace('/login')
   }
 }

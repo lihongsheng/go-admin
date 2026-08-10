@@ -2,12 +2,12 @@
 package base
 
 import (
-	dtoBase "github.com/lihongsheng/go-admin/server/dto/base"
-	modelSys "github.com/lihongsheng/go-admin/server/model/system"
-	serviceBase "github.com/lihongsheng/go-admin/server/service/base"
-	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
-	"github.com/lihongsheng/go-admin/server/utils/jwt"
-	"github.com/lihongsheng/go-admin/server/utils/response"
+	dtoBase "go-admin/server/dto/base"
+	modelSys "go-admin/server/model/system"
+	serviceBase "go-admin/server/service/base"
+	serviceSys "go-admin/server/service/system"
+	"go-admin/server/utils/jwt"
+	"go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

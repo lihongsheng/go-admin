@@ -19,14 +19,14 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/lihongsheng/go-admin/server/config"
-	"github.com/lihongsheng/go-admin/server/log"
 	"github.com/redis/go-redis/v9"
+	"go-admin/server/config"
+	"go-admin/server/log"
 	"sync"
 
-	"github.com/lihongsheng/go-admin/server/core/installer"
-	"github.com/lihongsheng/go-admin/server/model/system"
-	"github.com/lihongsheng/go-admin/server/utils/casbin"
+	"go-admin/server/core/installer"
+	"go-admin/server/model/system"
+	"go-admin/server/utils/casbin"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -107,24 +107,34 @@ func upsertMenusAndApis(db *gorm.DB, p Plugin, attachSuper bool) error {
 	}
 
 	// ----- APIs: 从插件菜单 api_rules 提取并写入 Casbin（兼容旧 Apis() 方法）-----
-	// 1) 从插件菜单提取 API 规则
-	for _, m := range p.Menus() {
-		if m.ApiRules == "" {
-			continue
-		}
-		var rules []system.ApiRule
-		if err := json.Unmarshal([]byte(m.ApiRules), &rules); err != nil {
-			continue
-		}
-		for _, r := range rules {
-			if attachSuper && superRoleID > 0 {
-				if _, err := casbin.AddPolicy(superRoleID, r.Path, r.Method); err != nil {
-					return err
-				}
+	// 递归收集整棵菜单树的 api_rules（含 button 子节点），否则按钮级权限
+	// （如 resource:add 的 POST）只会出现在 DB 菜单里、不会写入 Casbin 策略
+	var rules []system.ApiRule
+	collectApiRules(p.Menus(), &rules)
+	for _, r := range rules {
+		if attachSuper && superRoleID > 0 {
+			if _, err := casbin.AddPolicy(superRoleID, r.Path, r.Method); err != nil {
+				return err
 			}
 		}
 	}
 	return nil
+}
+
+// collectApiRules 递归收集菜单树中所有节点的 api_rules
+func collectApiRules(menus []system.SysMenu, out *[]system.ApiRule) {
+	for i := range menus {
+		m := &menus[i]
+		if m.ApiRules != "" {
+			var rules []system.ApiRule
+			if err := json.Unmarshal([]byte(m.ApiRules), &rules); err == nil {
+				*out = append(*out, rules...)
+			}
+		}
+		if len(m.Children) > 0 {
+			collectApiRules(m.Children, out)
+		}
+	}
 }
 
 // upsertMenuTree 递归创建 / 更新单棵菜单子树

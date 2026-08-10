@@ -12,19 +12,19 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/lihongsheng/go-admin/server/cron"
-	"github.com/lihongsheng/go-admin/server/cron/initalize"
-	"github.com/lihongsheng/go-admin/server/server"
+	"go-admin/server/cron"
+	"go-admin/server/cron/initalize"
+	"go-admin/server/server"
 	stdlog "log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/lihongsheng/go-admin/server/config"
-	_ "github.com/lihongsheng/go-admin/server/docs" // swag 生成的 OpenAPI 文档
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/initialize"
-	applog "github.com/lihongsheng/go-admin/server/log"
+	"go-admin/server/config"
+	_ "go-admin/server/docs" // swag 生成的 OpenAPI 文档
+	"go-admin/server/global"
+	"go-admin/server/initialize"
+	applog "go-admin/server/log"
 )
 
 func main() {

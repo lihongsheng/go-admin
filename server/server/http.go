@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/lihongsheng/go-admin/server/log"
+	"go-admin/server/log"
 	"net/http"
 )
 

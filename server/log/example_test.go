@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/lihongsheng/go-admin/server/log"
-	"github.com/lihongsheng/go-admin/server/middleware"
+	"go-admin/server/log"
+	"go-admin/server/middleware"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

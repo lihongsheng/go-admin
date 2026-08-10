@@ -1,7 +1,7 @@
 package system
 
 import (
-	"github.com/lihongsheng/go-admin/server/model/system"
+	"go-admin/server/model/system"
 )
 
 // RoleCreateReq 新增角色

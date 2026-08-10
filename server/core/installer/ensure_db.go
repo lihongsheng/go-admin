@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lihongsheng/go-admin/server/config"
+	"go-admin/server/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"

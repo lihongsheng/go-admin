@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
-	"github.com/lihongsheng/go-admin/server/utils/jwt/config"
+	"go-admin/server/utils/jwt/config"
 	"time"
 )
 

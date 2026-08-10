@@ -2,8 +2,8 @@ package config
 
 import (
 	"fmt"
-	"github.com/lihongsheng/go-admin/server/utils/captcha"
-	"github.com/lihongsheng/go-admin/server/utils/jwt/config"
+	"go-admin/server/utils/captcha"
+	"go-admin/server/utils/jwt/config"
 
 	"github.com/spf13/viper"
 )

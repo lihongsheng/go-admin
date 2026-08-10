@@ -6,15 +6,15 @@ import (
 	"github.com/redis/go-redis/v9"
 	"sync/atomic"
 
-	"github.com/lihongsheng/go-admin/server/config"
+	"go-admin/server/config"
 
 	"gorm.io/gorm"
 )
 
 var (
-	Cfg     *config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
+	Cfg   *config.Config
+	DB    *gorm.DB
+	Redis *redis.Client
 
 	// Installed 全局安装状态，安装中间件读取
 	Installed atomic.Bool

@@ -1,4 +1,4 @@
-module github.com/lihongsheng/go-admin/server
+module go-admin/server
 
 go 1.25.0
 

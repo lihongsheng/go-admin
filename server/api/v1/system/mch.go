@@ -3,11 +3,11 @@ package system
 import (
 	"strconv"
 
-	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
-	modelSys "github.com/lihongsheng/go-admin/server/model/system"
-	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
-	"github.com/lihongsheng/go-admin/server/utils/response"
+	dtoSys "go-admin/server/dto/system"
+	"go-admin/server/enum"
+	modelSys "go-admin/server/model/system"
+	serviceSys "go-admin/server/service/system"
+	"go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

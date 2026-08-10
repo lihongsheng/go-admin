@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lihongsheng/go-admin/server/config"
-	"github.com/lihongsheng/go-admin/server/log"
+	"go-admin/server/config"
+	"go-admin/server/log"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"

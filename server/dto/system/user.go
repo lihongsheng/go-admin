@@ -2,7 +2,7 @@
 package system
 
 import (
-	"github.com/lihongsheng/go-admin/server/model/system"
+	"go-admin/server/model/system"
 )
 
 // UserCreateReq 新增用户

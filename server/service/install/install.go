@@ -10,12 +10,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/lihongsheng/go-admin/server/config"
-	"github.com/lihongsheng/go-admin/server/core/installer"
-	dtoInstall "github.com/lihongsheng/go-admin/server/dto/install"
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/log"
-	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
+	"go-admin/server/config"
+	"go-admin/server/core/installer"
+	dtoInstall "go-admin/server/dto/install"
+	"go-admin/server/global"
+	"go-admin/server/log"
+	casbinUtil "go-admin/server/utils/casbin"
 
 	"gorm.io/gorm"
 )

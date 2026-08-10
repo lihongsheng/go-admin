@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/utils/captcha"
+	"go-admin/server/global"
+	"go-admin/server/utils/captcha"
 )
 
 // InitCaptcha 初始化验证码存储

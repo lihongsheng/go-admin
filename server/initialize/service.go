@@ -2,15 +2,15 @@
 package initialize
 
 import (
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/log"
-	repoExampleNote "github.com/lihongsheng/go-admin/server/plugin/example/repo"
-	serviceExampleNote "github.com/lihongsheng/go-admin/server/plugin/example/service"
-	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
-	serviceBase "github.com/lihongsheng/go-admin/server/service/base"
-	serviceInstall "github.com/lihongsheng/go-admin/server/service/install"
-	serviceSys "github.com/lihongsheng/go-admin/server/service/system"
-	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
+	"go-admin/server/global"
+	"go-admin/server/log"
+	repoExampleNote "go-admin/server/plugin/example/repo"
+	serviceExampleNote "go-admin/server/plugin/example/service"
+	repoSys "go-admin/server/repo/system"
+	serviceBase "go-admin/server/service/base"
+	serviceInstall "go-admin/server/service/install"
+	serviceSys "go-admin/server/service/system"
+	casbinUtil "go-admin/server/utils/casbin"
 )
 
 // InitInstallService 仅装配 install service（与 DB 是否就绪无关）
@@ -26,7 +26,10 @@ func InitInstallService() {
 		setter.SetLogger(log.Global())
 	}
 	// 注册"安装完成 + DB 就绪后"的回调：重新装配所有依赖 global.DB 的 service
-	svc.OnReady(InitDBServices)
+	svc.OnReady(func() {
+		SyncOnBoot()
+		InitDBServices()
+	})
 	serviceInstall.Default = svc
 }
 

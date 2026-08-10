@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lihongsheng/go-admin/server/config"
-	_ "github.com/lihongsheng/go-admin/server/docs" // swag 生成的 OpenAPI 文档
-	"github.com/lihongsheng/go-admin/server/log"
-	"github.com/lihongsheng/go-admin/server/middleware"
-	"github.com/lihongsheng/go-admin/server/router"
+	"go-admin/server/config"
+	_ "go-admin/server/docs" // swag 生成的 OpenAPI 文档
+	"go-admin/server/log"
+	"go-admin/server/middleware"
+	"go-admin/server/router"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/lihongsheng/go-admin/server/model/system"
+	"go-admin/server/model/system"
 
 	"gorm.io/gorm"
 )

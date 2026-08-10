@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/utils/response"
+	"go-admin/server/global"
+	"go-admin/server/utils/response"
 
 	"github.com/gin-gonic/gin"
 )

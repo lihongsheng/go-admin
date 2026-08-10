@@ -1,9 +1,9 @@
 package initialize
 
 import (
-	"github.com/lihongsheng/go-admin/server/global"
-	"github.com/lihongsheng/go-admin/server/log"
-	"github.com/lihongsheng/go-admin/server/plugin"
+	"go-admin/server/global"
+	"go-admin/server/log"
+	"go-admin/server/plugin"
 )
 
 // SyncOnBoot 启动期同步：

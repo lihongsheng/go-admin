@@ -1,9 +1,9 @@
 package system
 
 import (
-	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/model/system"
-	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
+	dtoSys "go-admin/server/dto/system"
+	"go-admin/server/model/system"
+	repoSys "go-admin/server/repo/system"
 )
 
 // MenuService 菜单业务接口

@@ -2,10 +2,10 @@ package system
 
 import (
 	"context"
-	admin "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/enum"
-	"github.com/lihongsheng/go-admin/server/model/system"
-	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
+	admin "go-admin/server/dto/system"
+	"go-admin/server/enum"
+	"go-admin/server/model/system"
+	repoSys "go-admin/server/repo/system"
 )
 
 type MchService interface {

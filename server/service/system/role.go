@@ -2,10 +2,10 @@ package system
 
 import (
 	"encoding/json"
-	dtoSys "github.com/lihongsheng/go-admin/server/dto/system"
-	"github.com/lihongsheng/go-admin/server/model/system"
-	repoSys "github.com/lihongsheng/go-admin/server/repo/system"
-	casbinUtil "github.com/lihongsheng/go-admin/server/utils/casbin"
+	dtoSys "go-admin/server/dto/system"
+	"go-admin/server/model/system"
+	repoSys "go-admin/server/repo/system"
+	casbinUtil "go-admin/server/utils/casbin"
 )
 
 // RoleService 角色业务接口

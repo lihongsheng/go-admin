@@ -1,7 +1,7 @@
 // Package base base 模块 DTO：登录 / 验证码 / 当前用户
 package base
 
-import "github.com/lihongsheng/go-admin/server/model/system"
+import "go-admin/server/model/system"
 
 // LoginReq 登录请求
 type LoginReq struct {
